@@ -42,6 +42,15 @@ function Home() {
       <WinterBand />
       <Faq />
       <About />
+    </div>
+  );
+}
+
+function ServicesScreen() {
+  useDocumentTitle("Другие строительные услуги — Сила Леса, Омск");
+  const root = useRevealRoot<HTMLDivElement>([]);
+  return (
+    <div ref={root} className="pt-16">
       <Services />
     </div>
   );
@@ -63,6 +72,7 @@ function Screen() {
       <main id="main">
         {route.name === "home" && <Home />}
         {route.name === "product" && <ProductPage key={route.id} id={route.id} />}
+        {route.name === "services" && <ServicesScreen />}
         {route.name === "notfound" && <NotFound path={route.path} />}
       </main>
       <Footer />
