@@ -1,0 +1,234 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --font-sans: "Golos Text", "Inter", system-ui, -apple-system, sans-serif;
+
+  --color-bark-950: #0f0e0c;
+  --color-bark-900: #151412;
+  --color-bark-800: #1e1c18;
+  --color-bark-700: #2a2721;
+  --color-bark-600: #3a352d;
+  --color-bark-500: #58513f;
+
+  --color-cream-50: #f8f3ea;
+  --color-cream-100: #f0e8da;
+  --color-cream-200: #e3d7c2;
+  --color-cream-300: #cfbfa3;
+  --color-cream-400: #b3a184;
+
+  --color-cedar-200: #f0cf9f;
+  --color-cedar-300: #e5b273;
+  --color-cedar-400: #d8964f;
+  --color-cedar-500: #c8813f;
+  --color-cedar-600: #a8672f;
+  --color-cedar-700: #7f4c22;
+
+  --color-moss-400: #7f9a7d;
+  --color-moss-500: #56704f;
+  --color-moss-600: #3f5539;
+
+  --color-steel-200: #dfe3e3;
+  --color-steel-300: #bcc2c2;
+  --color-steel-400: #979d9e;
+  --color-steel-500: #6f7677;
+
+  --color-ember-400: #f0733f;
+  --color-ember-500: #dc5a2a;
+
+  --shadow-glow: 0 0 80px 10px rgba(216, 150, 79, 0.18);
+  --shadow-card: 0 20px 50px -20px rgba(0, 0, 0, 0.55);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-bark-900 text-cream-100 font-sans antialiased;
+  font-feature-settings: "ss01", "cv05";
+}
+
+::selection {
+  background: var(--color-cedar-500);
+  color: var(--color-bark-950);
+}
+
+/* ---- Стяжка: оцинкованная лента как графический мотив ---- */
+.strap {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    #6f7677 0%,
+    #d8dcdc 18%,
+    #8f9596 42%,
+    #e6eaea 60%,
+    #858b8c 80%,
+    #c5caca 100%
+  );
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+.strap-v {
+  width: 3px;
+  background: linear-gradient(
+    180deg,
+    #6f7677 0%,
+    #d8dcdc 18%,
+    #8f9596 42%,
+    #e6eaea 60%,
+    #858b8c 80%,
+    #c5caca 100%
+  );
+}
+
+/* ---- Кедровая текстура ---- */
+.wood {
+  background-color: #c78a4d;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(90, 45, 10, 0.12) 0px,
+      rgba(90, 45, 10, 0.12) 1px,
+      transparent 1px,
+      transparent 9px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 220, 170, 0.14) 0px,
+      rgba(255, 220, 170, 0.14) 3px,
+      transparent 3px,
+      transparent 27px
+    ),
+    linear-gradient(180deg, #d69a5c 0%, #c07c40 55%, #b26f36 100%);
+}
+.wood-dark {
+  background-color: #2a2018;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 200, 140, 0.05) 0px,
+      rgba(255, 200, 140, 0.05) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    linear-gradient(180deg, #2b2119 0%, #1d1712 100%);
+}
+
+/* ---- Форма квадро: скруглённый верх как у сечения бани ---- */
+.kvadro-mask {
+  border-radius: 42% 42% 14px 14px / 30% 30% 14px 14px;
+}
+.kvadro-mask-sm {
+  border-radius: 34% 34% 10px 10px / 26% 26% 10px 10px;
+}
+
+/* ---- Появление при прокрутке ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.8s var(--ease-out-expo),
+    transform 0.9s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Бегущая строка ---- */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 48s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ---- Пар ---- */
+@keyframes steam {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(-140px) scale(1.6);
+    opacity: 0;
+  }
+}
+.steam-puff {
+  animation: steam 6s ease-out infinite;
+}
+
+/* ---- Плавные переходы диаграммы ---- */
+.plan-anim {
+  transition:
+    width 0.7s var(--ease-out-expo),
+    height 0.7s var(--ease-out-expo),
+    opacity 0.5s ease,
+    flex-basis 0.7s var(--ease-out-expo);
+}
+
+/* ---- Тонкая сетка ---- */
+.grid-paper {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ---- Фокус ---- */
+:focus-visible {
+  outline: 2px solid var(--color-cedar-400);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---- Скрытие скроллбара для карусели ---- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .marquee-track,
+  .steam-puff {
+    animation: none;
+  }
+  .plan-anim {
+    transition: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
