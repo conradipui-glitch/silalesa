@@ -15,6 +15,7 @@ import { track } from "./utils";
 export type Route =
   | { name: "home"; anchor?: string }
   | { name: "product"; id: string }
+  | { name: "services" }
   | { name: "notfound"; path: string };
 
 /**
@@ -27,7 +28,7 @@ export type Route =
  */
 function computeBase(): string {
   let p = window.location.pathname;
-  const m = p.match(/^(.*?)\/product\/[^/]+\/?$/);
+  const m = p.match(/^(.*?)\/(?:product\/[^/]+|services)\/?$/);
   if (m) p = `${m[1]}/`;
   if (p.endsWith("index.html")) p = p.slice(0, -"index.html".length);
   if (!p.endsWith("/")) p += "/";
@@ -42,6 +43,7 @@ function parseRoute(base: string): Route {
   const pathProduct = rel.match(/^product\/([^/?#]+)\/?$/);
   if (pathProduct) return { name: "product", id: decodeURIComponent(pathProduct[1]) };
   if (hashProduct) return { name: "product", id: decodeURIComponent(hashProduct[1]) };
+  if (rel === "services" || rel === "services/") return { name: "services" };
   if (rel === "" || rel === "index.html") {
     const anchor = hash.replace(/^#\/?/, "");
     return { name: "home", anchor: anchor || undefined };
@@ -103,7 +105,6 @@ export function RouterProvider({ children }: { children: ReactNode }) {
         return;
       }
       window.history.replaceState({}, "", `${base}#${id}`);
-      // Следующий кадр: успевает закрыться мобильное меню (overflow: hidden на body)
       requestAnimationFrame(() => scrollToElement(id));
     },
     [route.name, navigate, base],
@@ -119,7 +120,6 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     };
   }, [base]);
 
-  // Прокрутка при смене маршрута
   useEffect(() => {
     if (route.name === "home" && route.anchor) {
       const id = route.anchor;
