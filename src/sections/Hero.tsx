@@ -116,7 +116,6 @@ export function Hero() {
                   ))}
                 </div>
               )}
-              <div className="strap absolute -left-3 -right-3 top-[58%] opacity-80 hidden lg:block" aria-hidden="true" />
             </div>
           </div>
         </div>
