@@ -9,9 +9,9 @@ export function Services() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHead
-            index="08 — Кроме бань"
-            title={<span id="services-title">Строительные работы «под ключ»</span>}
-            lead="Та же бригада, что строит бани: бурим скважины на воду, делаем полусухую стяжку и механизированную штукатурку."
+            index="Другие услуги"
+            title={<span id="services-title">Строительные работы — отдельно от банной линейки</span>}
+            lead="Эти направления не смешиваем с выбором бани на главной странице. Здесь собраны отдельные услуги компании: бурение, стяжка и механизированная штукатурка."
           />
           <p className="reveal text-xs text-cream-300/60 lg:max-w-xs lg:text-right">Цены услуг — стартовые ориентиры с сайта компании; расчёт после выезда мастера или замерщика.</p>
         </div>
@@ -52,28 +52,35 @@ export function About() {
     <section id="features" className="scroll-mt-20 bg-cream-50 text-bark-950 py-20 sm:py-28" aria-labelledby="about-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
         <div>
-          <SectionHead light index="09 — О нас" title={<span id="about-title">«Сила Леса»: производство мобильных бань в Омске</span>} />
+          <SectionHead light index="09 — Производство и контакты" title={<span id="about-title">Баню можно проверить не по обещаниям, а вживую</span>} />
           <div className="reveal mt-8 flex items-start gap-5">
             <LogoMark size={64} className="ring-cedar-500/40 shrink-0" />
             <div className="space-y-4 text-base leading-relaxed text-bark-700">
               <p>
-                Первыми бани-бочки догадались делать финны, которые, как и мы, очень любят банные процедуры. В простой бане-бочке есть парная с печью и комната для отдыха, которые отделяются друг от друга деревянными перегородками. В более просторных вариантах можно установить помывочную.
+                «Сила Леса» производит мобильные бани в Омске. До заказа можно приехать на площадку, зайти внутрь готового образца, посмотреть узлы печи и дымохода, оценить размеры помещений и фактуру кедра.
               </p>
               <p>
-                Сиденья и полки уже входят в стандартную комплектацию. Чтобы начать пользоваться такой баней, нужно установить её на подготовленное основание, подключить электричество и по желанию водопровод.
+                Мы не прячем техническую часть за красивой картинкой: на сайте открыты планировки, состав стандартной комплектации, базовые цены и известные доплаты. Если участок сложный для доставки, вариант монтажа обсуждается заранее.
               </p>
             </div>
           </div>
           <div className="reveal mt-10">
-            <h3 className="font-display text-xs uppercase tracking-[0.2em] text-cedar-700">Чем ещё занимается компания</h3>
+            <h3 className="font-display text-xs uppercase tracking-[0.2em] text-cedar-700">Что можно проверить на площадке</h3>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {company.activities.map((a) => (
+              {[
+                "реальные размеры парной и комнаты отдыха",
+                "кедровый брус и качество сборки",
+                "печь Aston 16, бак и дымоход",
+                "полки, скамейки, двери и окна",
+                "варианты входа и расположения топки",
+                "как баня устанавливается на основание",
+              ].map((a) => (
                 <li key={a} className="flex gap-2 text-sm text-bark-700">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cedar-500" aria-hidden="true" /> {a}
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-bark-600/70">По описанию сообщества компании в VK.</p>
+            <p className="mt-4 text-xs text-bark-600/70">Лучший способ выбрать размер — постоять внутри бань вживую, а не сравнивать только цифры на экране.</p>
           </div>
         </div>
 
