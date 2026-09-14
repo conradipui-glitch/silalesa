@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /* ------------------------------------------------------------------ */
-/* Аналитика: локальный адаптер. Внешней отправки нет.                  */
-/* Подключение: при наличии window.ym / gtag / dataLayer события        */
-/* пробрасываются туда автоматически. Локальные события — не статистика */
-/* аудитории, а отладочный буфер (window.__silalesaEvents).             */
+/* Аналитика: события всегда доступны в локальном debug-буфере.          */
+/* gtag/dataLayer используются, если уже подключены на странице.         */
+/* Яндекс Метрика получает цели только при VITE_YM_COUNTER_ID > 0.       */
+/* Клик по каналу связи = lead_intent, а не подтверждённая заявка.       */
 /* ------------------------------------------------------------------ */
 export type AnalyticsEvent =
   | "page_view"
@@ -19,6 +19,7 @@ export type AnalyticsEvent =
   | "config_restore"
   | "cta_view"
   | "cta_click"
+  | "lead_intent"
   | "copy";
 
 type Payload = Record<string, string | number | boolean | null | undefined>;
@@ -32,8 +33,9 @@ declare global {
   }
 }
 
-export function track(name: AnalyticsEvent, payload: Payload = {}) {
-  if (typeof window === "undefined") return;
+const YM_COUNTER_ID = Number(import.meta.env.VITE_YM_COUNTER_ID || 0);
+
+function emit(name: AnalyticsEvent, payload: Payload) {
   const ev = { name, payload, ts: Date.now() };
   const buf = (window.__silalesaEvents ??= []);
   buf.push(ev);
@@ -41,12 +43,25 @@ export function track(name: AnalyticsEvent, payload: Payload = {}) {
   try {
     window.dataLayer?.push({ event: `silalesa_${name}`, ...payload });
     window.gtag?.("event", name, payload);
-    // Для Яндекс Метрики нужно подставить номер счётчика: window.ym(COUNTER_ID, 'reachGoal', name, payload)
+    if (YM_COUNTER_ID > 0) window.ym?.(YM_COUNTER_ID, "reachGoal", name, payload);
   } catch {
-    /* адаптер не должен ломать интерфейс */
+    /* аналитика не должна ломать интерфейс */
   }
   if (import.meta.env.DEV) console.debug("[analytics]", name, payload);
 }
+
+export function track(name: AnalyticsEvent, payload: Payload = {}) {
+  if (typeof window === "undefined") return;
+  emit(name, payload);
+
+  // Клик по каналу связи — это только намерение обратиться, а не подтверждённая заявка.
+  // Подтверждённую заявку можно фиксировать только после формы/CRM/backend-события.
+  if (name === "cta_click" && ["call", "call2", "whatsapp", "vk"].includes(String(payload.type))) {
+    emit("lead_intent", { ...payload, channel: String(payload.type).replace("call2", "call") });
+  }
+}
+
+export const analyticsStatus = { yandexMetrikaConfigured: YM_COUNTER_ID > 0 };
 
 /* ------------------------------------------------------------------ */
 /* Хранилище: только текущее устройство, с защитой от недоступности      */
