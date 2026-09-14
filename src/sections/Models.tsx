@@ -19,20 +19,19 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHead
-            index="01 — Модели"
+            index="02 — Модели"
             title={
               <span id="models-title">
-                Четыре размера — <span className="text-cedar-400">один стандарт</span> кедра
+                Выберите баню по тому, <span className="text-cedar-400">как будете ей пользоваться</span>
               </span>
             }
-            lead="Силуэты ниже нарисованы в одном масштабе: так проще понять, сколько места займёт баня на участке. Нажмите на модель — планировка и расчёт перестроятся под неё."
+            lead="От компактной парной до трёх помещений. Размеры показаны в одном масштабе, а цена — сразу рядом: без формы «оставьте телефон, чтобы узнать стоимость»."
           />
           <p className="reveal text-sm text-cream-300/70 lg:max-w-xs lg:text-right">
-            Все Квадро собираются из одного бруса, с одной печью и одинаковым набором в комплекте. Разница — в длине и количестве помещений.
+            2×2 — компактная парная. 3×2 — отдых + парная. 4×2 — больше комнаты отдыха. 5,5×2,2 — три помещения с отдельной помывочной.
           </p>
         </div>
 
-        {/* В масштабе */}
         <div className="reveal mt-12 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="min-w-[640px]">
             <div className="flex items-end gap-4 sm:gap-6" role="tablist" aria-label="Модели бань в масштабе">
@@ -77,7 +76,6 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
           </div>
         </div>
 
-        {/* Карточки */}
         <ul className="mt-12 flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-4 px-4 pb-2 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 xl:grid-cols-4 sm:overflow-visible" aria-label="Каталог бань">
           {saunas.map((p, i) => (
             <li key={p.id} className="reveal snap-start shrink-0 w-[82vw] max-w-[360px] sm:w-auto sm:max-w-none" style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}>
@@ -91,6 +89,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
 }
 
 function ModelCard({ product: p, active, onSelect }: { product: Product; active: boolean; onSelect: () => void }) {
+  const useCase = p.modelKey === "k2" ? "Вечер вдвоём" : p.modelKey === "k3" ? "Выходные с семьёй" : p.modelKey === "k4" ? "Встреча с друзьями" : "Полный банный цикл";
   return (
     <article
       className={cn(
@@ -102,10 +101,12 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
         <div className="relative aspect-[4/3] overflow-hidden bg-bark-700">
           <img src={p.image} alt={p.imageAlt} loading="lazy" decoding="async" width={1536} height={1024} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
           <span className="absolute left-3 top-3 rounded-full bg-bark-950/70 px-2.5 py-1 text-[11px] font-display text-cream-50 backdrop-blur">{p.dims}</span>
+          <span className="absolute right-3 top-3 rounded-full bg-bark-950/60 px-2 py-1 text-[9px] uppercase tracking-[0.12em] text-cream-200/75 backdrop-blur">Визуализация</span>
         </div>
       </Link>
       <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-baseline justify-between gap-3">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-cedar-300/80">{useCase}</p>
+        <div className="mt-1 flex items-baseline justify-between gap-3">
           <h3 className="font-display text-lg text-cream-50">{p.shortName}</h3>
           <p className="font-display text-base text-cedar-300 whitespace-nowrap">{formatPrice(p.price)}</p>
         </div>
@@ -118,7 +119,7 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
           ))}
           {p.capacity && (
             <li className="rounded-full border border-cream-50/12 px-2.5 py-1 text-[11px] text-cream-200/80" title={p.capacity.note}>
-              до {p.capacity.people} чел.
+              ориентир: до {p.capacity.people} чел.
             </li>
           )}
         </ul>
@@ -135,9 +136,6 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* 02 — Планировка                                                      */
-/* ------------------------------------------------------------------ */
 export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: (k: ModelKey) => void }) {
   const p = byModel(model);
   const [hover, setHover] = useState<RoomKey | null>(null);
@@ -148,9 +146,9 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
       <div className="absolute inset-0 grid-paper opacity-40" aria-hidden="true" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHead
-          index="02 — Планировка"
-          title={<span id="layout-title">Что внутри и где стоит печь</span>}
-          lead="Переключайте длину — помещения перестраиваются в реальных пропорциях. Наведите на комнату, чтобы увидеть, что в ней уже есть в стандарте."
+          index="04 — Планировка"
+          title={<span id="layout-title">До покупки понятно, что поместится внутри</span>}
+          lead="Переключайте модель: планировка перестраивается в пропорциях. Видно не только длину бани, но и сколько места остаётся под отдых, парную и помывочную."
         />
 
         <div className="reveal mt-10 inline-flex flex-wrap gap-1 rounded-full border border-cream-50/10 bg-bark-900/80 p-1" role="tablist" aria-label="Выбор модели для планировки">
@@ -240,27 +238,25 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* 03 — Паспорт стандарта                                               */
-/* ------------------------------------------------------------------ */
 export function StandardSection() {
   const std = byModel("k3").specs!;
   return (
     <section id="standard" className="scroll-mt-20 bg-cream-50 text-bark-950 py-20 sm:py-28" aria-labelledby="standard-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 items-start">
         <div className="reveal lg:sticky lg:top-24">
-          <div className="kvadro-mask overflow-hidden aspect-[4/5] max-h-[640px] bg-cream-200 shadow-card">
-            <img src={images.parnaya} alt="Парная бани-квадро: кедровые полки, печь Aston со стеклянной дверцей, бак и ковш" loading="lazy" decoding="async" width={1024} height={1365} className="h-full w-full object-cover" />
+          <div className="kvadro-mask relative overflow-hidden aspect-[4/5] max-h-[640px] bg-cream-200 shadow-card">
+            <img src={images.parnaya} alt="Визуализация парной бани-квадро: кедровые полки, печь Aston, бак и ковш" loading="lazy" decoding="async" width={1024} height={1365} className="h-full w-full object-cover" />
+            <span className="absolute right-4 top-4 rounded-full bg-bark-950/65 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-cream-200/80 backdrop-blur">Визуализация</span>
           </div>
-          <p className="mt-3 text-xs text-bark-600/70">Парная в стандарте: печь со стеклянной дверцей — опция, бак 50 л, полок и выдвижная скамейка — уже включены.</p>
+          <p className="mt-3 text-xs text-bark-600/70">Схема комплектации: печь со стеклянной дверцей — опция; бак 50 л, полок и выдвижная скамейка входят в стандарт.</p>
         </div>
 
         <div>
           <SectionHead
             light
-            index="03 — Стандарт"
-            title={<span id="standard-title">Паспорт комплектации «Стандарт»</span>}
-            lead="Это не «базовая версия, к которой надо докупать половину». В цену каждой Квадро уже входит всё, чтобы затопить баню в день установки."
+            index="03 — Что входит"
+            title={<span id="standard-title">Цена — за готовую баню, а не за пустую коробку</span>}
+            lead="До заказа видно, что уже включено: конструкция, печь, дымоход, бак, электрика, мебель по модели, установка и доставка по Омску. Дополнительные опции считаются отдельно."
           />
 
           <div className="mt-10 space-y-8">
@@ -280,7 +276,7 @@ export function StandardSection() {
           </div>
 
           <div className="reveal mt-10 rounded-3xl bg-bark-950 text-cream-50 p-6 sm:p-8">
-            <p className="font-display text-sm uppercase tracking-[0.18em] text-cedar-300">Входит в цену любой Квадро</p>
+            <p className="font-display text-sm uppercase tracking-[0.18em] text-cedar-300">Уже входит в цену любой Квадро</p>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {standardIncluded.map((s) => (
                 <li key={s} className="flex items-center gap-2 text-sm">
