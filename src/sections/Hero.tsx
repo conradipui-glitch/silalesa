@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ArrowIcon, LinkButton, PhoneIcon } from "../components/Brand";
-import { company, facts, formatPrice, images, saunas } from "../data/products";
+import { company, facts, formatPrice, images, mapsUrl, saunas } from "../data/products";
 import { Link } from "../lib/router";
 import { track, useReducedMotion } from "../lib/utils";
 
@@ -43,19 +43,18 @@ export function Hero() {
               className="reveal mt-6 font-display font-semibold tracking-tight text-cream-50 text-[34px] leading-[1.06] sm:text-5xl lg:text-[60px] xl:text-[66px] text-balance"
               style={{ ["--reveal-delay" as string]: "80ms" }}
             >
-              Своя баня — <span className="text-cedar-400">без стройки</span> на участке.
+              Своя баня. <span className="text-cedar-400">Привезём готовой.</span>
             </h1>
             <p className="reveal mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-cream-200/85" style={{ ["--reveal-delay" as string]: "160ms" }}>
-              Выберите размер и комплектацию — остальное берём на себя. Кедровые Квадро собираем, привозим и устанавливаем на участке.
-              Печь, бак, дымоход, базовая электрика, установка на блоки и доставка по Омску уже входят в стандарт.
+              Кедровые бани-квадро и каркасные бани в Омске. Выберите планировку, посмотрите комплектацию и рассчитайте стоимость.
             </p>
 
             <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "240ms" }}>
-              <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "hero" })}>
-                Рассчитать мою баню <ArrowIcon />
+              <LinkButton to="/#quiz" size="lg" onClick={() => track("cta_click", { type: "quiz", where: "hero" })}>
+                Подобрать баню <ArrowIcon />
               </LinkButton>
-              <LinkButton to="/#product-section" variant="ghost" size="lg" onClick={() => track("cta_click", { type: "models", where: "hero" })}>
-                Посмотреть модели
+              <LinkButton to={mapsUrl(company.showroom)} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "map", where: "hero" })}>
+                Посмотреть образцы
               </LinkButton>
               <a href={`tel:${company.phonePrimary.tel}`} className="inline-flex items-center gap-2 px-2 text-sm text-cream-200/80 hover:text-cedar-300" onClick={() => track("cta_click", { type: "call", where: "hero" })}>
                 <PhoneIcon /> {company.phonePrimary.display}
@@ -77,11 +76,8 @@ export function Hero() {
               </div>
             </dl>
 
-            <p className="reveal mt-6 text-sm text-cream-300/70" style={{ ["--reveal-delay" as string]: "380ms" }}>
-              Не хотите выбирать по картинкам?{" "}
-              <Link to="/#features" className="text-cedar-300 underline-offset-4 hover:underline">
-                Приезжайте на площадку: {company.showroom}
-              </Link> — можно зайти внутрь и посмотреть баню вживую.
+            <p className="reveal mt-6 text-sm leading-relaxed text-cream-300/70" style={{ ["--reveal-delay" as string]: "380ms" }}>
+              Готовую баню устанавливаем при доступном подъезде для манипулятора и согласованном месте установки. Если техника не проходит, заранее обсуждаем сборку на участке.
             </p>
           </div>
 
@@ -97,6 +93,7 @@ export function Hero() {
                   fetchPriority="high"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bark-950/70 to-transparent" aria-hidden="true" />
+                <span className="absolute right-4 top-4 rounded-full bg-bark-950/65 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-cream-200/80 backdrop-blur">Визуализация</span>
                 <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between gap-3">
                   <div>
                     <p className="font-display text-sm text-cream-50">Квадро 4×2</p>
@@ -107,7 +104,6 @@ export function Hero() {
                   </Link>
                 </div>
               </div>
-              {/* Пар */}
               {!reduced && (
                 <div className="pointer-events-none absolute -top-6 right-[22%] hidden lg:block" aria-hidden="true">
                   {[0, 1, 2].map((i) => (
@@ -124,7 +120,6 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Бегущая строка фактов */}
       <div className="marquee relative mt-14 sm:mt-20 border-y border-cream-50/10 bg-bark-950/60 py-3 overflow-hidden" aria-label="Что входит в стандарт">
         <div className="marquee-track flex w-max gap-10 whitespace-nowrap text-sm text-cream-200/80">
           {[...facts, ...facts].map((f, i) => (
