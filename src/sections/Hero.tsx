@@ -43,20 +43,23 @@ export function Hero() {
               className="reveal mt-6 font-display font-semibold tracking-tight text-cream-50 text-[34px] leading-[1.06] sm:text-5xl lg:text-[60px] xl:text-[66px] text-balance"
               style={{ ["--reveal-delay" as string]: "80ms" }}
             >
-              Баня, которую привозят <span className="text-cedar-400">готовой.</span>
+              Своя баня — <span className="text-cedar-400">без стройки</span> на участке.
             </h1>
             <p className="reveal mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-cream-200/85" style={{ ["--reveal-delay" as string]: "160ms" }}>
-              Кедровые бани-квадро 2×2, 3×2 и 4×2 м и каркасная баня 5,5 м. Брус 45 мм камерной сушки, печь Aston 16 с баком на 50 л,
-              установка на блоки и бесплатная доставка по Омску — уже в стандарте. Без стройки и мусора на участке.
+              Выберите размер и комплектацию — остальное берём на себя. Кедровые Квадро собираем, привозим и устанавливаем на участке.
+              Печь, бак, дымоход, базовая электрика, установка на блоки и доставка по Омску уже входят в стандарт.
             </p>
 
             <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "240ms" }}>
-              <LinkButton to="/#quiz" size="lg" onClick={() => track("cta_click", { type: "quiz", where: "hero" })}>
-                Подобрать за 4 вопроса <ArrowIcon />
+              <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "hero" })}>
+                Рассчитать мою баню <ArrowIcon />
               </LinkButton>
-              <LinkButton to={`tel:${company.phonePrimary.tel}`} variant="ghost" size="lg" onClick={() => track("cta_click", { type: "call", where: "hero" })}>
+              <LinkButton to="/#product-section" variant="ghost" size="lg" onClick={() => track("cta_click", { type: "models", where: "hero" })}>
+                Посмотреть модели
+              </LinkButton>
+              <a href={`tel:${company.phonePrimary.tel}`} className="inline-flex items-center gap-2 px-2 text-sm text-cream-200/80 hover:text-cedar-300" onClick={() => track("cta_click", { type: "call", where: "hero" })}>
                 <PhoneIcon /> {company.phonePrimary.display}
-              </LinkButton>
+              </a>
             </div>
 
             <dl className="reveal mt-10 grid grid-cols-3 gap-4 border-t border-cream-50/10 pt-6 max-w-xl" style={{ ["--reveal-delay" as string]: "320ms" }}>
@@ -75,10 +78,10 @@ export function Hero() {
             </dl>
 
             <p className="reveal mt-6 text-sm text-cream-300/70" style={{ ["--reveal-delay" as string]: "380ms" }}>
-              Хотите потрогать кедр и заглянуть в парную?{" "}
+              Не хотите выбирать по картинкам?{" "}
               <Link to="/#features" className="text-cedar-300 underline-offset-4 hover:underline">
-                Образцы стоят на площадке: {company.showroom}
-              </Link>
+                Приезжайте на площадку: {company.showroom}
+              </Link> — можно зайти внутрь и посмотреть баню вживую.
             </p>
           </div>
 

@@ -9,7 +9,8 @@ import { Hero } from "./sections/Hero";
 import { LayoutSection, Lineup, StandardSection, type ModelKey } from "./sections/Models";
 import { Quiz } from "./sections/Quiz";
 import { About, Services } from "./sections/ServicesAbout";
-import { Process, Scenes, WinterBand } from "./sections/Story";
+import { Process, WinterBand } from "./sections/Story";
+import { Faq, ReadyPromise } from "./sections/Trust";
 
 const orgJsonLd = {
   "@context": "https://schema.org",
@@ -31,16 +32,17 @@ function Home() {
     <div ref={root}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
       <Hero />
+      <ReadyPromise />
       <Lineup model={model} setModel={setModel} />
-      <LayoutSection model={model} setModel={setModel} />
       <StandardSection />
-      <Scenes />
-      <WinterBand />
+      <LayoutSection model={model} setModel={setModel} />
       <Process />
-      <Quiz setModel={setModel} />
       <Configurator model={model} setModel={setModel} />
-      <Services />
+      <Quiz setModel={setModel} />
+      <WinterBand />
+      <Faq />
       <About />
+      <Services />
     </div>
   );
 }
