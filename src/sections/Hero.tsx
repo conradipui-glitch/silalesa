@@ -43,15 +43,15 @@ export function Hero() {
               className="reveal mt-6 font-display font-semibold tracking-tight text-cream-50 text-[34px] leading-[1.06] sm:text-5xl lg:text-[60px] xl:text-[66px] text-balance"
               style={{ ["--reveal-delay" as string]: "80ms" }}
             >
-              Своя баня. <span className="text-cedar-400">Привезём готовой.</span>
+              Кедровая баня в Омске. <span className="text-cedar-400">Привезём готовой.</span>
             </h1>
             <p className="reveal mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-cream-200/85" style={{ ["--reveal-delay" as string]: "160ms" }}>
-              Кедровые бани-квадро и каркасные бани в Омске. Выберите планировку, посмотрите комплектацию и рассчитайте стоимость.
+              Квадро и каркасные модели от {formatPrice(minPrice)}. Выберите планировку, посмотрите комплектацию и рассчитайте стоимость.
             </p>
 
             <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "240ms" }}>
-              <LinkButton to="/#quiz" size="lg" onClick={() => track("cta_click", { type: "quiz", where: "hero" })}>
-                Подобрать баню <ArrowIcon />
+              <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "hero" })}>
+                Рассчитать стоимость <ArrowIcon />
               </LinkButton>
               <LinkButton to={mapsUrl(company.showroom)} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "map", where: "hero" })}>
                 Посмотреть образцы
@@ -77,7 +77,7 @@ export function Hero() {
             </dl>
 
             <p className="reveal mt-6 text-sm leading-relaxed text-cream-300/70" style={{ ["--reveal-delay" as string]: "380ms" }}>
-              Готовую баню устанавливаем при доступном подъезде для манипулятора и согласованном месте установки. Если техника не проходит, заранее обсуждаем сборку на участке.
+              Проверим подъезд и место установки до заказа. Если манипулятор не пройдёт — заранее согласуем сборку на участке.
             </p>
           </div>
 
