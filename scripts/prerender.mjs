@@ -36,7 +36,9 @@ function staticSnapshot(page) {
     name: page.h1,
     description: page.description,
     url: canonical,
+    isPartOf: { "@id": `${SITE_URL}#website` },
     about: { "@type": page.kind === "service" ? "Service" : "Product", name: page.h1 },
+    provider: { "@id": `${SITE_URL}#organization` },
   }).replaceAll("<", "\\u003c");
 
   const faqLd = JSON.stringify({
@@ -75,4 +77,13 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://w
   .join("\n")}\n</urlset>\n`;
 await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
 
-console.log(`Prerendered ${pages.length} SEO landing pages.`);
+// Optional machine-readable index for AI tools that choose to consume llms.txt.
+// Google Search explicitly does not require or use this file, so it is generated
+// from the same page registry to avoid becoming a stale manual disclaimer/index.
+const pageList = pages
+  .map((page) => `- [${page.h1}](${SITE_URL}${page.slug}/): ${page.description}`)
+  .join("\n");
+const llms = `# Сила Леса\n\n> Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Производственная/контактная точка из данных компании: Омск, ул. Заозерная, 11/1И.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные модели бань: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов и услуг\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно.\n`;
+await fs.writeFile(path.join(DIST, "llms.txt"), llms, "utf8");
+
+console.log(`Prerendered ${pages.length} SEO landing pages and generated sitemap.xml + llms.txt.`);
