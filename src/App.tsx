@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Footer, Header, MobileBar } from "./components/Brand";
+import { seoPages } from "./data/seoPages";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
 import { NotFound, ProductPage } from "./pages/ProductPage";
@@ -84,6 +85,11 @@ function ServicesScreen() {
   );
 }
 
+function ProductRoute({ id }: { id: string }) {
+  const landing = seoPages.find((page) => page.productId === id);
+  return landing ? <SeoLandingPage key={landing.slug} slug={landing.slug} /> : <ProductPage key={id} id={id} />;
+}
+
 function Screen() {
   const { route } = useRouter();
 
@@ -102,7 +108,7 @@ function Screen() {
       <Header />
       <main id="main">
         {route.name === "home" && <Home />}
-        {route.name === "product" && <ProductPage key={route.id} id={route.id} />}
+        {route.name === "product" && <ProductRoute id={route.id} />}
         {route.name === "services" && <ServicesScreen />}
         {route.name === "landing" && <SeoLandingPage key={route.slug} slug={route.slug} />}
         {route.name === "notfound" && <NotFound path={route.path} />}
