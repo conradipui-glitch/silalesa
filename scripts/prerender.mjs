@@ -7,7 +7,10 @@ const SITE_ORIGIN = "https://conradipui-glitch.github.io";
 const BASE_PATH = "/silalesa/";
 const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
 
-const pages = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-pages.json"), "utf8"));
+const basePages = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-pages.json"), "utf8"));
+const pageOverrides = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides.json"), "utf8"));
+const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));
+const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
 const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 
 function escapeHtml(value = "") {
