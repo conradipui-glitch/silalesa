@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Footer, Header, MobileBar } from "./components/Brand";
-import { company } from "./data/products";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
 import { NotFound, ProductPage } from "./pages/ProductPage";
@@ -14,66 +13,44 @@ import { Process, WinterBand } from "./sections/Story";
 import { Faq, ReadyPromise } from "./sections/Trust";
 
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
+const SERVICES_URL = `${SITE_URL}services/`;
+const SERVICES_TITLE = "Строительные услуги в Омске — Сила Леса";
+const SERVICES_DESCRIPTION = "Строительные услуги Сила Леса в Омске: бурение скважин, полусухая стяжка пола и механизированная штукатурка. Стартовые цены и отдельные страницы услуг.";
 
-const entityGraph = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "LocalBusiness",
-      "@id": `${SITE_URL}#organization`,
-      name: company.name,
-      alternateName: company.fullName,
-      description: "Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.",
-      url: SITE_URL,
-      telephone: [company.phonePrimary.tel, company.phoneSecondary.tel],
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Омск",
-        streetAddress: "ул. Заозерная, 11/1И",
-        addressCountry: "RU",
-      },
-      areaServed: [
-        { "@type": "City", name: "Омск" },
-        { "@type": "AdministrativeArea", name: "Омская область" },
-      ],
-      sameAs: [company.vk, company.origin, company.site],
-      contactPoint: [
-        {
-          "@type": "ContactPoint",
-          telephone: company.phonePrimary.tel,
-          contactType: "sales",
-          areaServed: "RU-OMS",
-          availableLanguage: "ru",
-        },
-        {
-          "@type": "ContactPoint",
-          telephone: company.phoneSecondary.tel,
-          contactType: "sales",
-          areaServed: "RU-OMS",
-          availableLanguage: "ru",
-        },
-      ],
-      knowsAbout: [
-        "мобильные бани",
-        "кедровые бани",
-        "бани Квадро",
-        "каркасные бани",
-        "доставка и установка бань",
-        "полусухая стяжка пола",
-        "механизированная штукатурка",
-        "бурение скважин",
-      ],
-    },
-    {
-      "@type": "WebSite",
-      "@id": `${SITE_URL}#website`,
-      url: SITE_URL,
-      name: "Сила Леса",
-      inLanguage: "ru-RU",
-      publisher: { "@id": `${SITE_URL}#organization` },
-    },
-  ],
-};
+function useServicesMeta() {
+  useEffect(() => {
+    const descriptionMeta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+    const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
+    const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+
+    const prev = {
+      title: document.title,
+      description: descriptionMeta?.content,
+      canonical: canonical?.href,
+      ogTitle: ogTitle?.content,
+      ogDescription: ogDescription?.content,
+      ogUrl: ogUrl?.content,
+    };
+
+    document.title = SERVICES_TITLE;
+    if (descriptionMeta) descriptionMeta.content = SERVICES_DESCRIPTION;
+    if (canonical) canonical.href = SERVICES_URL;
+    if (ogTitle) ogTitle.content = SERVICES_TITLE;
+    if (ogDescription) ogDescription.content = SERVICES_DESCRIPTION;
+    if (ogUrl) ogUrl.content = SERVICES_URL;
+
+    return () => {
+      document.title = prev.title;
+      if (descriptionMeta && prev.description) descriptionMeta.content = prev.description;
+      if (canonical && prev.canonical) canonical.href = prev.canonical;
+      if (ogTitle && prev.ogTitle) ogTitle.content = prev.ogTitle;
+      if (ogDescription && prev.ogDescription) ogDescription.content = prev.ogDescription;
+      if (ogUrl && prev.ogUrl) ogUrl.content = prev.ogUrl;
+    };
+  }, []);
+}
 
 function Home() {
   const [model, setModel] = useState<ModelKey>("k3");
@@ -82,7 +59,6 @@ function Home() {
 
   return (
     <div ref={root}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(entityGraph) }} />
       <Hero />
       <ReadyPromise />
       <Lineup model={model} setModel={setModel} />
@@ -99,7 +75,7 @@ function Home() {
 }
 
 function ServicesScreen() {
-  useDocumentTitle("Другие строительные услуги — Сила Леса, Омск");
+  useServicesMeta();
   const root = useRevealRoot<HTMLDivElement>([]);
   return (
     <div ref={root} className="pt-16">
