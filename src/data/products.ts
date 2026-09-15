@@ -1,4 +1,4 @@
-import imgHero from "../assets/img/hero-kvadro-4x2.jpg";
+import imgHero from "../assets/img/iteration-5-1/hero-home.webp";
 import imgK2 from "../assets/img/kvadro-2x2.jpg";
 import imgK3 from "../assets/img/kvadro-3x2.jpg";
 import imgK4 from "../assets/img/kvadro-4x2-side.jpg";

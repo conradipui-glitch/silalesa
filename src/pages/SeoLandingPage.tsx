@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
+import { BeforeAfter } from "../components/BeforeAfter";
 import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
+import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPageBySlug, seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track, useRevealRoot } from "../lib/utils";
@@ -55,6 +57,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isService = page.kind === "service";
   const isCategory = page.kind === "category";
   const isGuide = page.kind === "guide";
+  const comparison = isService ? serviceComparisonBySlug[page.slug] : undefined;
   const waText = product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
     : isGuide
@@ -153,9 +156,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           </div>
 
           <div className="reveal" style={{ ["--reveal-delay" as string]: "100ms" }}>
-            <div className={isService ? "overflow-hidden rounded-3xl bg-bark-800 shadow-card aspect-[16/10]" : "kvadro-mask overflow-hidden bg-bark-800 shadow-card aspect-[4/3]"}>
-              <img src={image} alt={product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске"} className="h-full w-full object-cover" fetchPriority="high" />
-            </div>
+            {comparison ? (
+              <BeforeAfter {...comparison} />
+            ) : (
+              <div className={isService ? "overflow-hidden rounded-3xl bg-bark-800 shadow-card aspect-[16/10]" : "kvadro-mask overflow-hidden bg-bark-800 shadow-card aspect-[4/3]"}>
+                <img src={image} alt={product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске"} className="h-full w-full object-cover" fetchPriority="high" />
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -86,7 +86,7 @@ export function Hero() {
               <div className="kvadro-mask relative overflow-hidden shadow-card aspect-[4/3] bg-bark-800">
                 <img
                   src={images.hero}
-                  alt="Семья в банных шапках отдыхает на ступеньке кедровой бани Квадро 4×2 на дачном участке"
+                  alt="Семья отдыхает рядом с кедровой баней и бассейном на дачном участке"
                   className="h-full w-full object-cover"
                   width={1536}
                   height={1024}
