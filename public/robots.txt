@@ -1,4 +1,13 @@
+# Public website: allow search and answer engines to discover the site.
 User-agent: *
+Allow: /
+
+# ChatGPT Search discovery/citations.
+User-agent: OAI-SearchBot
+Allow: /
+
+# Perplexity search index.
+User-agent: PerplexityBot
 Allow: /
 
 Sitemap: https://conradipui-glitch.github.io/silalesa/sitemap.xml
