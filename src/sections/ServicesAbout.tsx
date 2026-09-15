@@ -1,7 +1,14 @@
 import { ArrowIcon, LinkButton, LogoMark, PhoneIcon, SectionHead } from "../components/Brand";
 import { company, formatPrice, mapsUrl, services } from "../data/products";
+import { seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
+
+const serviceLandingByProductId = new Map(
+  seoPages
+    .filter((page) => page.kind === "service" && page.productId)
+    .map((page) => [page.productId as string, page.slug]),
+);
 
 export function Services() {
   return (
@@ -17,30 +24,34 @@ export function Services() {
         </div>
 
         <ol className="mt-12 divide-y divide-cream-50/8 border-y border-cream-50/8">
-          {services.map((s, i) => (
-            <li key={s.id} className="reveal" style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}>
-              <Link
-                to={`/product/${s.id}`}
-                className="group grid gap-4 py-6 sm:grid-cols-[120px_1fr_auto] sm:items-center sm:gap-8"
-                onClick={() => track("product_view", { id: s.id, from: "services" })}
-              >
-                <div className="h-20 w-full sm:w-[120px] overflow-hidden rounded-2xl bg-bark-800">
-                  <img src={s.image} alt={s.imageAlt} loading="lazy" decoding="async" width={1200} height={627} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-cedar-300/80">{s.category}</p>
-                  <h3 className="mt-1 font-display text-lg text-cream-50 group-hover:text-cedar-300 transition-colors">{s.name}</h3>
-                  <p className="mt-1 text-sm text-cream-300/75 max-w-2xl">{s.tagline}</p>
-                </div>
-                <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2">
-                  <span className="font-display text-lg text-cream-50">от {formatPrice(s.price)}</span>
-                  <span className="inline-flex items-center gap-1 text-sm text-cream-300/70 group-hover:text-cream-50">
-                    Подробнее <ArrowIcon />
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
+          {services.map((s, i) => {
+            const landingSlug = serviceLandingByProductId.get(s.id);
+            const target = landingSlug ? `/${landingSlug}/` : `/product/${s.id}`;
+            return (
+              <li key={s.id} className="reveal" style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}>
+                <Link
+                  to={target}
+                  className="group grid gap-4 py-6 sm:grid-cols-[120px_1fr_auto] sm:items-center sm:gap-8"
+                  onClick={() => track("product_view", { id: s.id, from: "services" })}
+                >
+                  <div className="h-20 w-full sm:w-[120px] overflow-hidden rounded-2xl bg-bark-800">
+                    <img src={s.image} alt={s.imageAlt} loading="lazy" decoding="async" width={1200} height={627} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-cedar-300/80">{s.category}</p>
+                    <h3 className="mt-1 font-display text-lg text-cream-50 group-hover:text-cedar-300 transition-colors">{s.name}</h3>
+                    <p className="mt-1 text-sm text-cream-300/75 max-w-2xl">{s.tagline}</p>
+                  </div>
+                  <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2">
+                    <span className="font-display text-lg text-cream-50">от {formatPrice(s.price)}</span>
+                    <span className="inline-flex items-center gap-1 text-sm text-cream-300/70 group-hover:text-cream-50">
+                      Подробнее <ArrowIcon />
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ol>
       </div>
     </section>
@@ -115,9 +126,6 @@ export function About() {
               <dd className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
                 <a href={company.vk} target="_blank" rel="noopener noreferrer" className="text-cedar-300 hover:text-cedar-200" onClick={() => track("cta_click", { type: "vk", where: "contacts" })}>
                   vk.com/silalesa55
-                </a>
-                <a href={company.site} target="_blank" rel="noopener noreferrer" className="text-cedar-300 hover:text-cedar-200">
-                  silalesa55.ru
                 </a>
               </dd>
             </div>
