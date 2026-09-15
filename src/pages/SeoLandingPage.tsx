@@ -54,11 +54,16 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const price = product?.price ?? Math.min(...saunas.map((item) => item.price));
   const isService = page.kind === "service";
   const isCategory = page.kind === "category";
+  const isGuide = page.kind === "guide";
   const waText = product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
-    : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
+    : isGuide
+      ? `Здравствуйте! Хочу уточнить подготовку участка и основание под мобильную баню. Страница: ${SITE_BASE}${page.slug}/`
+      : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
-  const related = seoPages.filter((item) => item.slug !== page.slug && item.kind === page.kind).slice(0, 3);
+  const related = isGuide
+    ? seoPages.filter((item) => item.kind === "sauna" || item.kind === "category").slice(0, 3)
+    : seoPages.filter((item) => item.slug !== page.slug && item.kind === page.kind).slice(0, 3);
 
   const jsonLd = product
     ? {
@@ -73,13 +78,24 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           : { offers: { "@type": "Offer", priceCurrency: "RUB", price: product.price, availability: "https://schema.org/InStock" } }),
         url: `${SITE_BASE}${page.slug}/`,
       }
-    : {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: page.h1,
-        description: page.description,
-        url: `${SITE_BASE}${page.slug}/`,
-      };
+    : isGuide
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: page.h1,
+          description: page.description,
+          mainEntityOfPage: `${SITE_BASE}${page.slug}/`,
+          author: { "@type": "Organization", name: company.name },
+          publisher: { "@type": "Organization", name: company.name },
+          url: `${SITE_BASE}${page.slug}/`,
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: page.h1,
+          description: page.description,
+          url: `${SITE_BASE}${page.slug}/`,
+        };
 
   const faqLd = {
     "@context": "https://schema.org",
@@ -109,15 +125,21 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             <h1 className="mt-4 max-w-3xl font-display text-[34px] font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[58px]">{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
 
-            <div className="mt-7 flex flex-wrap items-baseline gap-3">
-              <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{isService ? "от " : isCategory ? "от " : ""}{formatPrice(price)}</span>
-              {product?.dims && <span className="text-sm text-cream-300/70">{product.dims}</span>}
-            </div>
+            {!isGuide && (
+              <div className="mt-7 flex flex-wrap items-baseline gap-3">
+                <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{isService ? "от " : isCategory ? "от " : ""}{formatPrice(price)}</span>
+                {product?.dims && <span className="text-sm text-cream-300/70">{product.dims}</span>}
+              </div>
+            )}
 
             <div className="mt-8 flex flex-wrap gap-3">
               {isService ? (
                 <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing", slug })}>
                   Получить расчёт в WhatsApp <ArrowIcon />
+                </LinkButton>
+              ) : isGuide ? (
+                <LinkButton to="/mobilnaya-banya-omsk/" size="lg" onClick={() => track("cta_click", { type: "guide_to_catalog", where: "seo-landing", slug })}>
+                  Смотреть готовые бани <ArrowIcon />
                 </LinkButton>
               ) : (
                 <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "seo-landing", slug })}>
@@ -143,9 +165,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
             <div className="reveal">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Коротко по делу</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Что важно знать до обращения</h2>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isGuide ? "Что проверить до доставки" : "Что важно знать до обращения"}</h2>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-bark-600 sm:text-base">
-                Здесь собраны характеристики именно под этот запрос. Без скрытия цены и без требования оставить телефон, чтобы увидеть базовую информацию.
+                {isGuide
+                  ? "Здесь только подтверждённые условия компании. Если универсальная норма по основанию, блокам или отводу воды не зафиксирована, мы прямо отмечаем, что её нужно уточнить для конкретного участка."
+                  : "Здесь собраны характеристики именно под этот запрос. Без скрытия цены и без требования оставить телефон, чтобы увидеть базовую информацию."}
               </p>
             </div>
             <ul className="divide-y divide-bark-950/10 border-y border-bark-950/10">
@@ -161,11 +185,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           {product && (
             <div className="reveal mt-12 flex flex-col gap-5 rounded-3xl bg-bark-950 p-6 text-cream-50 sm:flex-row sm:items-center sm:justify-between sm:p-8">
               <div>
-                <p className="font-display text-xl">Нужна полная комплектация и детали?</p>
-                <p className="mt-2 text-sm text-cream-300/75">На карточке модели — планировка, характеристики, состав комплектации и дополнительные условия.</p>
+                <p className="font-display text-xl">{isService ? "Нужны исходные детали по услуге?" : "Нужна полная комплектация и детали?"}</p>
+                <p className="mt-2 text-sm text-cream-300/75">{isService ? "На карточке услуги — исходное описание, стартовая цена и доступные детали процесса." : "На карточке модели — планировка, характеристики, состав комплектации и дополнительные условия."}</p>
               </div>
               <LinkButton to={`/product/${product.id}`} className="shrink-0" onClick={() => track("product_view", { id: product.id, from: "seo-landing" })}>
-                Открыть карточку <ArrowIcon />
+                {isService ? "Открыть карточку услуги" : "Открыть карточку"} <ArrowIcon />
               </LinkButton>
             </div>
           )}
@@ -177,7 +201,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
             <div className="reveal">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Вопросы</p>
-              <h2 id={`faq-${slug}`} className="mt-3 font-display text-3xl text-cream-50 sm:text-4xl">Перед заказом или расчётом</h2>
+              <h2 id={`faq-${slug}`} className="mt-3 font-display text-3xl text-cream-50 sm:text-4xl">{isGuide ? "Что уточнить по вашему участку" : "Перед заказом или расчётом"}</h2>
             </div>
             <div className="divide-y divide-cream-50/10 border-y border-cream-50/10">
               {page.faq.map(([question, answer]) => (
@@ -196,7 +220,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       {related.length > 0 && (
         <section className="bg-cream-50 py-14 text-bark-950">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="font-display text-xl">{isService ? "Другие услуги" : "Другие страницы по баням"}</h2>
+            <h2 className="font-display text-xl">{isGuide ? "Связанные страницы" : isService ? "Другие услуги" : "Другие страницы по баням"}</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {related.map((item) => (
                 <Link key={item.slug} to={`/${item.slug}/`} className="group rounded-2xl border border-bark-950/10 p-4 transition-colors hover:border-cedar-600/40 hover:bg-white">
@@ -212,7 +236,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       <section className="bg-bark-950 py-14 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
-          <h2 className="mt-4 font-display text-2xl text-cream-50">{isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
+          <h2 className="mt-4 font-display text-2xl text-cream-50">{isGuide ? "Нужно проверить ваш участок?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
           <p className="mt-3 text-sm leading-relaxed text-cream-300/75">Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <LinkButton to={whatsappUrl(waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>Написать в WhatsApp</LinkButton>
