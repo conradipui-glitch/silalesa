@@ -4,6 +4,7 @@ import { company } from "./data/products";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
 import { NotFound, ProductPage } from "./pages/ProductPage";
+import { SeoLandingPage } from "./pages/SeoLandingPage";
 import { Configurator } from "./sections/Configurator";
 import { Hero } from "./sections/Hero";
 import { LayoutSection, Lineup, StandardSection, type ModelKey } from "./sections/Models";
@@ -60,7 +61,10 @@ function Screen() {
   const { route } = useRouter();
 
   useEffect(() => {
-    track("page_view", { route: route.name, id: route.name === "product" ? route.id : undefined });
+    track("page_view", {
+      route: route.name,
+      id: route.name === "product" ? route.id : route.name === "landing" ? route.slug : undefined,
+    });
   }, [route]);
 
   return (
@@ -73,6 +77,7 @@ function Screen() {
         {route.name === "home" && <Home />}
         {route.name === "product" && <ProductPage key={route.id} id={route.id} />}
         {route.name === "services" && <ServicesScreen />}
+        {route.name === "landing" && <SeoLandingPage key={route.slug} slug={route.slug} />}
         {route.name === "notfound" && <NotFound path={route.path} />}
       </main>
       <Footer />
