@@ -10,26 +10,44 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
+import { seoSlugs } from "../data/seoPages";
 import { track } from "./utils";
 
 export type Route =
   | { name: "home"; anchor?: string }
   | { name: "product"; id: string }
   | { name: "services" }
+  | { name: "landing"; slug: string }
   | { name: "notfound"; path: string };
 
 /**
  * Базовый путь приложения. Вычисляется один раз из стартового URL:
- *  /                       → /
- *  /product/10645551       → /
- *  /preview/x/index.html   → /preview/x/
- * Это позволяет сохранять исходные адреса /product/{id} и одновременно
- * работать из подпапки превью.
+ *  /                                  → /
+ *  /product/10645551                  → /
+ *  /banya-kvadro-3x2-omsk/           → /
+ *  /preview/x/banya-kvadro-3x2-omsk/ → /preview/x/
+ * Это сохраняет нормальные адреса и позволяет работать из подпапки GitHub Pages.
  */
 function computeBase(): string {
   let p = window.location.pathname;
-  const m = p.match(/^(.*?)\/(?:product\/[^/]+|services)\/?$/);
-  if (m) p = `${m[1]}/`;
+  const normalized = p.replace(/\/+$/, "");
+
+  const productMatch = normalized.match(/^(.*?)\/product\/[^/]+$/);
+  if (productMatch) return `${productMatch[1]}/` || "/";
+
+  if (normalized.endsWith("/services")) {
+    const base = normalized.slice(0, -"services".length);
+    return base || "/";
+  }
+
+  for (const slug of seoSlugs) {
+    const suffix = `/${slug}`;
+    if (normalized.endsWith(suffix)) {
+      const base = normalized.slice(0, -slug.length);
+      return base || "/";
+    }
+  }
+
   if (p.endsWith("index.html")) p = p.slice(0, -"index.html".length);
   if (!p.endsWith("/")) p += "/";
   return p;
@@ -38,13 +56,15 @@ function computeBase(): string {
 function parseRoute(base: string): Route {
   const path = window.location.pathname;
   const rel = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\//, "");
+  const cleanRel = rel.replace(/\/+$/, "");
   const hash = window.location.hash;
   const hashProduct = hash.match(/^#\/?product\/([^/?#]+)/);
-  const pathProduct = rel.match(/^product\/([^/?#]+)\/?$/);
+  const pathProduct = cleanRel.match(/^product\/([^/?#]+)$/);
   if (pathProduct) return { name: "product", id: decodeURIComponent(pathProduct[1]) };
   if (hashProduct) return { name: "product", id: decodeURIComponent(hashProduct[1]) };
-  if (rel === "services" || rel === "services/") return { name: "services" };
-  if (rel === "" || rel === "index.html") {
+  if (cleanRel === "services") return { name: "services" };
+  if (seoSlugs.includes(cleanRel)) return { name: "landing", slug: cleanRel };
+  if (cleanRel === "" || cleanRel === "index.html") {
     const anchor = hash.replace(/^#\/?/, "");
     return { name: "home", anchor: anchor || undefined };
   }
