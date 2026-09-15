@@ -65,7 +65,7 @@ function staticSnapshot(page) {
     : page.kind === "category"
       ? { "@type": "ItemList", name: page.h1 }
       : isGuide
-        ? { "@type": "Thing", name: "Подготовка основания и участка под мобильную баню" }
+        ? { "@type": "Thing", name: page.h1 }
         : { "@type": "Product", name: page.h1 };
 
   const jsonLd = JSON.stringify({
@@ -97,7 +97,7 @@ function staticSnapshot(page) {
     })),
   }).replaceAll("<", "\\u003c");
 
-  const faqTitle = isGuide ? "Вопросы по подготовке участка" : "Вопросы перед заказом или расчётом";
+  const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
   return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul><section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
