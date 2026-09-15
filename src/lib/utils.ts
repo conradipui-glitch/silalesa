@@ -13,12 +13,16 @@ export type AnalyticsEvent =
   | "quiz_start"
   | "quiz_step"
   | "quiz_complete"
+  | "quiz_finish"
   | "quiz_restart"
   | "saved_result_reuse"
   | "config_change"
   | "config_restore"
   | "cta_view"
   | "cta_click"
+  | "tel_click"
+  | "messenger_click"
+  | "calc_submit"
   | "lead_intent"
   | "copy";
 
@@ -54,10 +58,30 @@ export function track(name: AnalyticsEvent, payload: Payload = {}) {
   if (typeof window === "undefined") return;
   emit(name, payload);
 
-  // Клик по каналу связи — это только намерение обратиться, а не подтверждённая заявка.
-  // Подтверждённую заявку можно фиксировать только после формы/CRM/backend-события.
-  if (name === "cta_click" && ["call", "call2", "whatsapp", "vk"].includes(String(payload.type))) {
-    emit("lead_intent", { ...payload, channel: String(payload.type).replace("call2", "call") });
+  if (name === "quiz_complete") {
+    emit("quiz_finish", payload);
+  }
+
+  if (name === "cta_click") {
+    const type = String(payload.type ?? "");
+    const where = String(payload.where ?? "");
+
+    if (["call", "call2"].includes(type)) {
+      emit("tel_click", { ...payload, channel: "call" });
+    }
+
+    if (["whatsapp", "vk"].includes(type)) {
+      emit("messenger_click", { ...payload, channel: type });
+    }
+
+    if (type === "whatsapp" && where === "configurator") {
+      emit("calc_submit", { ...payload, channel: "whatsapp" });
+    }
+
+    // Клик по каналу связи — это только намерение обратиться, а не подтверждённая заявка.
+    if (["call", "call2", "whatsapp", "vk"].includes(type)) {
+      emit("lead_intent", { ...payload, channel: type.replace("call2", "call") });
+    }
   }
 }
 
@@ -184,6 +208,7 @@ export function useInViewOnce<T extends HTMLElement>(onIn: () => void) {
   return ref;
 }
 
+/** Копирование с запасным вариантом для браузеров без Clipboard API. */
 export async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
