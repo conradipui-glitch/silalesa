@@ -13,15 +13,66 @@ import { About, Services } from "./sections/ServicesAbout";
 import { Process, WinterBand } from "./sections/Story";
 import { Faq, ReadyPromise } from "./sections/Trust";
 
-const orgJsonLd = {
+const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
+
+const entityGraph = {
   "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: company.name,
-  description: "Производство мобильных бань (бани-квадро, каркасные), строительные и отделочные работы в Омске.",
-  telephone: [company.phonePrimary.tel, company.phoneSecondary.tel],
-  address: { "@type": "PostalAddress", addressLocality: "Омск", streetAddress: "ул. Нефтезаводская, 49/1", addressCountry: "RU" },
-  url: company.origin,
-  sameAs: [company.vk, company.site],
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "@id": `${SITE_URL}#organization`,
+      name: company.name,
+      alternateName: company.fullName,
+      description: "Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.",
+      url: SITE_URL,
+      telephone: [company.phonePrimary.tel, company.phoneSecondary.tel],
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Омск",
+        streetAddress: "ул. Заозерная, 11/1И",
+        addressCountry: "RU",
+      },
+      areaServed: [
+        { "@type": "City", name: "Омск" },
+        { "@type": "AdministrativeArea", name: "Омская область" },
+      ],
+      sameAs: [company.vk, company.origin, company.site],
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          telephone: company.phonePrimary.tel,
+          contactType: "sales",
+          areaServed: "RU-OMS",
+          availableLanguage: "ru",
+        },
+        {
+          "@type": "ContactPoint",
+          telephone: company.phoneSecondary.tel,
+          contactType: "sales",
+          areaServed: "RU-OMS",
+          availableLanguage: "ru",
+        },
+      ],
+      knowsAbout: [
+        "мобильные бани",
+        "кедровые бани",
+        "бани Квадро",
+        "каркасные бани",
+        "доставка и установка бань",
+        "полусухая стяжка пола",
+        "механизированная штукатурка",
+        "бурение скважин",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}#website`,
+      url: SITE_URL,
+      name: "Сила Леса",
+      inLanguage: "ru-RU",
+      publisher: { "@id": `${SITE_URL}#organization` },
+    },
+  ],
 };
 
 function Home() {
@@ -31,7 +82,7 @@ function Home() {
 
   return (
     <div ref={root}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(entityGraph) }} />
       <Hero />
       <ReadyPromise />
       <Lineup model={model} setModel={setModel} />
