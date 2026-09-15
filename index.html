@@ -42,88 +42,47 @@
         "@graph": [
           {
             "@type": "LocalBusiness",
-            "@id": "https://conradipui-glitch.github.io/silalesa/#business",
+            "@id": "https://conradipui-glitch.github.io/silalesa/#organization",
             "name": "Сила Леса",
             "url": "https://conradipui-glitch.github.io/silalesa/",
-            "telephone": "+7 (913) 688-45-33",
+            "telephone": ["+7 913 688-45-33", "+7 999 456-33-64"],
             "address": {
               "@type": "PostalAddress",
               "streetAddress": "ул. Заозерная, 11/1И",
               "addressLocality": "Омск",
               "addressCountry": "RU"
             },
-            "areaServed": ["Омск", "Омская область"],
+            "areaServed": [
+              { "@type": "City", "name": "Омск" },
+              { "@type": "AdministrativeArea", "name": "Омская область" }
+            ],
             "sameAs": ["https://vk.com/silalesa55"],
-            "priceRange": "230000–630000 RUB"
-          },
-          {
-            "@type": "Product",
-            "@id": "https://conradipui-glitch.github.io/silalesa/#kvadro",
-            "name": "Кедровые бани Квадро",
-            "brand": { "@type": "Brand", "name": "Сила Леса" },
-            "offers": {
-              "@type": "AggregateOffer",
-              "priceCurrency": "RUB",
-              "lowPrice": "230000",
-              "highPrice": "365000",
-              "offerCount": "3",
-              "availability": "https://schema.org/InStock",
-              "url": "https://conradipui-glitch.github.io/silalesa/"
-            }
-          },
-          {
-            "@type": "FAQPage",
-            "@id": "https://conradipui-glitch.github.io/silalesa/#faq",
-            "mainEntity": [
+            "contactPoint": [
               {
-                "@type": "Question",
-                "name": "Нужен ли капитальный фундамент?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Для моделей Квадро в стандарт входит установка на блоки. До доставки нужно согласовать ровное место установки и условия подъезда. Если участок сложный, основание и способ монтажа проверяем отдельно."
-                }
+                "@type": "ContactPoint",
+                "telephone": "+7 913 688-45-33",
+                "contactType": "sales",
+                "areaServed": "RU-OMS",
+                "availableLanguage": "ru"
               },
               {
-                "@type": "Question",
-                "name": "Что если манипулятор не сможет заехать на участок?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Это не тупик: баню можно собирать не только в цеху, но и поэтапно непосредственно на участке. Способ установки определяем до заказа."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Можно ли пользоваться зимой?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Да, Квадро используют и в холодное время. Конкретное время прогрева и расход дров зависят от погоды, режима топки и эксплуатации."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Цена на сайте — это вся баня или только коробка?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Для Квадро указана цена стандартной комплектации. В неё входят конструкция, печь Aston 16, дымоход, бак 50 л, базовая электрика и мебель по модели, трапики, ступенька, установка на блоки и бесплатная доставка по Омску. Дополнительные опции считаются отдельно."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Можно сначала посмотреть баню вживую?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Да. Образцы можно посмотреть на площадке: Омск, ул. Нефтезаводская, 49/1."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Сколько ждать изготовления?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Срок зависит от выбранной модели, опций и текущей загрузки производства. Менеджер подтверждает актуальную дату до оформления заказа."
-                }
+                "@type": "ContactPoint",
+                "telephone": "+7 999 456-33-64",
+                "contactType": "sales",
+                "areaServed": "RU-OMS",
+                "availableLanguage": "ru"
               }
             ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://conradipui-glitch.github.io/silalesa/#website",
+            "url": "https://conradipui-glitch.github.io/silalesa/",
+            "name": "Сила Леса",
+            "inLanguage": "ru-RU",
+            "publisher": {
+              "@id": "https://conradipui-glitch.github.io/silalesa/#organization"
+            }
           }
         ]
       }
