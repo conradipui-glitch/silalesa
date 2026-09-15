@@ -3,14 +3,16 @@ import { fileURLToPath } from "url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import { viteSingleFile } from "vite-plugin-singlefile";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// https://vite.dev/config/
+// На GitHub Pages проект живёт в /silalesa/. Локально Vite работает из корня.
+const base = process.env.GITHUB_PAGES === "true" ? "/silalesa/" : "/";
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), viteSingleFile()],
+  base,
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
