@@ -43,6 +43,7 @@ export function PlanDiagram({
   const bodyH = layout.outer.w * scale;
   const present = new Map(layout.rooms.map((r) => [r.key, r]));
   const firstKey = ORDER.find((k) => present.has(k))!;
+  const singleSteamEndDoor = layout.entrance === "end" && layout.rooms.length === 1 && firstKey === "steam";
 
   const describe = `План ${layout.outer.l} на ${layout.outer.w} м: ${layout.rooms
     .map((r) => `${r.name}${r.size ? ` ${r.size}` : ""}`)
@@ -122,7 +123,13 @@ export function PlanDiagram({
                       )}
                       {/* Дверь */}
                       {isFirst && layout.entrance === "end" && (
-                        <div className="absolute left-0 bottom-[16%] h-[36%] max-h-[56px] aspect-square border-r-2 border-t-2 border-cream-50/70 rounded-tr-full" style={{ borderLeft: "3px solid #f8f3ea" }} />
+                        <div
+                          className={cn(
+                            "absolute left-0 aspect-square border-r-2 border-t-2 border-cream-50/70 rounded-tr-full",
+                            singleSteamEndDoor ? "top-[34%] h-[24%] max-h-[40px]" : "bottom-[16%] h-[36%] max-h-[56px]",
+                          )}
+                          style={{ borderLeft: "3px solid #f8f3ea" }}
+                        />
                       )}
                       {isFirst && layout.entrance === "side" && (
                         <div className="absolute bottom-0 left-[18%] w-[36%] max-w-[56px] aspect-square border-l-2 border-t-2 border-cream-50/70 rounded-tl-full" style={{ borderBottom: "3px solid #f8f3ea" }} />
