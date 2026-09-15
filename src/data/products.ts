@@ -35,9 +35,6 @@ export const company = {
   vk: "https://vk.com/silalesa55",
   site: "https://silalesa55.ru/",
   origin: "https://silalesa55.orgs.biz/",
-  // Оригинальная аватарка сообщества (используется как знак; при недоступности — SVG-знак)
-  logoUrl:
-    "https://sun9-44.userapi.com/s/v1/ig2/Rumalgef-7CgZidNLkW6ZFzfNE5_K1Ronk0IOjm_pq81TO7Jjqc_IBr9jNuE3IUo8zJ0JdpEZlyVJu_q-Dey5F0b.jpg?quality=95&crop=43,684,1068,1068&as=32x32,48x48,72x72,108x108,160x160,240x240&ava=1&cs=240x240",
   activities: [
     "Мобильные бани: каркасные, бани-бочки, из профилированного бруса",
     "Бытовки и домики",

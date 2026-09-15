@@ -4,16 +4,15 @@ import { company } from "../data/products";
 import { Link, useRouter } from "../lib/router";
 import { track } from "../lib/utils";
 
+const logoSvg = `${import.meta.env.BASE_URL}brand/sila-lesa-logo.svg`;
+const logoPng = `${import.meta.env.BASE_URL}brand/sila-lesa-logo.png`;
+
 export function LogoMark({ size = 44, className }: { size?: number; className?: string }) {
-  const [failed, setFailed] = useState(false);
-  if (!failed) {
-    return <img src={company.logoUrl} alt="" width={size} height={size} loading="eager" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} className={cn("rounded-full object-cover ring-2 ring-cedar-500/60 bg-bark-700", className)} style={{ width: size, height: size }} />;
-  }
-  return <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" className={className}><rect width="64" height="64" rx="32" fill="#1e1c18" /><path d="M14 47V31q0-15 18-15t18 15v16z" fill="#c8813f" /><path d="M32 22l-7 11h4l-5 8h16l-5-8h4z" fill="#f0e8da" /><path d="M14 36h36M14 42h36" stroke="#dfe3e3" strokeWidth="1.6" /></svg>;
+  return <img src={logoSvg} alt="" width={size} height={size} loading="eager" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = logoPng; }} className={cn("shrink-0 object-contain", className)} style={{ width: size, height: size }} />;
 }
 
 export function Logo({ compact = false }: { compact?: boolean }) {
-  return <Link to="/" className="flex items-center gap-3 group" aria-label="Сила Леса — на главную"><LogoMark size={compact ? 38 : 44} /><span className="leading-none"><span className="block font-display font-semibold tracking-tight text-cream-50 text-[15px] sm:text-base group-hover:text-cedar-300 transition-colors">СИЛА ЛЕСА</span><span className="block mt-1 text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-cream-300/70">мобильные бани · Омск</span></span></Link>;
+  return <Link to="/" className="flex items-center gap-3 group" aria-label="Сила Леса — на главную"><LogoMark size={compact ? 48 : 58} /><span className="leading-none"><span className="block font-display font-semibold tracking-tight text-cream-50 text-[15px] sm:text-base group-hover:text-cedar-300 transition-colors">СИЛА ЛЕСА</span><span className="block mt-1 text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-cream-300/70">мобильные бани · Омск</span></span></Link>;
 }
 
 type BtnVariant = "primary" | "ghost" | "light" | "subtle";
