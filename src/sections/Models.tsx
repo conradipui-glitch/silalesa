@@ -101,7 +101,6 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
         <div className="relative aspect-[4/3] overflow-hidden bg-bark-700">
           <img src={p.image} alt={p.imageAlt} loading="lazy" decoding="async" width={1536} height={1024} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
           <span className="absolute left-3 top-3 rounded-full bg-bark-950/70 px-2.5 py-1 text-[11px] font-display text-cream-50 backdrop-blur">{p.dims}</span>
-          <span className="absolute right-3 top-3 rounded-full bg-bark-950/60 px-2 py-1 text-[9px] uppercase tracking-[0.12em] text-cream-200/75 backdrop-blur">Визуализация</span>
         </div>
       </Link>
       <div className="flex flex-1 flex-col p-5">
@@ -245,8 +244,7 @@ export function StandardSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 items-start">
         <div className="reveal lg:sticky lg:top-24">
           <div className="kvadro-mask relative overflow-hidden aspect-[4/5] max-h-[640px] bg-cream-200 shadow-card">
-            <img src={images.parnaya} alt="Визуализация парной бани-квадро: кедровые полки, печь Aston, бак и ковш" loading="lazy" decoding="async" width={1024} height={1365} className="h-full w-full object-cover" />
-            <span className="absolute right-4 top-4 rounded-full bg-bark-950/65 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-cream-200/80 backdrop-blur">Визуализация</span>
+            <img src={images.parnaya} alt="парной бани-квадро: кедровые полки, печь Aston, бак и ковш" loading="lazy" decoding="async" width={1024} height={1365} className="h-full w-full object-cover" />
           </div>
           <p className="mt-3 text-xs text-bark-600/70">Схема комплектации: печь со стеклянной дверцей — опция; бак 50 л, полок и выдвижная скамейка входят в стандарт.</p>
         </div>

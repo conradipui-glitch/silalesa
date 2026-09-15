@@ -93,7 +93,6 @@ export function Hero() {
                   fetchPriority="high"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bark-950/70 to-transparent" aria-hidden="true" />
-                <span className="absolute right-4 top-4 rounded-full bg-bark-950/65 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-cream-200/80 backdrop-blur">Визуализация</span>
                 <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between gap-3">
                   <div>
                     <p className="font-display text-sm text-cream-50">Квадро 4×2</p>
