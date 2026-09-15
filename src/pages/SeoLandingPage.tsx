@@ -58,7 +58,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const waText = product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
     : isGuide
-      ? `Здравствуйте! Хочу уточнить подготовку участка и основание под мобильную баню. Страница: ${SITE_BASE}${page.slug}/`
+      ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
   const related = isGuide
@@ -165,10 +165,10 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
             <div className="reveal">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Коротко по делу</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isGuide ? "Что проверить до доставки" : "Что важно знать до обращения"}</h2>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-bark-600 sm:text-base">
                 {isGuide
-                  ? "Здесь только подтверждённые условия компании. Если универсальная норма по основанию, блокам или отводу воды не зафиксирована, мы прямо отмечаем, что её нужно уточнить для конкретного участка."
+                  ? "Здесь только подтверждённые условия компании. Если важная деталь зависит от модели, участка или дополнительной комплектации и не подтверждена как стандарт, мы прямо это отмечаем."
                   : "Здесь собраны характеристики именно под этот запрос. Без скрытия цены и без требования оставить телефон, чтобы увидеть базовую информацию."}
               </p>
             </div>
@@ -185,8 +185,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           {product && (
             <div className="reveal mt-12 flex flex-col gap-5 rounded-3xl bg-bark-950 p-6 text-cream-50 sm:flex-row sm:items-center sm:justify-between sm:p-8">
               <div>
-                <p className="font-display text-xl">{isService ? "Нужны исходные детали по услуге?" : "Нужна полная комплектация и детали?"}</p>
-                <p className="mt-2 text-sm text-cream-300/75">{isService ? "На карточке услуги — исходное описание, стартовая цена и доступные детали процесса." : "На карточке модели — планировка, характеристики, состав комплектации и дополнительные условия."}</p>
+                <p className="font-display text-xl">{isService ? "Нужны подробности по услуге?" : "Нужна полная комплектация и детали?"}</p>
+                <p className="mt-2 text-sm text-cream-300/75">{isService ? "На странице услуги — описание, стартовая цена и доступные детали процесса." : "На карточке модели — планировка, характеристики, состав комплектации и дополнительные условия."}</p>
               </div>
               <LinkButton to={`/product/${product.id}`} className="shrink-0" onClick={() => track("product_view", { id: product.id, from: "seo-landing" })}>
                 {isService ? "Открыть карточку услуги" : "Открыть карточку"} <ArrowIcon />
@@ -201,7 +201,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
             <div className="reveal">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Вопросы</p>
-              <h2 id={`faq-${slug}`} className="mt-3 font-display text-3xl text-cream-50 sm:text-4xl">{isGuide ? "Что уточнить по вашему участку" : "Перед заказом или расчётом"}</h2>
+              <h2 id={`faq-${slug}`} className="mt-3 font-display text-3xl text-cream-50 sm:text-4xl">{isGuide ? "Частые вопросы" : "Перед заказом или расчётом"}</h2>
             </div>
             <div className="divide-y divide-cream-50/10 border-y border-cream-50/10">
               {page.faq.map(([question, answer]) => (
@@ -236,7 +236,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       <section className="bg-bark-950 py-14 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
-          <h2 className="mt-4 font-display text-2xl text-cream-50">{isGuide ? "Нужно проверить ваш участок?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
+          <h2 className="mt-4 font-display text-2xl text-cream-50">{isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
           <p className="mt-3 text-sm leading-relaxed text-cream-300/75">Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <LinkButton to={whatsappUrl(waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>Написать в WhatsApp</LinkButton>
