@@ -1,11 +1,13 @@
 import rawPages from "./seo-pages.json";
+import rawGuides from "./seo-page-guides.json";
 import rawOverrides from "./seo-page-overrides.json";
+import rawNextOverrides from "./seo-page-overrides-next.json";
 
 export type SeoFaq = [question: string, answer: string];
 
 export type SeoPage = {
   slug: string;
-  kind: "sauna" | "service" | "category";
+  kind: "sauna" | "service" | "category" | "guide";
   productId?: string;
   title: string;
   description: string;
@@ -19,10 +21,12 @@ export type SeoPage = {
 type SeoPageOverride = { slug: string } & Partial<Omit<SeoPage, "slug">>;
 
 const overrideBySlug = new Map(
-  (rawOverrides as SeoPageOverride[]).map((override) => [override.slug, override]),
+  ([...rawOverrides, ...rawNextOverrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
 );
 
-export const seoPages = (rawPages as SeoPage[]).map((page) => ({
+const rawAllPages = [...rawPages, ...rawGuides] as SeoPage[];
+
+export const seoPages = rawAllPages.map((page) => ({
   ...page,
   ...(overrideBySlug.get(page.slug) ?? {}),
 })) as SeoPage[];
