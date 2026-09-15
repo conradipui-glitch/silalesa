@@ -2,12 +2,68 @@ import { useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { PlanDiagram } from "../components/PlanDiagram";
 import { byId, company, formatPrice, products, saunas, services, standardIncluded, whatsappUrl } from "../data/products";
+import { seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
-import { track, useDocumentTitle, useRevealRoot } from "../lib/utils";
+import { track, useRevealRoot } from "../lib/utils";
+
+const SITE_BASE = "https://conradipui-glitch.github.io/silalesa/";
+
+function useProductMeta(title: string, description: string, canonicalUrl: string, indexable: boolean) {
+  useEffect(() => {
+    const descriptionMeta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    const robotsMeta = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const ogTitle = document.querySelector<HTMLMetaElement>('meta[property="og:title"]');
+    const ogDescription = document.querySelector<HTMLMetaElement>('meta[property="og:description"]');
+    const ogUrl = document.querySelector<HTMLMetaElement>('meta[property="og:url"]');
+
+    const prev = {
+      title: document.title,
+      description: descriptionMeta?.content,
+      robots: robotsMeta?.content,
+      canonical: canonical?.href,
+      ogTitle: ogTitle?.content,
+      ogDescription: ogDescription?.content,
+      ogUrl: ogUrl?.content,
+    };
+
+    document.title = title;
+    if (descriptionMeta) descriptionMeta.content = description;
+    if (robotsMeta) robotsMeta.content = indexable ? "index, follow" : "noindex, follow";
+    if (canonical) canonical.href = canonicalUrl;
+    if (ogTitle) ogTitle.content = title;
+    if (ogDescription) ogDescription.content = description;
+    if (ogUrl) ogUrl.content = canonicalUrl;
+
+    return () => {
+      document.title = prev.title;
+      if (descriptionMeta && prev.description) descriptionMeta.content = prev.description;
+      if (robotsMeta && prev.robots) robotsMeta.content = prev.robots;
+      if (canonical && prev.canonical) canonical.href = prev.canonical;
+      if (ogTitle && prev.ogTitle) ogTitle.content = prev.ogTitle;
+      if (ogDescription && prev.ogDescription) ogDescription.content = prev.ogDescription;
+      if (ogUrl && prev.ogUrl) ogUrl.content = prev.ogUrl;
+    };
+  }, [title, description, canonicalUrl, indexable]);
+}
+
+function productHref(id: string) {
+  const landing = seoPages.find((page) => page.productId === id);
+  return landing ? `/${landing.slug}/` : `/product/${id}`;
+}
 
 export function ProductPage({ id }: { id: string }) {
   const p = byId(id);
-  useDocumentTitle(p ? `${p.name} | Омск — Сила Леса` : "Страница не найдена — Сила Леса");
+  const seoPage = p ? seoPages.find((page) => page.productId === p.id) : undefined;
+  const canonicalUrl = p
+    ? seoPage
+      ? `${SITE_BASE}${seoPage.slug}/`
+      : `${SITE_BASE}product/${p.id}`
+    : SITE_BASE;
+  const metaTitle = p ? `${p.name} | Омск — Сила Леса` : "Страница не найдена — Сила Леса";
+  const metaDescription = seoPage?.description ?? p?.intro ?? "Запрошенная страница не найдена на сайте Сила Леса.";
+
+  useProductMeta(metaTitle, metaDescription, canonicalUrl, Boolean(p));
   const root = useRevealRoot<HTMLDivElement>([id]);
 
   useEffect(() => {
@@ -18,17 +74,41 @@ export function ProductPage({ id }: { id: string }) {
 
   const isSauna = p.kind === "sauna";
   const others = isSauna ? saunas.filter((s) => s.id !== p.id) : services.filter((s) => s.id !== p.id);
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: p.name,
-    description: p.intro,
-    image: p.image.startsWith("http") ? p.image : undefined,
-    brand: { "@type": "Brand", name: company.name },
-    url: p.originalUrl,
-    offers: { "@type": "Offer", priceCurrency: "RUB", price: p.price, url: p.originalUrl },
-  };
-  const waText = `Здравствуйте! Интересует «${p.name}» (${formatPrice(p.price)}). ${p.originalUrl}`;
+  const jsonLd = isSauna
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "@id": `${canonicalUrl}#product`,
+        name: p.name,
+        description: metaDescription,
+        image: p.image.startsWith("http") ? p.image : undefined,
+        brand: { "@type": "Brand", name: company.name },
+        url: canonicalUrl,
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "RUB",
+          price: p.price,
+          availability: "https://schema.org/InStock",
+          url: canonicalUrl,
+        },
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "@id": `${canonicalUrl}#service`,
+        name: p.name,
+        description: metaDescription,
+        provider: { "@id": `${SITE_BASE}#organization` },
+        areaServed: { "@type": "City", name: "Омск" },
+        url: canonicalUrl,
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "RUB",
+          price: p.price,
+          url: canonicalUrl,
+        },
+      };
+  const waText = `Здравствуйте! Интересует «${p.name}» (${formatPrice(p.price)}). ${canonicalUrl}`;
   const safeOutro = p.modelKey === "k2"
     ? [p.outro?.[0], "Квадро 2×2 — самая маленькая и мобильная модель серии. Ориентир по вместимости — до 4 человек; фактический комфорт зависит от сценария использования и количества людей одновременно в парной."].filter(Boolean) as string[]
     : p.outro;
@@ -93,7 +173,7 @@ export function ProductPage({ id }: { id: string }) {
 
         <div className="mt-20 border-t border-cream-50/8 pt-12 pb-20">
           <h2 className="reveal font-display text-xl text-cream-50">{isSauna ? "Другие модели" : "Другие услуги"}</h2>
-          <ul className="mt-6 grid gap-4 sm:grid-cols-3">{others.map((o) => <li key={o.id} className="reveal"><Link to={`/product/${o.id}`} className="group flex items-center gap-4 rounded-2xl border border-cream-50/8 bg-bark-800 p-3 hover:border-cream-50/25 transition-colors" onClick={() => track("product_view", { id: o.id, from: "related" })}><div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-bark-700"><img src={o.image} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" /></div><div className="min-w-0"><p className="font-display text-sm text-cream-50 truncate group-hover:text-cedar-300 transition-colors">{o.shortName}</p><p className="text-xs text-cream-300/70">{o.kind === "service" ? "от " : ""}{formatPrice(o.price)}</p></div><ArrowIcon className="ml-auto text-cream-300/50 group-hover:text-cream-50" /></Link></li>)}</ul>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-3">{others.map((o) => <li key={o.id} className="reveal"><Link to={productHref(o.id)} className="group flex items-center gap-4 rounded-2xl border border-cream-50/8 bg-bark-800 p-3 hover:border-cream-50/25 transition-colors" onClick={() => track("product_view", { id: o.id, from: "related" })}><div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-bark-700"><img src={o.image} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" /></div><div className="min-w-0"><p className="font-display text-sm text-cream-50 truncate group-hover:text-cedar-300 transition-colors">{o.shortName}</p><p className="text-xs text-cream-300/70">{o.kind === "service" ? "от " : ""}{formatPrice(o.price)}</p></div><ArrowIcon className="ml-auto text-cream-300/50 group-hover:text-cream-50" /></Link></li>)}</ul>
           {isSauna && <p className="mt-6 text-sm text-cream-300/70">Не уверены в размере? <Link to="/#quiz" className="text-cedar-300 hover:text-cedar-200 underline underline-offset-4">Пройдите подбор за 5 вопросов</Link>.</p>}
         </div>
       </div>
@@ -102,6 +182,5 @@ export function ProductPage({ id }: { id: string }) {
 }
 
 export function NotFound({ path }: { path: string }) {
-  useDocumentTitle("Страница не найдена — Сила Леса");
-  return <div className="bg-bark-900 pt-32 pb-24 min-h-[70vh]"><div className="mx-auto max-w-3xl px-4 sm:px-6 text-center"><p className="text-xs uppercase tracking-[0.2em] text-cedar-300">404</p><h1 className="mt-4 font-display font-semibold text-3xl sm:text-5xl text-cream-50">Такой страницы нет</h1><p className="mt-4 text-cream-200/75">Адрес <code className="rounded bg-cream-50/8 px-1.5 py-0.5 text-sm">{path}</code> не найден. Вот что есть на сайте:</p><ul className="mt-8 grid gap-2 sm:grid-cols-2 text-left">{products.map((p) => <li key={p.id}><Link to={`/product/${p.id}`} className="flex items-center justify-between rounded-2xl border border-cream-50/10 px-4 py-3 text-sm text-cream-100 hover:border-cream-50/30">{p.name} <ArrowIcon className="text-cream-300/60" /></Link></li>)}</ul><div className="mt-8"><LinkButton to="/">На главную</LinkButton></div></div></div>;
+  return <div className="bg-bark-900 pt-32 pb-24 min-h-[70vh]"><div className="mx-auto max-w-3xl px-4 sm:px-6 text-center"><p className="text-xs uppercase tracking-[0.2em] text-cedar-300">404</p><h1 className="mt-4 font-display font-semibold text-3xl sm:text-5xl text-cream-50">Такой страницы нет</h1><p className="mt-4 text-cream-200/75">Адрес <code className="rounded bg-cream-50/8 px-1.5 py-0.5 text-sm">{path}</code> не найден. Вот что есть на сайте:</p><ul className="mt-8 grid gap-2 sm:grid-cols-2 text-left">{products.map((p) => <li key={p.id}><Link to={productHref(p.id)} className="flex items-center justify-between rounded-2xl border border-cream-50/10 px-4 py-3 text-sm text-cream-100 hover:border-cream-50/30">{p.name} <ArrowIcon className="text-cream-300/60" /></Link></li>)}</ul><div className="mt-8"><LinkButton to="/">На главную</LinkButton></div></div></div>;
 }
