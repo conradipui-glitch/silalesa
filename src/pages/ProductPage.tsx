@@ -52,7 +52,6 @@ export function ProductPage({ id }: { id: string }) {
             <div className={isSauna ? "kvadro-mask overflow-hidden aspect-[4/3] bg-bark-800 shadow-card" : "overflow-hidden rounded-3xl aspect-[16/10] bg-bark-800 shadow-card"}>
               <img src={p.image} alt={p.imageAlt} width={1536} height={1024} className="h-full w-full object-cover" fetchPriority="high" />
             </div>
-            {isSauna && <p className="mt-3 text-xs text-cream-300/55">Художественная визуализация модели. Реальный образец и узлы можно проверить на площадке {company.showroom}.</p>}
           </div>
 
           <div className="reveal" style={{ ["--reveal-delay" as string]: "100ms" }}>
