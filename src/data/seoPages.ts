@@ -1,4 +1,3 @@
-import rawGuides from "./ai-guides.json";
 import rawPages from "./seo-pages.json";
 
 export type SeoFaq = [question: string, answer: string];
@@ -16,7 +15,7 @@ export type SeoPage = {
   faq: SeoFaq[];
 };
 
-export const seoPages = [...rawPages, ...rawGuides] as SeoPage[];
+export const seoPages = rawPages as SeoPage[];
 export const seoSlugs = seoPages.map((page) => page.slug);
 
 export function seoPageBySlug(slug: string) {
