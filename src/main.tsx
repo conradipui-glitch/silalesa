@@ -3,7 +3,10 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
 
-createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root")!;
+if (rootElement.dataset.prerendered === "true") rootElement.replaceChildren();
+
+createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>
