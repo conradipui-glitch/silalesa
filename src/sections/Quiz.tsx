@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowIcon, Button, CheckIcon, LinkButton, SectionHead } from "../components/Brand";
-import { formatPrice, saunas, type Product } from "../data/products";
+import { formatPrice, saunas, whatsappUrl, type Product } from "../data/products";
 import { loadJSON, removeKey, saveJSON, storageAvailable, track } from "../lib/utils";
 import { cn } from "../utils/cn";
 import type { ModelKey } from "./Models";
@@ -17,6 +17,25 @@ const spaces: Record<SpaceKey, { l: number; w: number; label: string }> = {
   "3x2": { l: 3, w: 2, label: "до 3×2 м" },
   "4x2": { l: 4, w: 2, label: "до 4×2 м" },
   "6x3": { l: 6, w: 3, label: "6×3 м и больше" },
+};
+
+const peopleLabels: Record<number, string> = {
+  2: "1–2 человека",
+  4: "3–4 человека",
+  6: "5–6 человек",
+  8: "больше 6 человек",
+};
+
+const roomLabels: Record<number, string> = {
+  1: "только парная",
+  2: "парная и комната отдыха",
+  3: "парная, отдых и помывочная",
+};
+
+const accessLabels: Record<AccessKey, string> = {
+  yes: "подъезд доступен",
+  unsure: "нужно проверить",
+  no: "готовую баню не завезти",
 };
 
 const questions = [
@@ -195,6 +214,19 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
   const alt = verdicts[1];
   const savedProduct = saved ? saunas.find((p) => p.id === saved.result) : null;
 
+  const quizMessage = best
+    ? [
+        "Здравствуйте! Я прошёл подбор на сайте «Сила Леса».",
+        `Подходящая модель: ${best.product.name} — ${formatPrice(best.product.price)}.`,
+        `Обычно парятся: ${answers.people ? peopleLabels[answers.people] : "не указано"}.`,
+        `Нужны помещения: ${answers.rooms ? roomLabels[answers.rooms] : "не указано"}.`,
+        `Свободное место: ${answers.space ? spaces[answers.space].label : "не указано"}.`,
+        `Подъезд манипулятора: ${answers.access ? accessLabels[answers.access] : "не указано"}.`,
+        `Бюджет: ${answers.budget ? `до ${formatPrice(answers.budget)}` : "не указан"}.`,
+        "Подскажите, пожалуйста, актуальную цену, ближайший срок и что нужно подготовить на участке.",
+      ].join("\n")
+    : "";
+
   return (
     <section id="quiz" className="scroll-mt-20 bg-cream-50 text-bark-950 py-20 sm:py-28" aria-labelledby="quiz-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -207,7 +239,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
               lead="Сопоставим людей, помещения, габарит площадки, подъезд и бюджет. Это предварительный подбор: он не заменяет проверку отступов, основания и точки разгрузки."
             />
             <p className="reveal mt-6 text-xs text-bark-600/70">
-              {canStore ? "Результат сохраняется только в этом браузере — можно вернуться позже." : "Хранилище браузера недоступно: результат не сохранится после перезагрузки."}
+              После подбора можно одним нажатием отправить результат менеджеру в WhatsApp — модель и ваши ответы подставятся в сообщение автоматически.
             </p>
           </div>
 
@@ -314,8 +346,15 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
                 </p>
 
                 <div className="mt-auto pt-8 flex flex-wrap gap-3">
-                  <LinkButton to={`/product/${best.product.id}`} onClick={() => track("product_view", { id: best.product.id, from: "quiz" })}>
-                    Открыть модель <ArrowIcon />
+                  <LinkButton
+                    to={whatsappUrl(quizMessage)}
+                    external
+                    onClick={() => track("cta_click", { type: "whatsapp", where: "quiz", model: best.product.modelKey ?? "" })}
+                  >
+                    Отправить подбор в WhatsApp <ArrowIcon />
+                  </LinkButton>
+                  <LinkButton to={`/product/${best.product.id}`} variant="ghost" onClick={() => track("product_view", { id: best.product.id, from: "quiz" })}>
+                    Открыть модель
                   </LinkButton>
                   <LinkButton
                     to="/#configurator"
