@@ -20,6 +20,7 @@ export type SeoPage = {
   faq: SeoFaq[];
   comparison?: SeoGuideComparison;
   sections?: SeoGuideSection[];
+  printChecklistPath?: string;
 };
 
 type SeoPageOverride = { slug: string } & Partial<Omit<SeoPage, "slug">>;

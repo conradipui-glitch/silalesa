@@ -249,6 +249,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           </div>
         </section>
       )}
+      {isGuide && page.printChecklistPath && (
+        <div className="bg-cream-50 px-4 pb-12 text-center sm:px-6">
+          <a href={`${import.meta.env.BASE_URL}${page.printChecklistPath}/`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-bark-950 px-6 py-3 font-medium text-cream-50 hover:bg-bark-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-500">
+            Открыть чек-лист для печати ↗
+          </a>
+        </div>
+      )}
       {otherGuides.length > 0 && (
         <nav aria-label="Ещё гайды по баням" className="bg-bark-900 px-4 py-10 text-cream-50 sm:px-6">
           <div className="mx-auto max-w-5xl">

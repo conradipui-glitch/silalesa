@@ -69,6 +69,10 @@ function staticSnapshot(page) {
     ? `<nav aria-label="Ещё гайды по баням"><h2>Другие полезные гайды</h2><ul>${pages.filter((guide) => guide.kind === "guide" && guide.slug !== page.slug).map((guide) => `<li><a href="${SITE_URL}${guide.slug}/">${escapeHtml(guide.h1)}</a></li>`).join("")}</ul></nav><p><a href="${SITE_URL}mobilnaya-banya-omsk/">Смотреть готовые бани</a></p>`
     : "";
 
+  const printLink = isGuide && page.printChecklistPath
+    ? `<p><a href="${SITE_URL}${page.printChecklistPath}/">Открыть чек-лист для печати</a></p>`
+    : "";
+
   const about = page.kind === "service"
     ? { "@type": "Service", name: page.h1 }
     : page.kind === "category"
@@ -107,7 +111,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${comparison}${sections}${guideLinks}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${comparison}${sections}${printLink}${guideLinks}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
@@ -136,6 +140,19 @@ function servicesSnapshot() {
   }).replaceAll("<", "\\u003c");
 
   return `<div id="root" data-prerendered="true"><main><article><p>Другие услуги · Омск</p><h1>${escapeHtml(servicesHub.h1)}</h1><p>${escapeHtml(servicesHub.lead)}</p><ul>${items}</ul><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script></div>`;
+}
+
+for (const page of pages.filter((entry) => entry.kind === "guide" && entry.printChecklistPath)) {
+  const checklist = page.sections?.at(-1)?.bullets;
+  if (!checklist?.length) throw new Error(`Printable checklist is missing for ${page.slug}`);
+  const heading = "Чек-лист приёмки бани Квадро";
+  const list = checklist.map((text, i) => `<label><input type="checkbox" /><span>${i + 1}. ${escapeHtml(text)}</span></label>`).join("\n");
+  const printHtml = `<!doctype html><html lang="ru"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex" /><title>${escapeHtml(heading)} — Сила Леса</title><style>
+    *{box-sizing:border-box}body{max-width:820px;margin:0 auto;padding:32px 24px;font:16px/1.5 Arial,sans-serif;color:#242019}h1{font-size:28px;line-height:1.2}p{max-width:740px}label{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #ddd;break-inside:avoid}input{width:20px;height:20px;flex:none;margin-top:2px}button{padding:10px 16px;border:0;border-radius:10px;background:#352a1d;color:white;cursor:pointer}.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:22px 0}.notes{border:1px solid #aaa;min-height:90px;padding:8px}.hint{color:#555;font-size:14px}@media print{body{max-width:none;margin:0;padding:0;font-size:12pt}button,.back{display:none}h1{font-size:22pt}label{padding:5px 0}input{print-color-adjust:exact;-webkit-print-color-adjust:exact}.notes{min-height:65px}@page{size:A4;margin:13mm}}
+  </style></head><body><p class="back"><a href="${SITE_URL}${page.slug}/">← Вернуться к полному гайду</a></p><h1>${escapeHtml(heading)}</h1><p class="hint">Отмечайте пункты вместе с представителем. Если пункт не относится к модели, напишите «не предусмотрено». Безопасность печи, дымохода и электрики проверяет специалист.</p><div class="fields"><span>Модель/заказ: ____________________</span><span>Дата/адрес: ____________________</span></div><button type="button" onclick="window.print()">Распечатать</button><main>${list}</main><h2>Замечания и дальнейшие действия</h2><div class="notes"></div><p class="hint">Сверяйте комплектацию с вашим заказом. Этот лист помогает осмотру, но не заменяет документы передачи и профессиональную техническую проверку.</p></body></html>`;
+  const printDir = path.join(DIST, page.printChecklistPath);
+  await fs.mkdir(printDir, { recursive: true });
+  await fs.writeFile(path.join(printDir, "index.html"), printHtml, "utf8");
 }
 
 for (const page of pages) {
