@@ -52,7 +52,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   useLandingMeta(page.slug, page.title, page.description);
 
   const product = page.productId ? byId(page.productId) : undefined;
-  const image = product?.image ?? images.hero;
+  const isDrillingGuide = page.slug === "guides/uchastok/kogda-burit-skvazhinu";
+  const image = isDrillingGuide ? serviceComparisonBySlug["burenie-skvazhiny-omsk"].before : product?.image ?? images.hero;
   const price = product?.price ?? Math.min(...saunas.map((item) => item.price));
   const isService = page.kind === "service";
   const isCategory = page.kind === "category";
@@ -65,9 +66,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
   const otherGuides = isGuide ? seoPages.filter((item) => item.kind === "guide" && item.slug !== page.slug) : [];
-  const related = isGuide
-    ? seoPages.filter((item) => item.kind === "sauna" || item.kind === "category").slice(0, 3)
-    : seoPages.filter((item) => item.slug !== page.slug && item.kind === page.kind).slice(0, 3);
+  const related = isDrillingGuide
+    ? seoPages.filter((item) => item.slug === "burenie-skvazhiny-omsk")
+    : isGuide
+      ? seoPages.filter((item) => item.kind === "sauna" || item.kind === "category").slice(0, 3)
+      : seoPages.filter((item) => item.slug !== page.slug && item.kind === page.kind).slice(0, 3);
 
   const jsonLd = product
     ? {
@@ -142,8 +145,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                   Получить расчёт в WhatsApp <ArrowIcon />
                 </LinkButton>
               ) : isGuide ? (
-                <LinkButton to="/mobilnaya-banya-omsk/" size="lg" onClick={() => track("cta_click", { type: "guide_to_catalog", where: "seo-landing", slug })}>
-                  Смотреть готовые бани <ArrowIcon />
+                <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" onClick={() => track("cta_click", { type: isDrillingGuide ? "guide_to_drilling" : "guide_to_catalog", where: "seo-landing", slug })}>
+                  {isDrillingGuide ? "Узнать об услуге бурения" : "Смотреть готовые бани"} <ArrowIcon />
                 </LinkButton>
               ) : (
                 <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "seo-landing", slug })}>
@@ -161,7 +164,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
               <BeforeAfter {...comparison} />
             ) : (
               <div className={isService ? "overflow-hidden rounded-3xl bg-bark-800 shadow-card aspect-[16/10]" : "kvadro-mask overflow-hidden bg-bark-800 shadow-card aspect-[4/3]"}>
-                <img src={image} alt={product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске"} className="h-full w-full object-cover" fetchPriority="high" />
+                <img src={image} alt={isDrillingGuide ? serviceComparisonBySlug["burenie-skvazhiny-omsk"].beforeAlt : product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске"} className="h-full w-full object-cover" fetchPriority="high" />
               </div>
             )}
           </div>
@@ -176,7 +179,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-bark-600 sm:text-base">
                 {isGuide
-                  ? "Здесь только подтверждённые условия компании. Если важная деталь зависит от модели, участка или дополнительной комплектации и не подтверждена как стандарт, мы прямо это отмечаем."
+                  ? "Ниже — практические ориентиры: что проверить заранее и какие вопросы согласовать для вашего участка и выбранной модели."
                   : "Здесь собраны характеристики именно под этот запрос. Без скрытия цены и без требования оставить телефон, чтобы увидеть базовую информацию."}
               </p>
             </div>
@@ -190,6 +193,9 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             </ul>
           </div>
 
+          {page.slug === "burenie-skvazhiny-omsk" && (
+            <p className="mt-6 text-sm"><Link to="/guides/uchastok/kogda-burit-skvazhinu/" className="font-medium text-cedar-700 underline underline-offset-4 hover:text-bark-900">Когда лучше бурить скважину: до стройки или зимой? →</Link></p>
+          )}
           {product && (
             <div className="reveal mt-12 flex flex-col gap-5 rounded-3xl bg-bark-950 p-6 text-cream-50 sm:flex-row sm:items-center sm:justify-between sm:p-8">
               <div>
@@ -257,7 +263,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </div>
       )}
       {otherGuides.length > 0 && (
-        <nav aria-label="Ещё гайды по баням" className="bg-bark-900 px-4 py-10 text-cream-50 sm:px-6">
+        <nav aria-label="Ещё полезные гайды" className="bg-bark-900 px-4 py-10 text-cream-50 sm:px-6">
           <div className="mx-auto max-w-5xl">
             <h2 className="font-display text-xl">Другие полезные гайды</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">{otherGuides.map((guide) => (
@@ -306,11 +312,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       <section className="bg-bark-950 py-14 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
-          <h2 className="mt-4 font-display text-2xl text-cream-50">{isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
+          <h2 className="mt-4 font-display text-2xl text-cream-50">{isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
           <p className="mt-3 text-sm leading-relaxed text-cream-300/75">Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <LinkButton to={whatsappUrl(waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>Написать в WhatsApp</LinkButton>
-            {!isService && <LinkButton to="/#quiz" variant="ghost">Подобрать модель</LinkButton>}
+            {isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/#quiz" variant="ghost">Подобрать модель</LinkButton>}
           </div>
         </div>
       </section>
