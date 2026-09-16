@@ -64,6 +64,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
+  const otherGuides = isGuide ? seoPages.filter((item) => item.kind === "guide" && item.slug !== page.slug) : [];
   const related = isGuide
     ? seoPages.filter((item) => item.kind === "sauna" || item.kind === "category").slice(0, 3)
     : seoPages.filter((item) => item.slug !== page.slug && item.kind === page.kind).slice(0, 3);
@@ -203,6 +204,61 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </div>
       </section>
 
+      {isGuide && page.comparison && (
+        <section className="bg-bark-800 py-16 text-cream-50 sm:py-20" aria-label="Сравнение способов строительства">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Сравнение вариантов</p>
+            <h2 className="mt-3 font-display text-2xl sm:text-4xl">{page.comparison.heading}</h2>
+            <p className="mt-4 max-w-3xl text-cream-200/85">{page.comparison.intro}</p>
+            <div role="region" aria-label="Таблица сравнения бани" tabIndex={0} className="mt-8 overflow-x-auto rounded-2xl border border-cream-50/15 focus-visible:outline-2">
+              <table className="w-full min-w-[690px] border-collapse text-left text-sm sm:text-base">
+                <caption className="sr-only">Готовая баня и строительство на участке: различия по критериям</caption>
+                <thead className="bg-bark-950 text-cream-50"><tr>
+                  <th scope="col" className="w-1/5 p-4 font-display">Критерий</th>
+                  <th scope="col" className="w-2/5 p-4 font-display">Готовая Квадро</th>
+                  <th scope="col" className="w-2/5 p-4 font-display">Строительство на участке</th>
+                </tr></thead>
+                <tbody className="divide-y divide-cream-50/10">
+                  {page.comparison.rows.map(([criterion, ready, build]) => (
+                    <tr key={criterion} className="align-top">
+                      <th scope="row" className="p-4 font-semibold text-cedar-300">{criterion}</th>
+                      <td className="p-4 leading-relaxed text-cream-100">{ready}</td>
+                      <td className="p-4 leading-relaxed text-cream-100">{build}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )}
+      {isGuide && page.sections && page.sections.length > 0 && (
+        <section className="bg-cream-50 py-16 text-bark-950 sm:py-20" aria-label="Подробный разбор вариантов">
+          <div className="mx-auto max-w-5xl space-y-12 px-4 sm:px-6 lg:px-8">
+            {page.sections.map((section) => (
+              <article key={section.heading} className="border-l-2 border-cedar-500 pl-5 sm:pl-8">
+                <h2 className="font-display text-2xl leading-tight sm:text-3xl">{section.heading}</h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph} className="mt-4 text-base leading-relaxed text-bark-700">{paragraph}</p>
+                ))}
+                {section.bullets && <ul className="mt-5 list-disc space-y-2 pl-6 text-bark-700">
+                  {section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}
+                </ul>}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+      {otherGuides.length > 0 && (
+        <nav aria-label="Ещё гайды по баням" className="bg-bark-900 px-4 py-10 text-cream-50 sm:px-6">
+          <div className="mx-auto max-w-5xl">
+            <h2 className="font-display text-xl">Другие полезные гайды</h2>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">{otherGuides.map((guide) => (
+              <li key={guide.slug}><Link to={`/${guide.slug}/`} className="block rounded-xl border border-cream-50/15 p-4 text-cream-100 hover:border-cedar-400 hover:text-cedar-300">{guide.h1}</Link></li>
+            ))}</ul>
+          </div>
+        </nav>
+      )}
       <section className="bg-bark-900 py-16 sm:py-20" aria-labelledby={`faq-${slug}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
