@@ -1,5 +1,6 @@
 import rawPages from "./seo-pages.json";
 import rawGuides from "./seo-page-guides.json";
+import rawRepairGuides from "./seo-page-guides-remont.json";
 import rawOverrides from "./seo-page-overrides.json";
 import rawNextOverrides from "./seo-page-overrides-next.json";
 
@@ -29,7 +30,7 @@ const overrideBySlug = new Map(
   ([...rawOverrides, ...rawNextOverrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
 );
 
-const rawAllPages = [...rawPages, ...rawGuides] as SeoPage[];
+const rawAllPages = [...rawPages, ...rawGuides, ...rawRepairGuides] as SeoPage[];
 
 export const seoPages = rawAllPages.map((page) => ({
   ...page,

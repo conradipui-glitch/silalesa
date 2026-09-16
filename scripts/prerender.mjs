@@ -6,10 +6,12 @@ const DIST = path.join(ROOT, "dist");
 const SITE_ORIGIN = "https://conradipui-glitch.github.io";
 const BASE_PATH = "/silalesa/";
 const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
+const REPAIR_GUIDE_SLUG = "guides/remont/shtukaturka-ili-styazhka-chto-snachala";
 
 const basePages = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-pages.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-remont.json"), "utf8")),
 ];
 const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides.json"), "utf8")),
@@ -59,6 +61,7 @@ function staticSnapshot(page) {
     .map(([question, answer]) => `<section><h2>${escapeHtml(question)}</h2><p>${escapeHtml(answer)}</p></section>`)
     .join("");
   const isGuide = page.kind === "guide";
+  const isRepairGuide = page.slug === REPAIR_GUIDE_SLUG;
   const comparison = isGuide && page.comparison
     ? `<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>`
     : "";
@@ -68,11 +71,16 @@ function staticSnapshot(page) {
   const guideTarget = page.slug === "guides/uchastok/kogda-burit-skvazhinu"
     ? { path: "burenie-skvazhiny-omsk", label: "Узнать об услуге бурения" }
     : { path: "mobilnaya-banya-omsk", label: "Смотреть готовые бани" };
+  const repairServiceLinks = `<p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка в Омске</a></p><p><a href="${SITE_URL}polusuhaya-styazhka-omsk/">Полусухая стяжка в Омске</a></p>`;
   const serviceGuideLink = page.slug === "burenie-skvazhiny-omsk"
     ? `<p><a href="${SITE_URL}guides/uchastok/kogda-burit-skvazhinu/">Когда лучше бурить скважину: до стройки или зимой?</a></p>`
-    : "";
+    : page.slug === "mehanizirovannaya-shtukaturka-omsk" || page.slug === "polusuhaya-styazhka-omsk"
+      ? `<p><a href="${SITE_URL}${REPAIR_GUIDE_SLUG}/">Штукатурка или стяжка: что делать сначала?</a></p>`
+      : "";
   const guideLinks = isGuide
-    ? `<nav aria-label="Ещё полезные гайды"><h2>Другие полезные гайды</h2><ul>${pages.filter((guide) => guide.kind === "guide" && guide.slug !== page.slug).map((guide) => `<li><a href="${SITE_URL}${guide.slug}/">${escapeHtml(guide.h1)}</a></li>`).join("")}</ul></nav><p><a href="${SITE_URL}${guideTarget.path}/">${escapeHtml(guideTarget.label)}</a></p>`
+    ? isRepairGuide
+      ? repairServiceLinks
+      : `<nav aria-label="Ещё полезные гайды"><h2>Другие полезные гайды</h2><ul>${pages.filter((guide) => guide.kind === "guide" && guide.slug !== page.slug && guide.slug !== REPAIR_GUIDE_SLUG).map((guide) => `<li><a href="${SITE_URL}${guide.slug}/">${escapeHtml(guide.h1)}</a></li>`).join("")}</ul></nav><p><a href="${SITE_URL}${guideTarget.path}/">${escapeHtml(guideTarget.label)}</a></p>`
     : "";
 
   const printLink = isGuide && page.printChecklistPath
