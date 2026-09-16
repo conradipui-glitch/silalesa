@@ -12,9 +12,19 @@
       "path": "/mobilnaya-banya-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B01"],
-      "keywords": ["готов* бан*", "мобильн* бан*", "бан* под ключ"],
-      "seeds": ["готовая баня", "мобильная баня", "баня под ключ"],
+      "intentIds": [
+        "B01"
+      ],
+      "keywords": [
+        "готов* бан*",
+        "мобильн* бан*",
+        "бан* под ключ"
+      ],
+      "seeds": [
+        "готовая баня",
+        "мобильная баня",
+        "баня под ключ"
+      ],
       "note": "Базовая коммерческая страница готовой бани. Усиливать вместо создания дублей под каждую формулировку."
     },
     {
@@ -26,9 +36,16 @@
       "path": "/karkasnaya-banya-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B03"],
-      "keywords": ["каркасн* бан*", "каркас бан*"],
-      "seeds": ["каркасная баня"]
+      "intentIds": [
+        "B03"
+      ],
+      "keywords": [
+        "каркасн* бан*",
+        "каркас бан*"
+      ],
+      "seeds": [
+        "каркасная баня"
+      ]
     },
     {
       "id": "bath-k2",
@@ -39,8 +56,13 @@
       "path": "/banya-kvadro-2x2-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "keywords": ["бан* 2х2", "2х2 бан*"],
-      "seeds": ["баня 2х2"]
+      "keywords": [
+        "бан* 2х2",
+        "2х2 бан*"
+      ],
+      "seeds": [
+        "баня 2х2"
+      ]
     },
     {
       "id": "bath-k3",
@@ -51,8 +73,13 @@
       "path": "/banya-kvadro-3x2-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "keywords": ["бан* 3х2", "3х2 бан*"],
-      "seeds": ["баня 3х2"]
+      "keywords": [
+        "бан* 3х2",
+        "3х2 бан*"
+      ],
+      "seeds": [
+        "баня 3х2"
+      ]
     },
     {
       "id": "bath-k4",
@@ -63,8 +90,13 @@
       "path": "/banya-kvadro-4x2-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "keywords": ["бан* 4х2", "4х2 бан*"],
-      "seeds": ["баня 4х2"]
+      "keywords": [
+        "бан* 4х2",
+        "4х2 бан*"
+      ],
+      "seeds": [
+        "баня 4х2"
+      ]
     },
     {
       "id": "bath-package-section",
@@ -75,8 +107,16 @@
       "path": "/mobilnaya-banya-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B08", "B09"],
-      "keywords": ["что входит", "комплектац*", "доплат*", "бан* под ключ цен*"],
+      "intentIds": [
+        "B08",
+        "B09"
+      ],
+      "keywords": [
+        "что входит",
+        "комплектац*",
+        "доплат*",
+        "бан* под ключ цен*"
+      ],
       "note": "Не отдельный SEO-дубль: усилить блок комплектации и итоговой цены внутри основной коммерческой страницы."
     },
     {
@@ -88,8 +128,13 @@
       "path": "/mobilnaya-banya-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B10"],
-      "keywords": ["доставк* бан*", "бан* с доставк*"],
+      "intentIds": [
+        "B10"
+      ],
+      "keywords": [
+        "доставк* бан*",
+        "бан* с доставк*"
+      ],
       "note": "Коммерческий спрос закрываем отдельным сильным блоком на основной странице, не новым дублем."
     },
     {
@@ -101,8 +146,13 @@
       "path": "/mobilnaya-banya-omsk/",
       "priority": "P2",
       "focusWeight": 2,
-      "intentIds": ["B20"],
-      "keywords": ["кедров* бан*", "кедр бан*"],
+      "intentIds": [
+        "B20"
+      ],
+      "keywords": [
+        "кедров* бан*",
+        "кедр бан*"
+      ],
       "note": "Материал — доказательство продукта внутри основной страницы, а не отдельный коммерческий дубль."
     },
     {
@@ -114,8 +164,14 @@
       "path": "/mobilnaya-banya-omsk/",
       "priority": "P2",
       "focusWeight": 2,
-      "intentIds": ["B22"],
-      "keywords": ["посмотреть бан*", "шоурум бан*", "образец бан*"],
+      "intentIds": [
+        "B22"
+      ],
+      "keywords": [
+        "посмотреть бан*",
+        "шоурум бан*",
+        "образец бан*"
+      ],
       "note": "Добавить сильный showroom / proof-блок, а не отдельную страницу."
     },
     {
@@ -127,9 +183,16 @@
       "path": "/burenie-skvazhiny-omsk/",
       "priority": "P1",
       "focusWeight": 1,
-      "intentIds": ["D04"],
-      "keywords": ["бурен* скважин*", "скважин* цен*"],
-      "seeds": ["бурение скважин"]
+      "intentIds": [
+        "D04"
+      ],
+      "keywords": [
+        "бурен* скважин*",
+        "скважин* цен*"
+      ],
+      "seeds": [
+        "бурение скважин"
+      ]
     },
     {
       "id": "service-screed",
@@ -140,9 +203,16 @@
       "path": "/polusuhaya-styazhka-omsk/",
       "priority": "P1",
       "focusWeight": 1,
-      "intentIds": ["S01"],
-      "keywords": ["полусух* стяжк*", "стяжка пола"],
-      "seeds": ["полусухая стяжка"]
+      "intentIds": [
+        "S01"
+      ],
+      "keywords": [
+        "полусух* стяжк*",
+        "стяжка пола"
+      ],
+      "seeds": [
+        "полусухая стяжка"
+      ]
     },
     {
       "id": "service-plaster",
@@ -153,11 +223,19 @@
       "path": "/mehanizirovannaya-shtukaturka-omsk/",
       "priority": "P1",
       "focusWeight": 1,
-      "intentIds": ["P01", "P03"],
-      "keywords": ["механизированн* штукатурк*", "машинн* штукатурк*", "штукатурк* цен*"],
-      "seeds": ["механизированная штукатурка"]
+      "intentIds": [
+        "P01",
+        "P03"
+      ],
+      "keywords": [
+        "механизированн* штукатурк*",
+        "машинн* штукатурк*",
+        "штукатурк* цен*"
+      ],
+      "seeds": [
+        "механизированная штукатурка"
+      ]
     },
-
     {
       "id": "guide-ready-vs-build",
       "title": "Готовая баня или строить на участке",
@@ -167,29 +245,37 @@
       "path": "/guides/bani/gotovaya-ili-stroit/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B02"]
+      "intentIds": [
+        "B02"
+      ]
     },
     {
       "id": "guide-size",
       "title": "Как выбрать размер 2×2, 3×2 или 4×2",
       "kind": "guide",
-      "status": "planned",
+      "status": "existing",
       "mode": "primary",
       "path": "/guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B04", "B05", "B07"]
+      "intentIds": [
+        "B04",
+        "B05",
+        "B07"
+      ]
     },
     {
       "id": "guide-frame-vs-quadro",
       "title": "Квадро или каркасная баня",
       "kind": "guide",
-      "status": "planned",
+      "status": "existing",
       "mode": "primary",
       "path": "/guides/bani/kvadro-ili-karkasnaya/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B03"]
+      "intentIds": [
+        "B03"
+      ]
     },
     {
       "id": "guide-site-delivery",
@@ -200,19 +286,29 @@
       "path": "/guides/bani/podgotovka-uchastka-dostavka-manipulyator/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B11", "B12", "B13", "B15"]
+      "intentIds": [
+        "B11",
+        "B12",
+        "B13",
+        "B15"
+      ]
     },
     {
       "id": "guide-foundation",
       "title": "Фундамент для мобильной бани",
       "kind": "guide",
-      "status": "planned",
+      "status": "existing",
       "mode": "primary",
       "path": "/guides/bani/fundament-dlya-mobilnoy-bani/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B14"],
-      "keywords": ["фундамент под бан*", "основан* под бан*"]
+      "intentIds": [
+        "B14"
+      ],
+      "keywords": [
+        "фундамент под бан*",
+        "основан* под бан*"
+      ]
     },
     {
       "id": "guide-winter",
@@ -223,18 +319,24 @@
       "path": "/guides/bani/banya-zimoy-omsk/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B16", "B17"]
+      "intentIds": [
+        "B16",
+        "B17"
+      ]
     },
     {
       "id": "guide-price-package",
       "title": "Что входит в цену готовой бани",
       "kind": "guide",
-      "status": "planned",
+      "status": "existing",
       "mode": "primary",
       "path": "/guides/bani/chto-vhodit-v-tsenu/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B08", "B09"]
+      "intentIds": [
+        "B08",
+        "B09"
+      ]
     },
     {
       "id": "guide-acceptance",
@@ -245,7 +347,9 @@
       "path": "/guides/bani/chek-list-priemki-gotovoy-bani/",
       "priority": "P1",
       "focusWeight": 3,
-      "intentIds": ["B21"]
+      "intentIds": [
+        "B21"
+      ]
     },
     {
       "id": "guide-drilling-time",
@@ -256,7 +360,10 @@
       "path": "/guides/uchastok/kogda-burit-skvazhinu/",
       "priority": "P1",
       "focusWeight": 1,
-      "intentIds": ["D01", "D03"]
+      "intentIds": [
+        "D01",
+        "D03"
+      ]
     },
     {
       "id": "guide-plaster-screed-order",
@@ -267,7 +374,9 @@
       "path": "/guides/remont/shtukaturka-ili-styazhka-chto-snachala/",
       "priority": "P1",
       "focusWeight": 1,
-      "intentIds": ["S04"]
+      "intentIds": [
+        "S04"
+      ]
     }
   ]
 }

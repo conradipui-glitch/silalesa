@@ -4,6 +4,8 @@ import { seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 
+// Service thumbnails intentionally stay on the original product images.
+// Before/after media is only used inside the dedicated service landing pages.
 const serviceLandingByProductId = new Map(
   seoPages
     .filter((page) => page.kind === "service" && page.productId)
