@@ -9,6 +9,7 @@ import { track, useRevealRoot } from "../lib/utils";
 
 const SITE_BASE = "https://conradipui-glitch.github.io/silalesa/";
 const REPAIR_GUIDE_SLUG = "guides/remont/shtukaturka-ili-styazhka-chto-snachala";
+const SCREED_GUIDE_SLUG = "guides/remont/polusuhaya-ili-mokraya-styazhka";
 
 function useLandingMeta(slug: string, title: string, description: string) {
   useEffect(() => {
@@ -55,16 +56,21 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const product = page.productId ? byId(page.productId) : undefined;
   const isDrillingGuide = page.slug === "guides/uchastok/kogda-burit-skvazhinu";
   const isRepairGuide = page.slug === REPAIR_GUIDE_SLUG;
+  const isScreedGuide = page.slug === SCREED_GUIDE_SLUG;
   const image = isDrillingGuide
     ? serviceComparisonBySlug["burenie-skvazhiny-omsk"].before
     : isRepairGuide
       ? serviceComparisonBySlug["mehanizirovannaya-shtukaturka-omsk"].before
-      : product?.image ?? images.hero;
+      : isScreedGuide
+        ? serviceComparisonBySlug["polusuhaya-styazhka-omsk"].before
+        : product?.image ?? images.hero;
   const imageAlt = isDrillingGuide
     ? serviceComparisonBySlug["burenie-skvazhiny-omsk"].beforeAlt
     : isRepairGuide
       ? serviceComparisonBySlug["mehanizirovannaya-shtukaturka-omsk"].beforeAlt
-      : product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске";
+      : isScreedGuide
+        ? serviceComparisonBySlug["polusuhaya-styazhka-omsk"].beforeAlt
+        : product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске";
   const price = product?.price ?? Math.min(...saunas.map((item) => item.price));
   const isService = page.kind === "service";
   const isCategory = page.kind === "category";
@@ -76,11 +82,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
-  const otherGuides = isGuide && !isRepairGuide
+  const otherGuides = isGuide && !isRepairGuide && !isScreedGuide
     ? seoPages.filter((item) => item.kind === "guide" && item.slug !== page.slug && item.slug !== REPAIR_GUIDE_SLUG)
     : [];
   const related = isRepairGuide
     ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === "polusuhaya-styazhka-omsk")
+    : isScreedGuide
+      ? seoPages.filter((item) => item.slug === "polusuhaya-styazhka-omsk")
     : isDrillingGuide
       ? seoPages.filter((item) => item.slug === "burenie-skvazhiny-omsk")
       : isGuide
@@ -159,6 +167,10 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing", slug })}>
                   Получить расчёт в WhatsApp <ArrowIcon />
                 </LinkButton>
+              ) : isScreedGuide ? (
+                <LinkButton to="/polusuhaya-styazhka-omsk/" size="lg" onClick={() => track("cta_click", { type: "guide_to_screed", where: "seo-landing", slug })}>
+                  Об услуге полусухой стяжки <ArrowIcon />
+                </LinkButton>
               ) : isRepairGuide ? (
                 <>
                   <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" size="lg" onClick={() => track("cta_click", { type: "guide_to_plaster", where: "seo-landing", slug })}>
@@ -203,7 +215,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-bark-600 sm:text-base">
                 {isGuide
-                  ? "Ниже — практические ориентиры: что проверить заранее и какие вопросы согласовать для вашего участка и выбранной модели."
+                  ? "Ниже — практические ориентиры: что проверить заранее и какие вопросы согласовать для вашего объекта."
                   : "Здесь собраны характеристики именно под этот запрос. Без скрытия цены и без требования оставить телефон, чтобы увидеть базовую информацию."}
               </p>
             </div>
@@ -222,6 +234,9 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           )}
           {(page.slug === "mehanizirovannaya-shtukaturka-omsk" || page.slug === "polusuhaya-styazhka-omsk") && (
             <p className="mt-6 text-sm"><Link to={`/${REPAIR_GUIDE_SLUG}/`} className="font-medium text-cedar-700 underline underline-offset-4 hover:text-bark-900">Штукатурка или стяжка: что делать сначала? →</Link></p>
+          )}
+          {page.slug === "polusuhaya-styazhka-omsk" && (
+            <p className="mt-6 text-sm"><Link to={`/${SCREED_GUIDE_SLUG}/`} className="font-medium text-cedar-700 underline underline-offset-4 hover:text-bark-900">Полусухая или мокрая стяжка: в чём разница? →</Link></p>
           )}
           {product && (
             <div className="reveal mt-12 flex flex-col gap-5 rounded-3xl bg-bark-950 p-6 text-cream-50 sm:flex-row sm:items-center sm:justify-between sm:p-8">
@@ -339,7 +354,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       <section className="bg-bark-950 py-14 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
-          <h2 className="mt-4 font-display text-2xl text-cream-50">{isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
+          <h2 className="mt-4 font-display text-2xl text-cream-50">{isScreedGuide ? "Нужно подобрать технологию стяжки?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
           <p className="mt-3 text-sm leading-relaxed text-cream-300/75">Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <LinkButton to={whatsappUrl(waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>Написать в WhatsApp</LinkButton>
@@ -348,7 +363,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Штукатурка</LinkButton>
                 <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Стяжка</LinkButton>
               </>
-            ) : isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/#quiz" variant="ghost">Подобрать модель</LinkButton>}
+            ) : isScreedGuide ? <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Полусухая стяжка</LinkButton> : isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/#quiz" variant="ghost">Подобрать модель</LinkButton>}
           </div>
         </div>
       </section>

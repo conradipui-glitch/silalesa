@@ -203,16 +203,15 @@
       "path": "/polusuhaya-styazhka-omsk/",
       "priority": "P1",
       "focusWeight": 1,
-      "intentIds": [
-        "S01"
-      ],
+      "intentIds": [],
       "keywords": [
         "полусух* стяжк*",
         "стяжка пола"
       ],
       "seeds": [
         "полусухая стяжка"
-      ]
+      ],
+      "note": "Коммерческая страница услуги; информационный intent S01 закреплён за отдельным сравнительным гайдом."
     },
     {
       "id": "service-plaster",
@@ -377,6 +376,20 @@
       "intentIds": [
         "S04"
       ]
+    },
+    {
+      "id": "guide-screed-comparison",
+      "title": "Полусухая или мокрая стяжка",
+      "kind": "guide",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/guides/remont/polusuhaya-ili-mokraya-styazhka/",
+      "priority": "P1",
+      "focusWeight": 1,
+      "intentIds": [
+        "S01"
+      ],
+      "note": "Отдельное информационное сравнение; CTA ведёт на коммерческую страницу полусухой стяжки."
     }
   ]
 }
