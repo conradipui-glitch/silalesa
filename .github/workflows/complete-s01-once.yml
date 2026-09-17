@@ -55,6 +55,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 -c "from pathlib import Path; p=Path('docs/content-research/content-intents.csv'); p.write_bytes(p.read_bytes().replace(b'\r\n', b'\n'))"
           git add src/data/seoPages.ts src/pages/SeoLandingPage.tsx scripts/prerender.mjs research/yaai/planners/silalesa.json docs/content-research/content-intents.csv docs/MASTER-EXECUTION-PLAN.md
           git diff --cached --check
           git diff --cached --stat
