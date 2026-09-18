@@ -223,7 +223,6 @@
       "priority": "P1",
       "focusWeight": 1,
       "intentIds": [
-        "P01",
         "P03"
       ],
       "keywords": [
@@ -233,7 +232,8 @@
       ],
       "seeds": [
         "механизированная штукатурка"
-      ]
+      ],
+      "note": "Коммерческая страница услуги. Информационный P01 закреплён за сравнительным гайдом; P03 по цене не закрыт."
     },
     {
       "id": "guide-ready-vs-build",
@@ -390,6 +390,20 @@
         "S01"
       ],
       "note": "Отдельное информационное сравнение; CTA ведёт на коммерческую страницу полусухой стяжки."
+    },
+    {
+      "id": "guide-plaster-comparison",
+      "title": "Механизированная или ручная штукатурка",
+      "kind": "guide",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/",
+      "priority": "P1",
+      "focusWeight": 1,
+      "intentIds": [
+        "P01"
+      ],
+      "note": "Информационное сравнение; CTA на коммерческую страницу механизированной штукатурки."
     }
   ]
 }
