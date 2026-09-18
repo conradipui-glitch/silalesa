@@ -1,0 +1,74 @@
+name: One-time P02 material guide integration
+on:
+  push:
+    branches: [content/p02-plaster-materials-visual-20260918]
+    paths: ['.github/workflows/complete-p02-once.yml']
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Integrate P02 without modifying homepage images or sliders
+        run: python3 scripts/.integrate-p02-once.py
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build and prerender
+        run: npm run build
+      - name: Validate P02 page, illustration, navigation and intent separation
+        run: |
+          python3 - <<'PY'
+          import csv, json
+          from pathlib import Path
+          slug = 'guides/remont/gipsovaya-ili-tsementnaya-shtukaturka'
+          url = 'https://conradipui-glitch.github.io/silalesa/' + slug + '/'
+          root = Path('dist')
+          guide = (root / slug / 'index.html').read_text(encoding='utf-8')
+          service = (root / 'mehanizirovannaya-shtukaturka-omsk' / 'index.html').read_text(encoding='utf-8')
+          p01 = (root / 'guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/index.html').read_text(encoding='utf-8')
+          assert url in guide and url in service and url in p01, 'Missing canonical or backlinks'
+          assert url in (root / 'sitemap.xml').read_text(encoding='utf-8')
+          assert url in (root / 'llms.txt').read_text(encoding='utf-8')
+          assert 'Гипсовая или цементная штукатурка' in guide
+          assert '"@type":"Article"' in guide
+          assert 'mehanizirovannaya-shtukaturka-omsk/' in guide
+          assert 'Смотреть готовые бани' not in guide
+          assert 'В чём принципиальная разница' in guide and 'Как влажность влияет' in guide
+          widget = Path('src/components/PlasterMaterialGuide.tsx').read_text(encoding='utf-8')
+          landing = Path('src/pages/SeoLandingPage.tsx').read_text(encoding='utf-8')
+          assert 'aria-live="polite"' in widget and '<select' in widget and 'LayerDiagram' in widget
+          assert 'isMaterialGuide && <PlasterMaterialGuide />' in landing
+          assert 'knauf.ru' in widget and 'ceresit.ru' in widget
+          planner = json.loads(Path('research/yaai/planners/silalesa.json').read_text(encoding='utf-8'))
+          matches = [p for p in planner['targets'] if 'P02' in p.get('intentIds', [])]
+          assert len(matches) == 1 and matches[0]['status'] == 'existing' and matches[0]['path'] == '/' + slug + '/'
+          with Path('docs/content-research/content-intents.csv').open(encoding='utf-8-sig', newline='') as handle:
+            rows = list(csv.DictReader(handle))
+          assert len(rows) == 36
+          statuses = {row['intent_id']: row['publication_status'] for row in rows}
+          assert statuses['P02'] == 'published' and statuses['P01'] == 'published' and statuses['P03'] == 'research'
+          print('P02_SMOKE_OK: page, Article, sitemap, backlinks, interactive visual, 36 intents')
+          PY
+      - name: Review scope and commit checked changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/data/seoPages.ts src/pages/SeoLandingPage.tsx scripts/prerender.mjs research/yaai/planners/silalesa.json docs/content-research/content-intents.csv docs/MASTER-EXECUTION-PLAN.md
+          git diff --cached --check
+          git diff --cached --stat
+          if git diff --cached --name-only | grep -E '(^src/assets/|^src/sections/ServicesAbout.tsx$|^src/components/BeforeAfter.tsx$)'; then
+            echo 'Protected media, homepage, or slider files changed' >&2
+            exit 1
+          fi
+          git commit -m 'content: integrate P02 material comparison, visual selector and site links'
+          git push origin HEAD:content/p02-plaster-materials-visual-20260918
