@@ -17,8 +17,27 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Integrate P01 without modifying media or sliders
-        run: python3 scripts/.integrate-p01-once.py
+      - name: Correct verified source anchors and integrate P01
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/.integrate-p01-once.py')
+          s = p.read_text(encoding='utf-8')
+          old = '${guideLinks}${screedServiceLink}${serviceGuideLink}'
+          new = '${guideLinks}${serviceGuideLink}${screedServiceLink}'
+          assert s.count(old) == 1
+          s = s.replace(old, new, 1)
+          old = '${guideLinks}${screedServiceLink}${plasterServiceLink}${serviceGuideLink}'
+          new = '${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}'
+          assert s.count(old) == 1
+          s = s.replace(old, new, 1)
+          old = '    : isScreedGuide' + chr(92) + 'n        ? serviceComparisonBySlug'
+          new = '      : isScreedGuide' + chr(92) + 'n        ? serviceComparisonBySlug'
+          assert s.count(old) == 2
+          s = s.replace(old, new)
+          p.write_text(s, encoding='utf-8', newline='\n')
+          PY
+          python3 scripts/.integrate-p01-once.py
       - name: Install dependencies
         run: npm ci
       - name: Typecheck
