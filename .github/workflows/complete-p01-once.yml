@@ -33,7 +33,7 @@ jobs:
           s = s.replace(old, new, 1)
           old = '    : isScreedGuide' + chr(92) + 'n        ? serviceComparisonBySlug'
           new = '      : isScreedGuide' + chr(92) + 'n        ? serviceComparisonBySlug'
-          assert s.count(old) == 2
+          assert s.count(old) == 4
           s = s.replace(old, new)
           p.write_text(s, encoding='utf-8', newline='\n')
           PY
