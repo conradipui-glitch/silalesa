@@ -1,0 +1,69 @@
+name: One-time P01 guide integration
+on:
+  push:
+    branches: [content/p01-plaster-vs-manual-20260917]
+    paths: ['.github/workflows/complete-p01-once.yml']
+permissions:
+  contents: write
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Integrate P01 without modifying media or sliders
+        run: python3 scripts/.integrate-p01-once.py
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build site and prerender pages
+        run: npm run build
+      - name: Validate rendered guide, reciprocal links and content planner
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv, json
+          slug = 'guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka'
+          url = 'https://conradipui-glitch.github.io/silalesa/' + slug + '/'
+          root = Path('dist')
+          guide = (root / slug / 'index.html').read_text(encoding='utf-8')
+          service = (root / 'mehanizirovannaya-shtukaturka-omsk' / 'index.html').read_text(encoding='utf-8')
+          sitemap = (root / 'sitemap.xml').read_text(encoding='utf-8')
+          llms = (root / 'llms.txt').read_text(encoding='utf-8')
+          assert url in guide and url in sitemap and url in llms
+          assert 'Механизированная или ручная штукатурка' in guide
+          assert '"@type":"Article"' in guide
+          assert 'mehanizirovannaya-shtukaturka-omsk/' in guide
+          assert url in service
+          assert 'Смотреть готовые бани' not in guide
+          planner = json.loads(Path('research/yaai/planners/silalesa.json').read_text(encoding='utf-8'))
+          targets = [p for p in planner['targets'] if 'P01' in p.get('intentIds', [])]
+          assert len(targets) == 1 and targets[0]['status'] == 'existing' and targets[0]['path'] == '/' + slug + '/'
+          with Path('docs/content-research/content-intents.csv').open(encoding='utf-8-sig', newline='') as f:
+            rows = list(csv.DictReader(f))
+          assert len(rows) == 36
+          assert next(r for r in rows if r['intent_id'] == 'P01')['publication_status'] == 'published'
+          assert next(r for r in rows if r['intent_id'] == 'P03')['publication_status'] == 'research'
+          assert len(json.loads(Path('src/data/seo-page-guides-plaster.json').read_text(encoding='utf-8'))[0]['faq']) >= 7
+          print('P01_SMOKE_OK: page, Article, canonical, service backlinks, sitemap, planner, 36 intents')
+          PY
+      - name: Review scope and commit branch changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/data/seoPages.ts src/pages/SeoLandingPage.tsx scripts/prerender.mjs research/yaai/planners/silalesa.json docs/content-research/content-intents.csv docs/MASTER-EXECUTION-PLAN.md
+          git diff --cached --check
+          git diff --cached --stat
+          if git diff --cached --name-only | grep -E '(^src/assets/|^src/sections/ServicesAbout.tsx$|^src/components/BeforeAfter.tsx$)'; then
+            echo 'Protected media/homepage/slider files changed' >&2
+            exit 1
+          fi
+          git commit -m 'content: integrate and publish P01 plaster comparison guide'
+          git push origin HEAD:content/p01-plaster-vs-manual-20260917
