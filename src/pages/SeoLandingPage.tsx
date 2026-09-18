@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { BeforeAfter } from "../components/BeforeAfter";
 import { PlasterMaterialGuide } from "../components/PlasterMaterialGuide";
+import { ScreedComparisonGuide } from "../components/ScreedComparisonGuide";
 import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPageBySlug, seoPages } from "../data/seoPages";
@@ -278,6 +279,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           )}
         </div>
       </section>
+
+      {isScreedGuide && <ScreedComparisonGuide />}
 
       {isMaterialGuide && <PlasterMaterialGuide />}
 

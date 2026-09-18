@@ -74,6 +74,9 @@ function staticSnapshot(page) {
   const comparison = isGuide && page.comparison
     ? `<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>`
     : "";
+  const screedVisual = isScreedGuide
+    ? `<section aria-label="Визуальное сравнение полусухой и мокрой стяжки"><h2>Полусухая и мокрая стяжка: что сравнивать</h2><p>Полусухая смесь содержит меньше воды, требует распределения и уплотнения; мокрый раствор более подвижен и укладывается по инструкции выбранного материала. Ни один метод сам по себе не гарантирует сроки или качество.</p><table><caption>Критерии выбора стяжки</caption><thead><tr><th>Критерий</th><th>Полусухая</th><th>Мокрая</th></tr></thead><tbody><tr><th>Укладка</th><td>Распределение, уплотнение, выравнивание</td><td>Укладка, выравнивание по техкарте</td></tr><tr><th>Слои и нагрузка</th><td>По проекту конструкции</td><td>По проекту конструкции</td></tr><tr><th>Готовность к покрытию</th><td>Проверка влажности и требований покрытия</td><td>Проверка влажности и требований покрытия</td></tr><tr><th>Смета</th><td>Полный состав и условия объекта</td><td>Тот же полный состав и условия объекта</td></tr></tbody></table><h3>Условная схема слоёв</h3><ol><li>Основание / перекрытие</li><li>Разделительный или изоляционный слой, если предусмотрен проектом</li><li>Стяжка выбранной технологии</li><li>Совместимое финишное покрытие</li></ol><p>Схема не в масштабе. Для тёплого пола, мокрой зоны и ограниченной несущей способности решение определяют отдельно. Интерактивная проверка условий доступна при включённом JavaScript.</p></section>`
+    : "";
   const sections = isGuide && page.sections
     ? page.sections.map((section) => `<section><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>` : ""}</section>`).join("")
     : "";
@@ -151,7 +154,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${comparison}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${comparison}${screedVisual}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
