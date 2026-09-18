@@ -35,6 +35,9 @@ jobs:
           new = '      : isScreedGuide' + chr(92) + 'n        ? serviceComparisonBySlug'
           assert s.count(old) == 4
           s = s.replace(old, new)
+          image_end = "].before'"
+          assert s.count(image_end) == 2
+          s = s.replace(image_end, '].before' + chr(92) + "n'")
           p.write_text(s, encoding='utf-8', newline='\n')
           PY
           python3 scripts/.integrate-p01-once.py
