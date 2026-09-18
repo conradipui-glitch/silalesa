@@ -404,6 +404,20 @@
         "P01"
       ],
       "note": "Информационное сравнение; CTA на коммерческую страницу механизированной штукатурки."
+    },
+    {
+      "id": "guide-plaster-materials",
+      "title": "Гипсовая или цементная штукатурка",
+      "kind": "guide",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/guides/remont/gipsovaya-ili-tsementnaya-shtukaturka/",
+      "priority": "P2",
+      "focusWeight": 1,
+      "intentIds": [
+        "P02"
+      ],
+      "note": "Информационный выбор штукатурной системы; интерактивный ориентир и переход на услугу. P01 — отдельный выбор способа нанесения."
     }
   ]
 }
