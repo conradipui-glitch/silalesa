@@ -16,7 +16,7 @@ const scenarios: { value: Route; number: string; title: string; description: str
   { value: "dry-lining", number: "03", title: "Вместо штукатурки — ГКЛ", description: "Отдельный маршрут для сухих облицовок, если его допускает выбранная система.", chain: "Основание пола → стяжка → ГКЛ" },
 ];
 
-function makeSteps(route: Route, ceiling: boolean, heated: boolean, wetZone: boolean): Step[] {
+export function makeSteps(route: Route, ceiling: boolean, heated: boolean, wetZone: boolean): Step[] {
   const commonFloorChecks = [
     "Уточнить отметку чистого пола, проёмы, состав слоёв и примыкания.",
     "Согласовать допустимую нагрузку и конструкцию по проекту.",
