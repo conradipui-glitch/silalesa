@@ -4,6 +4,7 @@ import { BeforeAfter } from "../components/BeforeAfter";
 import { PlasterMaterialGuide } from "../components/PlasterMaterialGuide";
 import { ScreedComparisonGuide } from "../components/ScreedComparisonGuide";
 import { RenovationSequenceGuide } from "../components/RenovationSequenceGuide";
+import { PlasterProcessGuide } from "../components/PlasterProcessGuide";
 import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPageBySlug, seoPages } from "../data/seoPages";
@@ -280,6 +281,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           )}
         </div>
       </section>
+
+      {isPlasterGuide && <PlasterProcessGuide />}
 
       {isRepairGuide && <RenovationSequenceGuide />}
 
