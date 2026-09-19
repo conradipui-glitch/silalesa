@@ -1,0 +1,40 @@
+name: Apply R4 service revision
+
+on:
+  push:
+    branches: ["revision/r4-service-offers"]
+    paths: [".github/workflows/r4-apply.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout task branch
+        uses: actions/checkout@v4
+        with:
+          ref: revision/r4-service-offers
+          persist-credentials: true
+      - name: Apply narrowly-scoped service edits
+        run: node scripts/apply-r4-temporary.mjs
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Verify TypeScript, build, R1–R4 and HTML
+        run: npm run build
+      - name: Commit only finished product code and checks
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f scripts/apply-r4-temporary.mjs .github/workflows/r4-apply.yml
+          git add -A
+          git diff --cached --stat
+          git diff --cached --quiet && exit 1
+          git commit -m "R4: clarify service offers, unit prices, quote requests and static HTML"
+          git push origin HEAD:revision/r4-service-offers
