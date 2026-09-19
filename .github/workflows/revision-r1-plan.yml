@@ -1,0 +1,28 @@
+name: R1 canonical plan sync
+
+on:
+  push:
+    branches: ["revision/r1-p01-editorial"]
+    paths: [".github/workflows/revision-r1-plan.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  sync-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Update R1 source of truth
+        run: python3 scripts/r1-mark-plan.py
+      - name: Remove ephemeral automation and push the isolated doc change
+        run: |
+          git rm .github/workflows/revision-r1-plan.yml scripts/r1-mark-plan.py
+          git add docs/CONTENT-CONVERSION-REVISION-PLAN.md
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r1): record PR 16 completion and deployment verification reference"
+          git push origin HEAD:revision/r1-p01-editorial
