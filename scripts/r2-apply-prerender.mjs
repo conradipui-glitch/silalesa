@@ -13,17 +13,10 @@ prerender = prerender.slice(0, start)
   + prerender.slice(end);
 await fs.writeFile(prerenderPath, prerender);
 
-const ciPath = ".github/workflows/ci.yml";
-let ci = await fs.readFile(ciPath, "utf8");
-const anchor = "      - name: Build\n        run: npm run build\n";
-if (!ci.includes(anchor) || ci.includes("check-r2.mjs")) throw new Error("Unexpected CI workflow contents");
-ci = ci.replace(anchor, `${anchor}\n      - name: Check TypeScript\n        run: npx tsc --noEmit\n\n      - name: Pages-mode build and R1/R2 regression\n        run: |\n          GITHUB_PAGES=true npm run build\n          node scripts/check-r1.mjs\n          node scripts/check-r2.mjs\n`);
-await fs.writeFile(ciPath, ci);
-
 const r1Path = "scripts/check-r1.mjs";
 let r1 = await fs.readFile(r1Path, "utf8");
 const oldAssertion = "assert(p01Html.includes('Матрица сравнения смет'), 'R2 interactive semantic fallback intact');";
 if (!r1.includes(oldAssertion)) throw new Error("Unexpected R1 fallback check");
 r1 = r1.replace(oldAssertion, "assert(p01Html.includes('Одна смета или две') && p01Html.includes('Карта нанесения и проверки смет штукатурки'), 'R2 interactive semantic fallback intact');");
 await fs.writeFile(r1Path, r1);
-console.log("Applied R2 prerender, CI and backwards-compatible R1 regression checks");
+console.log("Applied R2 prerender and backwards-compatible R1 regression checks; unchanged CI workflow");
