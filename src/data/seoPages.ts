@@ -6,6 +6,7 @@ import rawPlasterGuides from "./seo-page-guides-plaster.json";
 import rawMaterialGuides from "./seo-page-guides-materials.json";
 import rawOverrides from "./seo-page-overrides.json";
 import rawNextOverrides from "./seo-page-overrides-next.json";
+import rawR3Overrides from "./seo-page-overrides-r3.json";
 
 export type SeoFaq = [question: string, answer: string];
 export type SeoGuideSection = { heading: string; paragraphs: string[]; bullets?: string[] };
@@ -33,7 +34,7 @@ export type SeoPage = {
 type SeoPageOverride = { slug: string } & Partial<Omit<SeoPage, "slug">>;
 
 const overrideBySlug = new Map(
-  ([...rawOverrides, ...rawNextOverrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
+  ([...rawOverrides, ...rawNextOverrides, ...rawR3Overrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
 );
 
 const rawAllPages = [...rawPages, ...rawGuides, ...rawRepairGuides, ...rawScreedGuides, ...rawPlasterGuides, ...rawMaterialGuides] as SeoPage[];
