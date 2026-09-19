@@ -5,7 +5,8 @@ import ts from "typescript";
 
 const root = process.cwd();
 const model = await fs.readFile(path.join(root, "src/lib/plasterOffers.ts"), "utf8");
-// No imports in the pure model: compile it separately so Node can test the exact TS source.
+// Preserve R2's pure-model regression tests for historic offer comparisons, even though
+// the buyer-facing P01 no longer asks visitors to fill the full estimate matrix.
 const js = ts.transpileModule(model, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
 const { estimateItems, initialOffers, exampleOffers, summarizeOffers } = await import(`data:text/javascript;charset=utf-8,${encodeURIComponent(js)}`);
 const total = estimateItems.length;
@@ -25,10 +26,9 @@ result = summarizeOffers(partial, no, "single");
 assert.equal(result.status, "incomplete");
 assert.equal(result.clarified, 1);
 assert.equal(result.unresolved.length, 7);
-assert.equal(summarizeOffers(partial, yes, "compare").clarified, 0, "two offers need two known entries");
-
+assert.equal(summarizeOffers(partial, yes, "compare").clarified, 0);
 result = summarizeOffers(all("included", "unknown"), no, "single");
-assert.equal(result.compositionReady, true, "one estimate must not require a second one or baseline comparisons");
+assert.equal(result.compositionReady, true);
 assert.equal(result.status, "complete");
 assert.equal(summarizeOffers(all("included", "unknown"), yes, "compare").status, "empty");
 result = summarizeOffers(all("included"), no, "compare");
@@ -38,20 +38,18 @@ assert.equal(result.compositionReady, false);
 result = summarizeOffers(all("included"), yes, "compare");
 assert.equal(result.status, "complete");
 assert.equal(result.compositionReady, true);
-
 result = summarizeOffers(all("separate"), yes, "compare");
 assert.equal(result.status, "additions");
-assert.equal(result.compositionReady, true, "separate/separate is known composition");
+assert.equal(result.compositionReady, true);
 assert.equal(result.different.length, 0);
 assert.equal(result.separate.length, total);
 result = summarizeOffers(all("included", "separate"), yes, "compare");
 assert.equal(result.status, "additions");
-assert.equal(result.compositionReady, true, "included/separate is reconcilable after adding amounts");
+assert.equal(result.compositionReady, true);
 assert.equal(result.different.length, total);
 assert.equal(result.separate.length, total);
 assert.equal(summarizeOffers(all("separate", "unknown"), no, "single").status, "additions");
 assert.equal(summarizeOffers(all("separate", "unknown"), no, "single").compositionReady, true);
-
 const mixed = all("included");
 mixed.preparation.hand = "unknown";
 result = summarizeOffers(mixed, yes, "compare");
@@ -65,17 +63,12 @@ assert.equal(result.different.length, 1);
 assert.equal(exampleOffers().delivery.hand, "separate");
 
 const component = await fs.readFile(path.join(root, "src/components/PlasterProcessGuide.tsx"), "utf8");
-for (const phrase of ["Общее для двух способов", "Чем отличаются способы", "#p01-estimate-title", "Одна смета", "Две сметы", "slice(0, visibleCount)", "setVisibleCount", "Условный пример", "Надо уточнить", "Состав ясен — включите суммы доплат", "Обсудить расчёт в WhatsApp", "whatsappUrl(contactText)"]) assert.ok(component.includes(phrase), `UI missing: ${phrase}`);
-assert.ok(!component.includes("summary.ready"), "old all-included gating must be removed");
-assert.ok(component.includes('const showExample = () => setIsExample((previous) => !previous)'), 'demo toggles independent panel');
-assert.ok(!component.includes('setOffers(exampleOffers())') && !component.includes('setBaseline([true, true, true])'), 'demo never overwrites real answers');
-assert.ok(component.includes('не заполняет ваши поля и не изменяет ваши ответы'), 'explicit demonstration isolation');
-assert.ok(component.includes('exampleSummary.separate.length'), 'demonstration shows unpaid additions without pretending a total');
+for (const phrase of ["Что выбрать для ваших стен?", "от 550 ₽/м²", "Пять вопросов, чтобы понять смету", "Что делать дальше?", "Подробнее: как проходят работы", "У меня две сметы — как их сравнить?", "Обсудить расчёт в WhatsApp", "whatsappUrl(contactText)"]) assert.ok(component.includes(phrase), `R4.1 client UI missing: ${phrase}`);
+for (const old of ["slice(0, visibleCount)", "setVisibleCount", "role=\"progressbar\"", "scopeLabels.map", "setOffers", "Начните с одной позиции"]) assert.ok(!component.includes(old), `R4.1 must not display old mandatory matrix: ${old}`);
 const slug = "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka";
 const html = await fs.readFile(path.join(root, "dist", slug, "index.html"), "utf8");
-for (const phrase of ["data-prerendered", "Общее:", "Различие:", "Одна смета или две", "Условный пример", "Надо уточнить", "в обеих сметах", "суммы доплат", "Перейти к проверке сметы", "Обсудить расчёт в WhatsApp", "FAQPage", "Article", "rel=\"canonical\""]) assert.ok(html.includes(phrase), `No-JS missing: ${phrase}`);
-for (const item of estimateItems) assert.ok(html.includes(item.name), `No-JS lost estimate row: ${item.name}`);
-for (const name of ["Основание", "Смесь и подача", "Нанесение", "Выравнивание", "Приёмка"]) assert.ok(html.includes(name), `No-JS lost stage: ${name}`);
+for (const phrase of ["data-prerendered", "Что выбрать для ваших стен?", "от 550 ₽/м²", "Пять вопросов, чтобы понять смету", "У меня две сметы — как их сравнить?", "Подробнее: как проходят работы", "Обсудить расчёт в WhatsApp", "FAQPage", "Article", "rel=\"canonical\""]) assert.ok(html.includes(phrase), `R4.1 no-JS missing: ${phrase}`);
+assert.ok(!html.includes("Уточнено 0 из 8") && !html.includes("Карта нанесения и проверки смет штукатурки"), "No-JS old mandatory matrix removed");
 assert.ok(html.includes(`https://conradipui-glitch.github.io/silalesa/${slug}/`));
 const products = await fs.readFile(path.join(root, "src/data/products.ts"), "utf8");
 const contact = products.match(/whatsapp:\s*"(\d+)"/);
@@ -83,4 +76,4 @@ assert.ok(contact);
 assert.ok(html.includes(`https://wa.me/${contact[1]}?text=`));
 const sitemap = await fs.readFile(path.join(root, "dist/sitemap.xml"), "utf8");
 assert.ok(sitemap.includes(`${slug}/`));
-console.log("R2 PASS: 11 logic scenarios, demo, progressive UI, eight no-JS rows, five stages, CTA, canonical/schema/sitemap");
+console.log("R2/R4.1 PASS: historical model scenarios, simple buyer UI, no-JS answer and price, optional details, contact, SEO/sitemap");
