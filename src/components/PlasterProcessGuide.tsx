@@ -87,13 +87,8 @@ export function PlasterProcessGuide() {
     setVisibleCount(3);
     setIsExample(false);
   };
-  const showExample = () => {
-    setMode("compare");
-    setBaseline([true, true, true]);
-    setOffers(exampleOffers());
-    setVisibleCount(estimateItems.length);
-    setIsExample(true);
-  };
+  const exampleSummary = summarizeOffers(exampleOffers(), [true, true, true], "compare");
+  const showExample = () => setIsExample((previous) => !previous);
   const title = summary.status === "empty" ? "Начните с одной позиции"
     : summary.status === "incomplete" ? "Уже видно, что нужно уточнить"
     : summary.status === "baseline" ? "Состав известен — сверьте исходные условия"
@@ -156,10 +151,19 @@ export function PlasterProcessGuide() {
             </div>
           </fieldset>
           <div className="mt-5 flex flex-wrap gap-3">
-            <button type="button" onClick={showExample} className="min-h-11 rounded-full border border-cedar-700 px-5 py-2 text-sm font-semibold text-cedar-800 hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-600">Показать условный пример</button>
+            <button type="button" onClick={showExample} className="min-h-11 rounded-full border border-cedar-700 px-5 py-2 text-sm font-semibold text-cedar-800 hover:bg-cream-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-600">{isExample ? "Скрыть условный пример" : "Показать условный пример"}</button>
             <button type="button" onClick={reset} className="min-h-11 rounded-full border border-bark-950/20 px-5 py-2 text-sm font-semibold text-bark-900 hover:border-cedar-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-600">Сбросить и начать заново</button>
           </div>
-          {isExample && <p role="note" className="mt-4 rounded-xl border border-cedar-700 bg-cream-100 p-4 text-sm font-semibold text-bark-900">Условный пример, НЕ реальная смета и НЕ предложение «Силы Леса» или другого подрядчика. Доплаты приведены только как типы позиций, без сумм. Измените любую отметку, чтобы вернуться к проверке своих данных.</p>}
+          {isExample && <aside role="note" aria-label="Условный пример смет" className="mt-4 rounded-xl border border-cedar-700 bg-cream-100 p-4 text-sm text-bark-900">
+            <p className="font-semibold">Условный пример — НЕ реальные сметы и НЕ предложение «Силы Леса» или другого подрядчика. Он не заполняет ваши поля и не изменяет ваши ответы.</p>
+            <ul className="mt-3 list-disc space-y-1 pl-5 leading-relaxed">
+              <li>Подготовка включена в обеих сметах.</li>
+              <li>Доставка оплачивается отдельно в обеих сметах.</li>
+              <li>Оборудование отдельно при механизации, но включено при ручном способе.</li>
+              <li>Остальные пять позиций включены в обеих сметах; три общих условия условно согласованы.</li>
+            </ul>
+            <p className="mt-3 leading-relaxed">В этом примере понятны {exampleSummary.clarified} из {estimateItems.length} позиций, но {exampleSummary.separate.length} позиции с доплатами требуют реальных сумм. Разница в включении также устраняется приведением полной цены к одному составу. Это не расчёт цены.</p>
+          </aside>}
 
           <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -220,7 +224,7 @@ export function PlasterProcessGuide() {
               <p className="max-w-2xl text-sm leading-relaxed text-cream-100">Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки и неизвестные позиции вашей сметы.</p>
               <LinkButton to={whatsappUrl(contactText)} external className="mt-4" onClick={() => track("cta_click", { type: "whatsapp", where: "p01-estimate", mode, slug: "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka" })}>Обсудить расчёт в WhatsApp <ArrowIcon /></LinkButton>
             </div>
-            <p className="mt-5 text-xs leading-relaxed text-cream-200">Вводите отметки по документам. {isExample ? "Сейчас показан условный пример, не реальные предложения. " : ""}«Сила Леса» предлагает механизированную штукатурку; ручная здесь только для сравнения. Проверка не заменяет смету, осмотр и инструкцию смеси.</p>
+            <p className="mt-5 text-xs leading-relaxed text-cream-200">Вводите отметки по документам. «Сила Леса» предлагает механизированную штукатурку; ручная здесь только для сравнения. Проверка не заменяет смету, осмотр и инструкцию смеси.</p>
           </div>
         </div>
       </div>
