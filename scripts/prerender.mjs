@@ -26,6 +26,8 @@ const pageOverrides = [
 const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));
 const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
 const servicePages = pages.filter((page) => page.kind === "service");
+const whatsappMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8")).match(/whatsapp:\s*"(\d+)"/);
+if (!whatsappMatch) throw new Error("Canonical WhatsApp contact missing");
 const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 
 const servicesHub = {
@@ -62,7 +64,8 @@ function applyPageMeta(html, { title, description, canonical }) {
 
 function staticSnapshot(page) {
   const canonical = `${SITE_URL}${page.slug}/`;
-  const points = page.points.map((point) => `<li>${escapeHtml(point)}</li>`).join("");
+  const keyPoints = page.summary ?? page.points;
+  const points = keyPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("");
   const faq = page.faq
     .map(([question, answer]) => `<section><h2>${escapeHtml(question)}</h2><p>${escapeHtml(answer)}</p></section>`)
     .join("");
@@ -74,6 +77,11 @@ function staticSnapshot(page) {
   const comparison = isGuide && page.comparison
     ? `<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>`
     : "";
+  const methodComparison = isGuide && page.methodComparison
+    ? `<section aria-label="Сравнение способов штукатурки"><h2>${escapeHtml(page.methodComparison.heading)}</h2><p>${escapeHtml(page.methodComparison.intro)}</p><table><caption>${escapeHtml(page.methodComparison.heading)}</caption><thead><tr><th scope="col">Вопрос</th>${page.methodComparison.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join("")}</tr></thead><tbody>${page.methodComparison.rows.map(([criterion, machine, hand]) => `<tr><th scope="row">${escapeHtml(criterion)}</th><td>${escapeHtml(machine)}</td><td>${escapeHtml(hand)}</td></tr>`).join("")}</tbody></table></section>`
+    : "";
+  const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_URL}${page.slug}/`;
+  const plasterCta = isPlasterGuide ? `<section><h2>Хотите рассчитать механизированную штукатурку?</h2><p>Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p><p><a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(plasterWaText)}">Обсудить расчёт в WhatsApp</a></p></section>` : "";
   const screedVisual = isScreedGuide
     ? `<section aria-label="Визуальное сравнение полусухой и мокрой стяжки"><h2>Полусухая и мокрая стяжка: что сравнивать</h2><p>Полусухая смесь содержит меньше воды, требует распределения и уплотнения; мокрый раствор более подвижен и укладывается по инструкции выбранного материала. Ни один метод сам по себе не гарантирует сроки или качество.</p><table><caption>Критерии выбора стяжки</caption><thead><tr><th>Критерий</th><th>Полусухая</th><th>Мокрая</th></tr></thead><tbody><tr><th>Укладка</th><td>Распределение, уплотнение, выравнивание</td><td>Укладка, выравнивание по техкарте</td></tr><tr><th>Слои и нагрузка</th><td>По проекту конструкции</td><td>По проекту конструкции</td></tr><tr><th>Готовность к покрытию</th><td>Проверка влажности и требований покрытия</td><td>Проверка влажности и требований покрытия</td></tr><tr><th>Смета</th><td>Полный состав и условия объекта</td><td>Тот же полный состав и условия объекта</td></tr></tbody></table><h3>Условная схема слоёв</h3><ol><li>Основание / перекрытие</li><li>Разделительный или изоляционный слой, если предусмотрен проектом</li><li>Стяжка выбранной технологии</li><li>Совместимое финишное покрытие</li></ol><p>Схема не в масштабе. Для тёплого пола, мокрой зоны и ограниченной несущей способности решение определяют отдельно. Интерактивная проверка условий доступна при включённом JavaScript.</p></section>`
     : "";
@@ -160,7 +168,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${comparison}${screedVisual}${repairVisual}${plasterVisual}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${methodComparison}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {

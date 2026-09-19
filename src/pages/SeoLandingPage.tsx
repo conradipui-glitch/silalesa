@@ -91,12 +91,15 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isService = page.kind === "service";
   const isCategory = page.kind === "category";
   const isGuide = page.kind === "guide";
+  const keyPoints = page.summary ?? page.points;
   const comparison = isService ? serviceComparisonBySlug[page.slug] : undefined;
   const waText = product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
     : isGuide
       ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
+
+  const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_BASE}${page.slug}/`;
 
   const otherGuides = isGuide && !isRepairGuide && !isScreedGuide && !isPlasterGuide && !isMaterialGuide
     ? seoPages.filter((item) => item.kind === "guide" && item.slug !== page.slug && item.slug !== REPAIR_GUIDE_SLUG)
@@ -106,7 +109,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
     : isRepairGuide
     ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === "polusuhaya-styazhka-omsk")
     : isPlasterGuide
-      ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk")
+      ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === MATERIAL_GUIDE_SLUG)
     : isScreedGuide
       ? seoPages.filter((item) => item.slug === "polusuhaya-styazhka-omsk")
     : isDrillingGuide
@@ -236,15 +239,17 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
             <div className="reveal">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Коротко по делу</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isPlasterGuide ? "Выбор за минуту" : isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-bark-600 sm:text-base">
-                {isGuide
+                {isPlasterGuide
+                  ? "Четыре ориентира, чтобы быстро понять различия. Подробности и условия — ниже."
+                  : isGuide
                   ? "Ниже — практические ориентиры: что проверить заранее и какие вопросы согласовать для вашего объекта."
                   : "Здесь собраны характеристики именно под этот запрос. Без скрытия цены и без требования оставить телефон, чтобы увидеть базовую информацию."}
               </p>
             </div>
             <ul className="divide-y divide-bark-950/10 border-y border-bark-950/10">
-              {page.points.map((point, index) => (
+              {keyPoints.map((point, index) => (
                 <li key={point} className="reveal flex gap-4 py-5 text-sm leading-relaxed text-bark-700 sm:text-base" style={{ ["--reveal-delay" as string]: `${index * 50}ms` }}>
                   <span className="font-display text-xs text-cedar-700">0{index + 1}</span>
                   <span>{point}</span>
@@ -281,6 +286,49 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           )}
         </div>
       </section>
+
+      {page.methodComparison && (
+        <section className="bg-bark-800 py-14 text-cream-50 sm:py-20" aria-labelledby="method-comparison-title">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">По одной задаче</p>
+            <h2 id="method-comparison-title" className="mt-3 font-display text-2xl sm:text-4xl">{page.methodComparison.heading}</h2>
+            <p className="mt-4 max-w-3xl text-cream-200/85">{page.methodComparison.intro}</p>
+            <div className="mt-7 space-y-3 md:hidden">
+              {page.methodComparison.rows.map(([criterion, machine, hand]) => (
+                <article key={criterion} className="rounded-2xl border border-cream-50/15 p-5">
+                  <h3 className="font-display text-lg text-cedar-300">{criterion}</h3>
+                  <dl className="mt-3 space-y-3 text-sm leading-relaxed">
+                    <div><dt className="font-semibold text-cream-50">{page.methodComparison!.columns[0]}</dt><dd className="mt-1 text-cream-200">{machine}</dd></div>
+                    <div><dt className="font-semibold text-cream-50">{page.methodComparison!.columns[1]}</dt><dd className="mt-1 text-cream-200">{hand}</dd></div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+            <div className="mt-8 hidden overflow-x-auto rounded-2xl border border-cream-50/15 md:block">
+              <table className="w-full border-collapse text-left text-sm lg:text-base">
+                <caption className="sr-only">{page.methodComparison.heading}</caption>
+                <thead className="bg-bark-950"><tr>
+                  <th scope="col" className="w-1/5 p-4">Вопрос</th>
+                  {page.methodComparison.columns.map((column) => <th key={column} scope="col" className="w-2/5 p-4">{column}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-cream-50/10">
+                  {page.methodComparison.rows.map(([criterion, machine, hand]) => (
+                    <tr key={criterion} className="align-top"><th scope="row" className="p-4 text-cedar-300">{criterion}</th><td className="p-4 text-cream-100">{machine}</td><td className="p-4 text-cream-100">{hand}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {isPlasterGuide && (
+              <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-bark-950 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+                <p className="max-w-xl text-sm leading-relaxed text-cream-100 sm:text-base">Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p>
+                <LinkButton to={whatsappUrl(plasterWaText)} external className="shrink-0" onClick={() => track("cta_click", { type: "whatsapp", where: "plaster-comparison", slug })}>
+                  Обсудить расчёт в WhatsApp <ArrowIcon />
+                </LinkButton>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {isPlasterGuide && <PlasterProcessGuide />}
 
@@ -392,10 +440,10 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       <section className="bg-bark-950 py-14 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
-          <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Нужно выбрать способ штукатурки стен?" : isScreedGuide ? "Нужно подобрать технологию стяжки?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу.</p>
+          <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Хотите рассчитать механизированную штукатурку?" : isScreedGuide ? "Нужно подобрать технологию стяжки?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <LinkButton to={whatsappUrl(waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>Написать в WhatsApp</LinkButton>
+            <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : "Написать в WhatsApp"}</LinkButton>
             {isRepairGuide ? (
               <>
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Штукатурка</LinkButton>
