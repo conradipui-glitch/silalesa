@@ -1,0 +1,31 @@
+name: Amend usability revision plan
+
+on:
+  push:
+    branches: ["docs/p01-ux-acceptance-r4a"]
+    paths: [".github/workflows/p01-plan-amend-fixed.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  amend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: docs/p01-ux-acceptance-r4a
+          persist-credentials: true
+      - name: Update master plan
+        run: python3 scripts/amend-p01-plan-temporary.py
+      - name: Commit clean plan amendment
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm scripts/amend-p01-plan-temporary.py .github/workflows/p01-plan-amend.yml .github/workflows/p01-plan-amend-fixed.yml
+          git add docs/CONTENT-CONVERSION-REVISION-PLAN.md
+          git diff --cached --check
+          git diff --cached --stat
+          git commit -m "Plan R4.1: simplify P01 for ordinary visitors before R5"
+          git push origin HEAD:docs/p01-ux-acceptance-r4a
