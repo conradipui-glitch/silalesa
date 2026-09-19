@@ -1,0 +1,1 @@
+Check CI then deploy; image binaries remain uncommitted.
