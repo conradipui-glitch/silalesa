@@ -1,0 +1,44 @@
+name: R2 isolated integration
+
+on:
+  push:
+    branches: ["revision/r2-p01-interactives"]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply prerender and CI integration
+        run: node scripts/r2-apply-prerender.mjs
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Build Pages output
+        run: GITHUB_PAGES=true npm run build
+      - name: Regression and scenario checks
+        run: |
+          node scripts/check-r1.mjs
+          node scripts/check-r2.mjs
+          git diff --check
+      - name: Commit verified source without temporary automation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm scripts/r2-apply-prerender.mjs .github/workflows/r2-integration.yml
+          git add -A
+          git diff --cached --check
+          git commit -m 'feat(r2): synchronize process fallback and automated regression checks'
+          git push
