@@ -9,7 +9,7 @@ import { track } from "../lib/utils";
 const serviceLandingByProductId = new Map(
   seoPages
     .filter((page) => page.kind === "service" && page.productId)
-    .map((page) => [page.productId as string, page.slug]),
+    .map((page) => [page.productId as string, page]),
 );
 
 export function Services() {
@@ -18,17 +18,17 @@ export function Services() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <SectionHead
-            index="Другие услуги"
-            title={<span id="services-title">Строительные работы — отдельно от банной линейки</span>}
-            lead="Эти направления не смешиваем с выбором бани на главной странице. Здесь собраны отдельные услуги компании: бурение, стяжка и механизированная штукатурка."
+            index="Строительные услуги · Омск"
+            title={<span id="services-title">Бурение и отделочные работы для дома и участка</span>}
+            lead="Три самостоятельные услуги: бурение скважины, полусухая стяжка и механизированная штукатурка. Смотрите стартовую цену за единицу работ, условия и что прислать для расчёта."
           />
-          <p className="reveal text-xs text-cream-300/60 lg:max-w-xs lg:text-right">Цены услуг — стартовые ориентиры с сайта компании; расчёт после выезда мастера или замерщика.</p>
+          <p className="reveal text-xs text-cream-300/60 lg:max-w-xs lg:text-right">Цены «от» указаны за м² или погонный метр. Итоговую смету уточняем по объёму и условиям вашего объекта.</p>
         </div>
 
         <ol className="mt-12 divide-y divide-cream-50/8 border-y border-cream-50/8">
           {services.map((s, i) => {
-            const landingSlug = serviceLandingByProductId.get(s.id);
-            const target = landingSlug ? `/${landingSlug}/` : `/product/${s.id}`;
+            const landing = serviceLandingByProductId.get(s.id);
+            const target = landing ? `/${landing.slug}/` : `/product/${s.id}`;
             return (
               <li key={s.id} className="reveal" style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}>
                 <Link
@@ -42,12 +42,12 @@ export function Services() {
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.18em] text-cedar-300/80">{s.category}</p>
                     <h3 className="mt-1 font-display text-lg text-cream-50 group-hover:text-cedar-300 transition-colors">{s.name}</h3>
-                    <p className="mt-1 text-sm text-cream-300/75 max-w-2xl">{s.tagline}</p>
+                    <p className="mt-1 text-sm text-cream-300/75 max-w-2xl">{landing?.lead ?? s.tagline}</p>
                   </div>
                   <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2">
-                    <span className="font-display text-lg text-cream-50">от {formatPrice(s.price)}</span>
+                    <span className="font-display text-lg text-cream-50">{landing?.priceLabel ?? `от ${formatPrice(s.price)}`}</span>
                     <span className="inline-flex items-center gap-1 text-sm text-cream-300/70 group-hover:text-cream-50">
-                      Подробнее <ArrowIcon />
+                      Условия и расчёт <ArrowIcon />
                     </span>
                   </div>
                 </Link>

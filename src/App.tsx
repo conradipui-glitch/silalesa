@@ -16,7 +16,7 @@ import { Faq, ReadyPromise } from "./sections/Trust";
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
 const SERVICES_TITLE = "Строительные услуги в Омске — Сила Леса";
-const SERVICES_DESCRIPTION = "Строительные услуги Сила Леса в Омске: бурение скважин, полусухая стяжка пола и механизированная штукатурка. Стартовые цены и отдельные страницы услуг.";
+const SERVICES_DESCRIPTION = "Строительные услуги в Омске: механизированная штукатурка от 550 ₽/м², полусухая стяжка от 600 ₽/м², бурение скважин от 2 500 ₽/пог. м. Условия и расчёт.";
 
 function useServicesMeta() {
   useEffect(() => {
@@ -80,6 +80,7 @@ function ServicesScreen() {
   const root = useRevealRoot<HTMLDivElement>([]);
   return (
     <div ref={root} className="pt-16">
+      <h1 className="sr-only">Строительные услуги в Омске</h1>
       <Services />
     </div>
   );

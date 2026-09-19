@@ -93,7 +93,9 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isGuide = page.kind === "guide";
   const keyPoints = page.summary ?? page.points;
   const comparison = isService ? serviceComparisonBySlug[page.slug] : undefined;
-  const waText = product
+  const waText = isService && page.requestPrompt
+    ? page.requestPrompt + " Страница: " + SITE_BASE + page.slug + "/"
+    : product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
     : isGuide
       ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
@@ -180,15 +182,16 @@ export function SeoLandingPage({ slug }: { slug: string }) {
 
             {!isGuide && (
               <div className="mt-7 flex flex-wrap items-baseline gap-3">
-                <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{isService ? "от " : isCategory ? "от " : ""}{formatPrice(price)}</span>
+                <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{page.priceLabel ?? ((isService || isCategory ? "от " : "") + formatPrice(price))}</span>
                 {product?.dims && <span className="text-sm text-cream-300/70">{product.dims}</span>}
               </div>
             )}
+            {isService && page.priceNote && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85">{page.priceNote}</p>}
 
             <div className="mt-8 flex flex-wrap gap-3">
               {isService ? (
                 <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing", slug })}>
-                  Получить расчёт в WhatsApp <ArrowIcon />
+                  Отправить данные для расчёта <ArrowIcon />
                 </LinkButton>
               ) : isPlasterGuide || isMaterialGuide ? (
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" size="lg" onClick={() => track("cta_click", { type: "guide_to_plaster", where: "seo-landing", slug })}>
@@ -273,7 +276,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           {page.slug === "polusuhaya-styazhka-omsk" && (
             <p className="mt-6 text-sm"><Link to={`/${SCREED_GUIDE_SLUG}/`} className="font-medium text-cedar-700 underline underline-offset-4 hover:text-bark-900">Полусухая или мокрая стяжка: в чём разница? →</Link></p>
           )}
-          {product && (
+          {product && !isService && (
             <div className="reveal mt-12 flex flex-col gap-5 rounded-3xl bg-bark-950 p-6 text-cream-50 sm:flex-row sm:items-center sm:justify-between sm:p-8">
               <div>
                 <p className="font-display text-xl">{isService ? "Нужны подробности по услуге?" : "Нужна полная комплектация и детали?"}</p>
@@ -286,6 +289,30 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           )}
         </div>
       </section>
+
+      {isService && page.serviceResults && page.requestChecklist && (
+        <section className="bg-bark-800 py-16 text-cream-50 sm:py-20" aria-label="Что получите и как рассчитать услугу">
+          <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Результат и условия</p>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl">Что входит в обсуждение заказа</h2>
+              <ul className="mt-6 space-y-4 text-base leading-relaxed text-cream-100">
+                {page.serviceResults.map((result) => <li key={result} className="flex gap-3"><CheckIcon className="mt-1 h-4 w-4 shrink-0 text-cedar-300" /><span>{result}</span></li>)}
+              </ul>
+              {page.priceNote && <p className="mt-6 rounded-xl border border-cream-50/15 p-4 text-sm leading-relaxed text-cream-200">{page.priceNote}</p>}
+            </div>
+            <div className="rounded-3xl border border-cream-50/15 bg-bark-950 p-6 sm:p-8">
+              <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Следующий шаг</p>
+              <h2 className="mt-3 font-display text-2xl sm:text-3xl">Что прислать для расчёта</h2>
+              <ol className="mt-6 space-y-4">
+                {page.requestChecklist.map((item, index) => <li key={item} className="flex gap-3 text-sm leading-relaxed text-cream-100 sm:text-base"><span className="shrink-0 font-display text-cedar-300">{index + 1}.</span><span>{item}</span></li>)}
+              </ol>
+              <p className="mt-6 text-sm leading-relaxed text-cream-300/85">Отправьте то, что уже известно. Остальные параметры уточним в разговоре — заполнение формы не требуется.</p>
+              <LinkButton to={whatsappUrl(waText)} external className="mt-6" onClick={() => track("cta_click", { type: "whatsapp", where: "service-request", slug })}>Отправить параметры <ArrowIcon /></LinkButton>
+            </div>
+          </div>
+        </section>
+      )}
 
       {page.methodComparison && (
         <section className="bg-bark-800 py-14 text-cream-50 sm:py-20" aria-labelledby="method-comparison-title">
@@ -441,9 +468,9 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
           <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Хотите рассчитать механизированную штукатурку?" : isScreedGuide ? "Нужно подобрать технологию стяжки?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
+          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : isService ? "Пришлите параметры объекта и фотографии, которые есть под рукой. Уточним остальные данные и состав работ перед итоговой сметой." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : "Написать в WhatsApp"}</LinkButton>
+            <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : isService ? "Отправить данные для расчёта" : "Написать в WhatsApp"}</LinkButton>
             {isRepairGuide ? (
               <>
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Штукатурка</LinkButton>
