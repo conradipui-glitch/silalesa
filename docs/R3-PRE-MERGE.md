@@ -1,1 +1,0 @@
-This file records the release sequence; status pending until CI, merge and Pages deployment are verified. Do not claim the additional sauna photo replacement is complete before the optimized binaries are actually committed and referenced.

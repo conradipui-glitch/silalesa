@@ -1,1 +1,0 @@
-R3 release gate: `npm ci`, `npx tsc --noEmit`, `npm run build` (R1, R2, R3 tests included), code diff, GitHub Actions CI, Pages build/deploy. Record any untested manual browser/WhatsApp behavior rather than claiming it passed. Image replacements are tracked separately until new WebP binaries are committed and used.

@@ -1,1 +1,0 @@
-Do not mark R3 complete before CI, merge, Pages. New images prepared but not uploaded.

@@ -1,1 +1,0 @@
-Open PR, verify CI, merge, verify Pages. Photo replacement separate pending actual WebP upload.
