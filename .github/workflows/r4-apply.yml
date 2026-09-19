@@ -21,6 +21,7 @@ jobs:
         run: |
           node scripts/apply-r4-temporary.mjs
           node scripts/fix-r4-regression-temporary.mjs
+          node scripts/fix-r4-description-temporary.mjs
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -34,7 +35,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm -f scripts/apply-r4-temporary.mjs scripts/fix-r4-regression-temporary.mjs .github/workflows/r4-apply.yml
+          git rm -f scripts/apply-r4-temporary.mjs scripts/fix-r4-regression-temporary.mjs scripts/fix-r4-description-temporary.mjs .github/workflows/r4-apply.yml
           git add -A
           git diff --cached --stat
           git diff --cached --quiet && exit 1
