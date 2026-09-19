@@ -1,0 +1,1 @@
+R3 requires successful CI and Pages before status changes. Image assets must be uploaded and used before the independent image request can close.
