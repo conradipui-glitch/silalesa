@@ -1,0 +1,32 @@
+name: Apply and verify R5 sauna guide revision
+on:
+  push:
+    branches: [revision/r5-sauna-choice-guides]
+    paths: ['.github/workflows/r5-apply.yml']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Integrate four guide pages with guarded patches
+        run: node scripts/apply-r5-temporary.mjs
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript, build, static SEO, R1 to R5 regressions
+        run: npm run build
+      - name: Commit only verified R5 files and remove temporary helpers
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm scripts/apply-r5-temporary.mjs .github/workflows/r5-apply.yml
+          git add src/data/seoPages.ts src/pages/SeoLandingPage.tsx scripts/prerender.mjs scripts/check-r1.mjs package.json
+          git commit -m 'R5: wire four buyer-first sauna guides and validate static parity'
+          git push origin HEAD:revision/r5-sauna-choice-guides
