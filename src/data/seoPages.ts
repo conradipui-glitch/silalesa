@@ -10,6 +10,7 @@ import rawNextOverrides from "./seo-page-overrides-next.json";
 export type SeoFaq = [question: string, answer: string];
 export type SeoGuideSection = { heading: string; paragraphs: string[]; bullets?: string[] };
 export type SeoGuideComparison = { heading: string; intro: string; rows: [criterion: string, ready: string, build: string][] };
+export type SeoMethodComparison = { heading: string; intro: string; columns: [string, string]; rows: [string, string, string][] };
 
 export type SeoPage = {
   slug: string;
@@ -21,6 +22,8 @@ export type SeoPage = {
   h1: string;
   lead: string;
   points: string[];
+  summary?: string[];
+  methodComparison?: SeoMethodComparison;
   faq: SeoFaq[];
   comparison?: SeoGuideComparison;
   sections?: SeoGuideSection[];
