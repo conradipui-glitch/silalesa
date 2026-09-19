@@ -1,0 +1,1 @@
+R3 completion requires verified CI, merge and Pages deployment. Sauna image replacement remains pending actual binary upload.
