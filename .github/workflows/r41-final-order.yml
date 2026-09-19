@@ -1,0 +1,64 @@
+name: Complete R4.1 progressive guide order
+on:
+  push:
+    branches: ["revision/r4-1-table-detail"]
+    paths: [".github/workflows/r41-final-order.yml"]
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: revision/r4-1-table-detail
+          persist-credentials: true
+      - name: Put short guide before optional comparison table in React and static HTML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/SeoLandingPage.tsx'); s=p.read_text()
+          old='      {page.methodComparison && (\n        <section className="bg-bark-800 py-14 text-cream-50 sm:py-20"'
+          new='      {isPlasterGuide && <PlasterProcessGuide />}\n\n      {page.methodComparison && (\n        <details className="bg-bark-800 text-cream-50">\n          <summary className="mx-auto max-w-7xl cursor-pointer px-4 py-5 font-display text-xl font-semibold sm:px-6">Подробная таблица сравнения способов штукатурки</summary>\n        <section className="bg-bark-800 py-14 text-cream-50 sm:py-20"'
+          assert s.count(old)==1,(old,s.count(old)); s=s.replace(old,new,1)
+          old='        </section>\n      )}\n\n      {isPlasterGuide && <PlasterProcessGuide />}\n\n      {isRepairGuide &&'
+          new='        </section>\n        </details>\n      )}\n\n      {isRepairGuide &&'
+          assert s.count(old)==1,(old,s.count(old)); s=s.replace(old,new,1)
+          p.write_text(s)
+          p=Path('scripts/prerender.mjs'); s=p.read_text()
+          start=s.index('  const methodComparison = isGuide && page.methodComparison\n')
+          end=s.index('  const plasterWaText =',start)
+          block=s[start:end]
+          assert block.count('? `<section aria-label="Сравнение способов штукатурки">')==1
+          assert block.count('</tbody></table></section>`')==1
+          block=block.replace('? `<section aria-label="Сравнение способов штукатурки">','? `<details><summary>Подробная таблица сравнения способов штукатурки</summary><section aria-label="Сравнение способов штукатурки">',1)
+          block=block.replace('</tbody></table></section>`','</tbody></table></section></details>`',1)
+          s=s[:start]+block+s[end:]
+          old='${serviceBlock}${methodComparison}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${sections}'
+          new='${serviceBlock}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${sections}'
+          assert s.count(old)==1,(old,s.count(old)); s=s.replace(old,new,1)
+          p.write_text(s)
+          p=Path('scripts/check-r4-1.mjs'); s=p.read_text()
+          old='assert.ok(guide.includes("whatsappUrl(contactText)"), "No questionnaire gate before inquiry");'
+          new=old+'\nassert.ok(page.indexOf("{isPlasterGuide && <PlasterProcessGuide />}") < page.indexOf("{page.methodComparison && ("), "Simple P01 guide appears before detailed comparison");\nassert.ok(page.includes("<details className=\\"bg-bark-800 text-cream-50\\">"), "Six-row comparison is collapsed by default");'
+          assert s.count(old)==1;s=s.replace(old,new,1)
+          old='assert.ok(html.indexOf("Короткий ответ о штукатурке") < html.indexOf("Практические различия"), "Price and answer precede deep content in static HTML");'
+          new=old+'\nassert.ok(html.includes("<details><summary>Подробная таблица сравнения способов штукатурки</summary>"), "Static method table optional");\nassert.ok(html.indexOf("Пять вопросов, чтобы понять смету") < html.indexOf("Подробная таблица сравнения способов штукатурки"), "Static simple guide before detailed table");'
+          assert s.count(old)==1;s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: All TypeScript, build, SEO and R1–R4.1 checks
+        run: npm run build
+      - name: Commit verified production-only files and remove helper
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/SeoLandingPage.tsx scripts/prerender.mjs scripts/check-r4-1.mjs
+          git rm .github/workflows/r41-final-order.yml
+          git commit -m "R4.1: place simple guide before optional detailed comparison"
+          git push origin HEAD:revision/r4-1-table-detail
