@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { renderPlasterFallback } from "./plaster-fallback.mjs";
+import { saunaChoiceFallback } from "./sauna-choice-fallback.mjs";
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, "dist");
@@ -20,10 +21,12 @@ const basePages = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-plaster.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-materials.json"), "utf8")),
 ];
+const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-next.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r4.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r5.json"), "utf8")),
 ];
 const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));
 const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
@@ -76,8 +79,9 @@ function staticSnapshot(page) {
   const isScreedGuide = page.slug === SCREED_GUIDE_SLUG;
   const isPlasterGuide = page.slug === PLASTER_GUIDE_SLUG;
   const isMaterialGuide = page.slug === MATERIAL_GUIDE_SLUG;
+  const saunaChoice = saunaChoiceFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1]);
   const comparison = isGuide && page.comparison
-    ? `<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>`
+    ? `${page.choiceModels?.length ? '<details><summary>Подробная таблица сравнения готовой бани и строительства</summary>' : ''}<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>${page.choiceModels?.length ? '</details>' : ''}`
     : "";
   const methodComparison = isGuide && page.methodComparison
     ? `<details><summary>Подробная таблица сравнения способов штукатурки</summary><section aria-label="Сравнение способов штукатурки"><h2>${escapeHtml(page.methodComparison.heading)}</h2><p>${escapeHtml(page.methodComparison.intro)}</p><table><caption>${escapeHtml(page.methodComparison.heading)}</caption><thead><tr><th scope="col">Вопрос</th>${page.methodComparison.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join("")}</tr></thead><tbody>${page.methodComparison.rows.map(([criterion, machine, hand]) => `<tr><th scope="row">${escapeHtml(criterion)}</th><td>${escapeHtml(machine)}</td><td>${escapeHtml(hand)}</td></tr>`).join("")}</tbody></table></section></details>`
@@ -177,7 +181,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}<ul>${points}</ul>${serviceBlock}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
