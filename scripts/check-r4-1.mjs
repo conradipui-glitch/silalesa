@@ -17,10 +17,14 @@ assert.equal((guide.match(/title: "Что |title: "За |title: "Какие |tit
 for (const old of ["scopeLabels", "visibleCount", "role=\"progressbar\"", "setOffers", "Уточнено 0 из 8", "Показать следующие позиции", "Начните с одной позиции"]) assert.ok(!guide.includes(old), `Mandatory estimate worksheet remains: ${old}`);
 assert.ok(guide.includes("<details") && guide.includes("</details>"), "Advanced explanations are optional native disclosures");
 assert.ok(guide.includes("whatsappUrl(contactText)"), "No questionnaire gate before inquiry");
+assert.ok(page.indexOf("{isPlasterGuide && <PlasterProcessGuide />}") < page.indexOf("{page.methodComparison && ("), "Simple P01 guide appears before detailed comparison");
+assert.ok(page.includes("<details className=\"bg-bark-800 text-cream-50\">"), "Six-row comparison is collapsed by default");
 assert.ok(guide.includes("<Link") && guide.includes("to={serviceUrl}"), "Internal service link must respect GitHub Pages base");
 assert.ok(fallback.includes("Пять вопросов, чтобы понять смету"), "Static fallback shares same buyer checklist");
 for (const phrase of ["data-prerendered=\"true\"", "Короткий ответ о штукатурке", "от 550 ₽/м²", "Пять вопросов, чтобы понять смету", "Практические различия", "У меня две сметы — как их сравнить?", "Обсудить расчёт в WhatsApp", "FAQPage", "Article"]) assert.ok(html.includes(phrase), `Rendered no-JS output missing: ${phrase}`);
 assert.ok(html.indexOf("Короткий ответ о штукатурке") < html.indexOf("Практические различия"), "Price and answer precede deep content in static HTML");
+assert.ok(html.includes("<details><summary>Подробная таблица сравнения способов штукатурки</summary>"), "Static method table optional");
+assert.ok(html.indexOf("Пять вопросов, чтобы понять смету") < html.indexOf("Подробная таблица сравнения способов штукатурки"), "Static simple guide before detailed table");
 assert.ok(html.includes(`${site}mehanizirovannaya-shtukaturka-omsk/`), "Commercial service link preserved");
 const contact = read("src/data/products.ts").match(/whatsapp:\s*"(\d+)"/)?.[1];
 assert.ok(contact && html.includes(`https://wa.me/${contact}?text=`), "Live contact number belongs to canonical company record");
