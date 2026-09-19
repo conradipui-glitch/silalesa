@@ -59,7 +59,7 @@ assert(p01Html.includes('https://wa.me/' + whatsapp + '?text='), 'no-JS CTA goes
 assert(p01Html.includes('Обсудить расчёт в WhatsApp'), 'contextual CTA in fallback');
 assert(p01Html.includes(`${BASE}mehanizirovannaya-shtukaturka-omsk/`), 'service route in fallback');
 assert(p01Html.includes(`${BASE}guides/remont/gipsovaya-ili-tsementnaya-shtukaturka/`), 'P02 route in fallback');
-assert(p01Html.includes('Одна смета или две') && p01Html.includes('Карта нанесения и проверки смет штукатурки'), 'R2 interactive semantic fallback intact');
+assert(p01Html.includes('Пять вопросов, чтобы понять смету') && p01Html.includes('Выбор штукатурки и вопросы к смете') && p01Html.includes('от 550 ₽/м²'), 'R4.1 simple buyer fallback replaces old R2 matrix');
 assert(p01Html.includes('FAQPage') && p01Html.includes('Article'), 'SEO schemas retained');
 
 for (const page of pages) {
