@@ -66,9 +66,13 @@ for (const page of pages) {
   const html = read(`dist/${page.slug}/index.html`);
   assert(html.includes('data-prerendered="true"'), `static fallback ${page.slug}`);
   assert(html.includes(`<link rel="canonical" href="${BASE}${page.slug}/"`), `canonical ${page.slug}`);
-  assert(html.includes(escapeHtml(page.h1)), `H1 ${page.slug}`);
-  assert(html.includes(escapeHtml(page.lead)), `lead ${page.slug}`);
-  for (const item of page.summary ?? page.points) assert(html.includes(escapeHtml(item)), `summary/points ${page.slug}`);
+  // Service copy is intentionally revised in R4 and verified separately by check-r4.
+  // This R1 regression still verifies all 20 routes, canonical links, FAQ and original guide copy.
+  if (page.kind !== 'service') {
+    assert(html.includes(escapeHtml(page.h1)), `H1 ${page.slug}`);
+    assert(html.includes(escapeHtml(page.lead)), `lead ${page.slug}`);
+    for (const item of page.summary ?? page.points) assert(html.includes(escapeHtml(item)), `summary/points ${page.slug}`);
+  }
   if (page.slug !== P01) {
     assert.equal(page.summary, undefined, `other SEO page untouched by R1 summary ${page.slug}`);
     assert.equal(page.methodComparison, undefined, `no unexpected method table ${page.slug}`);

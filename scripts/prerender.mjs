@@ -23,6 +23,7 @@ const basePages = [
 const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-next.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r4.json"), "utf8")),
 ];
 const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));
 const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
@@ -34,9 +35,9 @@ const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 const servicesHub = {
   slug: "services",
   title: "Строительные услуги в Омске — Сила Леса",
-  description: "Строительные услуги Сила Леса в Омске: бурение скважин, полусухая стяжка пола и механизированная штукатурка. Стартовые цены и отдельные страницы услуг.",
+  description: "Строительные услуги в Омске: механизированная штукатурка от 550 ₽/м², полусухая стяжка от 600 ₽/м², бурение скважин от 2 500 ₽/пог. м. Условия и расчёт.",
   h1: "Строительные услуги в Омске",
-  lead: "Отдельные направления компании: бурение скважин, полусухая стяжка пола и механизированная штукатурка. Каждая услуга вынесена на свою страницу с условиями и стартовой ценой.",
+  lead: "Бурение скважин, полусухая стяжка и механизированная штукатурка: стартовые цены за единицу работ, условия и перечень данных для расчёта на каждой странице услуги.",
 };
 
 function escapeHtml(value = "") {
@@ -131,6 +132,10 @@ function staticSnapshot(page) {
     ? `<p><a href="${SITE_URL}${page.printChecklistPath}/">Открыть чек-лист для печати</a></p>`
     : "";
 
+  const serviceBlock = page.kind === "service" && page.priceLabel && page.requestChecklist && page.serviceResults && page.requestPrompt
+    ? `<section aria-label="Стоимость и расчёт услуги"><h2>Цена и условия</h2><p><strong>${escapeHtml(page.priceLabel)}</strong> — ${escapeHtml(page.priceNote ?? "Стоимость уточняется по объекту.")}</p><h2>Что получит клиент</h2><ul>${page.serviceResults.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><h2>Что прислать для расчёта</h2><ol>${page.requestChecklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol><p><a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(page.requestPrompt + " Страница: " + SITE_URL + page.slug + "/")}">Отправить данные для расчёта в WhatsApp</a></p></section>`
+    : "";
+
   const about = page.kind === "service"
     ? { "@type": "Service", name: page.h1 }
     : page.kind === "category"
@@ -169,14 +174,14 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${methodComparison}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p><ul>${points}</ul>${serviceBlock}${methodComparison}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
   const canonical = `${SITE_URL}${servicesHub.slug}/`;
   const items = servicePages
     .map(
-      (page) => `<li><a href="${SITE_URL}${page.slug}/">${escapeHtml(page.h1)}</a><p>${escapeHtml(page.description)}</p></li>`,
+      (page) => `<li><a href="${SITE_URL}${page.slug}/">${escapeHtml(page.h1)}</a><p>${escapeHtml(page.priceLabel ?? "")}</p><p>${escapeHtml(page.lead)}</p></li>`,
     )
     .join("");
 
