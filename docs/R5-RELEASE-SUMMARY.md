@@ -1,0 +1,1 @@
+R5 release scope: four sauna decision guides, verified product/price registry, short summaries and direct CTA, no-JS parity and automated regression checks. Manual visual acceptance remains open.
