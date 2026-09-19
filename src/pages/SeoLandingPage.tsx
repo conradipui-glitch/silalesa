@@ -329,7 +329,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </section>
       )}
 
+      {isPlasterGuide && <PlasterProcessGuide />}
+
       {page.methodComparison && (
+        <details className="bg-bark-800 text-cream-50">
+          <summary className="mx-auto max-w-7xl cursor-pointer px-4 py-5 font-display text-xl font-semibold sm:px-6">Подробная таблица сравнения способов штукатурки</summary>
         <section className="bg-bark-800 py-14 text-cream-50 sm:py-20" aria-labelledby="method-comparison-title">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">По одной задаче</p>
@@ -370,9 +374,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             )}
           </div>
         </section>
+        </details>
       )}
-
-      {isPlasterGuide && <PlasterProcessGuide />}
 
       {isRepairGuide && <RenovationSequenceGuide />}
 
