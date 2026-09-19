@@ -180,6 +180,12 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             <h1 className="mt-4 max-w-3xl font-display text-[34px] font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[58px]">{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
 
+            {isPlasterGuide && (
+              <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
+                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">от 550 ₽/м²</strong>. Это стартовая цена, не окончательная смета.</p>
+                <p className="mt-2 text-sm text-cream-200">Для расчёта достаточно начать с площади и фотографий стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Подробнее об услуге и условиях</Link>.</p>
+              </div>
+            )}
             {!isGuide && (
               <div className="mt-7 flex flex-wrap items-baseline gap-3">
                 <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{page.priceLabel ?? ((isService || isCategory ? "от " : "") + formatPrice(price))}</span>
@@ -193,7 +199,16 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing", slug })}>
                   Отправить данные для расчёта <ArrowIcon />
                 </LinkButton>
-              ) : isPlasterGuide || isMaterialGuide ? (
+              ) : isPlasterGuide ? (
+                <>
+                  <LinkButton to={whatsappUrl(plasterWaText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "p01-hero", slug })}>
+                    Пришлите площадь и фото стен <ArrowIcon />
+                  </LinkButton>
+                  <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" size="lg" variant="ghost" onClick={() => track("cta_click", { type: "guide_to_plaster", where: "seo-landing", slug })}>
+                    Об услуге и условиях <ArrowIcon />
+                  </LinkButton>
+                </>
+              ) : isMaterialGuide ? (
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" size="lg" onClick={() => track("cta_click", { type: "guide_to_plaster", where: "seo-landing", slug })}>
                   Об услуге механизированной штукатурки <ArrowIcon />
                 </LinkButton>
