@@ -1,0 +1,43 @@
+name: R1 isolated editorial checks
+
+on:
+  push:
+    branches: ["revision/r1-p01-editorial"]
+    paths: [".github/workflows/revision-r1.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Apply source transformation
+        run: python3 scripts/r1-apply.py
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify TypeScript
+        run: npx tsc --noEmit
+      - name: Build Pages output and prerender
+        run: GITHUB_PAGES=true npm run build
+      - name: Verify 22 routes and R1 content
+        run: node scripts/check-r1.mjs
+      - name: Check staged diff and commit without temporary automation
+        run: |
+          git rm .github/workflows/revision-r1.yml scripts/r1-apply.py
+          git add src/data/seo-page-guides-plaster.json src/data/seoPages.ts src/pages/SeoLandingPage.tsx scripts/prerender.mjs docs/R1-COVERAGE.md
+          git diff --cached --check
+          git diff --cached --stat
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(r1): clarify plaster guide, accessible comparison and matching prerender"
+          git push origin HEAD:revision/r1-p01-editorial
