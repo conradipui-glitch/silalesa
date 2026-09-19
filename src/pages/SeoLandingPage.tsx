@@ -5,6 +5,8 @@ import { PlasterMaterialGuide } from "../components/PlasterMaterialGuide";
 import { ScreedComparisonGuide } from "../components/ScreedComparisonGuide";
 import { RenovationSequenceGuide } from "../components/RenovationSequenceGuide";
 import { PlasterProcessGuide } from "../components/PlasterProcessGuide";
+import { SaunaChoiceGuide } from "../components/SaunaChoiceGuide";
+import saunaChoiceModels from "../data/sauna-choice-models.json";
 import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPageBySlug, seoPages } from "../data/seoPages";
@@ -91,13 +93,18 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isService = page.kind === "service";
   const isCategory = page.kind === "category";
   const isGuide = page.kind === "guide";
+  const isSaunaChoiceGuide = Boolean(page.choiceModels?.length);
+  const firstChoice = page.choiceModels?.length ? saunaChoiceModels.find((model) => model.key === page.choiceModels?.[0]) : undefined;
+  const lastChoice = page.choiceModels?.length ? saunaChoiceModels.find((model) => model.key === page.choiceModels?.at(-1)) : undefined;
   const keyPoints = page.summary ?? page.points;
   const comparison = isService ? serviceComparisonBySlug[page.slug] : undefined;
   const waText = isService && page.requestPrompt
     ? page.requestPrompt + " Страница: " + SITE_BASE + page.slug + "/"
     : product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
-    : isGuide
+    : isGuide && page.choicePrompt
+      ? `${page.choicePrompt} Страница: ${SITE_BASE}${page.slug}/`
+      : isGuide
       ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
@@ -186,6 +193,12 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <p className="mt-2 text-sm text-cream-200">Для расчёта достаточно начать с площади и фотографий стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Подробнее об услуге и условиях</Link>.</p>
               </div>
             )}
+            {isSaunaChoiceGuide && firstChoice && lastChoice && (
+              <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
+                <p className="font-display text-xl text-cedar-300">{firstChoice.name} — от {formatPrice(firstChoice.price)}{firstChoice.key !== lastChoice.key ? ` · ${lastChoice.name} — от ${formatPrice(lastChoice.price)}` : ""}</p>
+                <p className="mt-2 text-sm leading-relaxed text-cream-200">Выберите планировку ниже. Условия доставки и итоговый состав уточним под ваш участок.</p>
+              </div>
+            )}
             {!isGuide && (
               <div className="mt-7 flex flex-wrap items-baseline gap-3">
                 <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{page.priceLabel ?? ((isService || isCategory ? "от " : "") + formatPrice(price))}</span>
@@ -224,6 +237,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                   <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost" size="lg" onClick={() => track("cta_click", { type: "guide_to_screed", where: "seo-landing", slug })}>
                     Полусухая стяжка <ArrowIcon />
                   </LinkButton>
+                </>
+              ) : isSaunaChoiceGuide ? (
+                <>
+                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r5-guide-hero", slug })}>{page.choiceCtaLabel ?? "Помогите выбрать баню"} <ArrowIcon /></LinkButton>
+                  <LinkButton to="/mobilnaya-banya-omsk/" size="lg" variant="ghost">Каталог моделей <ArrowIcon /></LinkButton>
                 </>
               ) : isGuide ? (
                 <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" onClick={() => track("cta_click", { type: isDrillingGuide ? "guide_to_drilling" : "guide_to_catalog", where: "seo-landing", slug })}>
@@ -329,6 +347,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </section>
       )}
 
+      {isSaunaChoiceGuide && <SaunaChoiceGuide page={page} />}
+
       {isPlasterGuide && <PlasterProcessGuide />}
 
       {page.methodComparison && (
@@ -384,6 +404,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       {isMaterialGuide && <PlasterMaterialGuide />}
 
       {isGuide && page.comparison && (
+        <details open={!isSaunaChoiceGuide} className="bg-bark-800 text-cream-50">
+          <summary className="mx-auto max-w-7xl cursor-pointer px-4 py-5 font-display text-xl font-semibold sm:px-6">Подробная таблица сравнения готовой бани и строительства</summary>
         <section className="bg-bark-800 py-16 text-cream-50 sm:py-20" aria-label="Сравнение способов строительства">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Сравнение вариантов</p>
@@ -410,6 +432,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             </div>
           </div>
         </section>
+        </details>
       )}
       {isGuide && page.sections && page.sections.length > 0 && (
         <section className="bg-cream-50 py-16 text-bark-950 sm:py-20" aria-label="Подробный разбор вариантов">
