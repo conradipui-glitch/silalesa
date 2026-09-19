@@ -1,0 +1,36 @@
+name: Record published R4.1 implementation
+on:
+  push:
+    branches: ["docs/r41-implementation-status"]
+    paths: [".github/workflows/r41-doc-status.yml"]
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/r41-implementation-status
+          persist-credentials: true
+      - name: Update plan with verified deployment and pending user acceptance
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('docs/CONTENT-CONVERSION-REVISION-PLAN.md'); s=p.read_text()
+          old='| ☐ **Перед R5**, клиентская понятность прежней R1/R2 не подтверждена |'
+          new='| ☑ **Реализация опубликована** · PR #24 и #25; автоматические проверки/CI/Pages успешны. Ручная визуальная проверка mobile/desktop и оценка владельца ожидаются перед окончательной приёмкой |'
+          assert s.count(old)==1;s=s.replace(old,new,1)
+          old='**Статус:** ☐ В очереди перед R5; изменения страницы и интерактивов ещё не внесены.'
+          new='**Статус:** ☑ Код и статический HTML опубликованы через PR #24 и #25; CI и GitHub Pages успешно завершены (deploy run 35450833243). Обязательная матрица 8×2 удалена, шесть подробных строк теперь доступны в необязательном раскрывающемся блоке после короткого ответа и CTA. По исходникам P02/S01/S04 аналогичной обязательной матрицы нет. Окончательная клиентская приёмка ещё открыта: визуальный просмотр mobile/desktop и фактическую отправку WhatsApp не проводили.'
+          assert s.count(old)==1;s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit plan only and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/CONTENT-CONVERSION-REVISION-PLAN.md
+          git rm .github/workflows/r41-doc-status.yml
+          git commit -m "Document R4.1 implementation published; leave visual acceptance open"
+          git push origin HEAD:docs/r41-implementation-status
