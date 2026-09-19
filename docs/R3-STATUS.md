@@ -1,1 +1,0 @@
-R3 work in branch; do not mark complete until CI, merge, Pages successful. Four sauna WebP files are prepared locally but are not committed.
