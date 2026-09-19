@@ -1,0 +1,1 @@
+Release status: R3 code requires CI, merge and Pages verification. Image replacement is separately pending binary upload and real site integration.
