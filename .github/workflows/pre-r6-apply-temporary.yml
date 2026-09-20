@@ -20,6 +20,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Match three homepage model links in guarded patch and regression
+        run: |
+          sed -i "s@'to={productUrl}', 2)@'to={productUrl}', 3)@" scripts/apply-pre-r6-temporary.py
+          sed -i "s@=== 2, 'Home cards@=== 3, 'Home cards@" scripts/check-pre-r6.mjs
+          grep -F "'to={productUrl}', 3)" scripts/apply-pre-r6-temporary.py
+          grep -F "=== 3, 'Home cards" scripts/check-pre-r6.mjs
       - name: Apply guarded public fixes
         run: python3 scripts/apply-pre-r6-temporary.py
       - name: Wire regression into build
