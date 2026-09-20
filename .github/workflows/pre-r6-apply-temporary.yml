@@ -20,15 +20,28 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Align guarded source patch and regression
+      - name: Align regression and exclude its own stale-address assertions
         run: |
-          sed -i "s@'to={productUrl}', 2)@'to={productUrl}', 3)@" scripts/apply-pre-r6-temporary.py
           sed -i "s@=== 2, 'Home cards@=== 3, 'Home cards@" scripts/check-pre-r6.mjs
           sed -i "s@filename.name != 'apply-pre-r6-temporary.py'@filename.name not in ('apply-pre-r6-temporary.py', 'check-pre-r6.mjs')@" scripts/apply-pre-r6-temporary.py
-          grep -F "'to={productUrl}', 3)" scripts/apply-pre-r6-temporary.py
+          grep -F "'to={productUrl}', 2)" scripts/apply-pre-r6-temporary.py
           grep -F "filename.name not in" scripts/apply-pre-r6-temporary.py
       - name: Apply guarded public fixes
         run: python3 scripts/apply-pre-r6-temporary.py
+      - name: Make layout model link canonical in its own component scope
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/sections/Models.tsx')
+          text = p.read_text(encoding='utf-8')
+          anchor = '  const p = byModel(model);\n'
+          assert text.count(anchor) == 1, 'Expected one layout model declaration'
+          text = text.replace(anchor, anchor + '  const layoutLanding = seoPages.find((page) => page.productId === p.id);\n  const layoutProductUrl = layoutLanding ? `/${layoutLanding.slug}/` : `/product/${p.id}/`;\n')
+          old = 'to={`/product/${p.id}`}'
+          assert text.count(old) == 1, 'Only layout model CTA may use legacy numeric address'
+          p.write_text(text.replace(old, 'to={layoutProductUrl}'), encoding='utf-8')
+          print('Canonical model links in both card and layout components')
+          PY
       - name: Wire regression into build
         run: python3 scripts/pre-r6-package-temporary.py
       - name: Install dependencies
