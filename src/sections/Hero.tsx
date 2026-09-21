@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ArrowIcon, LinkButton, PhoneIcon } from "../components/Brand";
-import { company, facts, formatPrice, images, mapsUrl, saunas } from "../data/products";
+import { company, formatPrice, images, mapsUrl, saunas, whatsappUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track, useReducedMotion } from "../lib/utils";
 
@@ -33,7 +33,7 @@ export function Hero() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
-          <div className="order-2 lg:order-1">
+          <div className="order-1">
             <p className="reveal flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-cedar-300/90">
               <span className="h-px w-8 bg-cedar-400" aria-hidden="true" />
               Омск · производство мобильных бань
@@ -43,18 +43,18 @@ export function Hero() {
               className="reveal mt-6 font-display font-semibold tracking-tight text-cream-50 text-[34px] leading-[1.06] sm:text-5xl lg:text-[60px] xl:text-[66px] text-balance"
               style={{ ["--reveal-delay" as string]: "80ms" }}
             >
-              Кедровая баня в Омске. <span className="text-cedar-400">Привезём готовой.</span>
+              Бани Квадро в Омске — <span className="text-cedar-400">от {formatPrice(minPrice)}</span>
             </h1>
             <p className="reveal mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-cream-200/85" style={{ ["--reveal-delay" as string]: "160ms" }}>
-              Квадро и каркасные модели от {formatPrice(minPrice)}. Выберите планировку, посмотрите комплектацию и рассчитайте стоимость.
+              Квадро 2×2 — одна парная от {formatPrice(minPrice)}. Есть варианты с комнатой отдыха и каркасная модель с помывочной. Сравните цены, планировки и комплектации без анкеты.
             </p>
 
             <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "240ms" }}>
-              <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "hero" })}>
-                Рассчитать стоимость <ArrowIcon />
+              <LinkButton to="/mobilnaya-banya-omsk/" size="lg" onClick={() => track("cta_click", { type: "catalog", where: "hero" })}>
+                Модели и цены <ArrowIcon />
               </LinkButton>
-              <LinkButton to={mapsUrl(company.showroom)} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "map", where: "hero" })}>
-                Посмотреть образцы
+              <LinkButton to={whatsappUrl("Здравствуйте! Хочу подобрать баню. Подскажите по модели, комплектации и доставке. Страница: https://conradipui-glitch.github.io/silalesa/")} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "hero" })}>
+                Спросить в WhatsApp
               </LinkButton>
               <a href={`tel:${company.phonePrimary.tel}`} className="inline-flex items-center gap-2 px-2 text-sm text-cream-200/80 hover:text-cedar-300" onClick={() => track("cta_click", { type: "call", where: "hero" })}>
                 <PhoneIcon /> {company.phonePrimary.display}
@@ -63,30 +63,30 @@ export function Hero() {
 
             <dl className="reveal mt-10 grid grid-cols-3 gap-4 border-t border-cream-50/10 pt-6 max-w-xl" style={{ ["--reveal-delay" as string]: "320ms" }}>
               <div>
-                <dt className="text-[11px] uppercase tracking-[0.16em] text-cream-300/60">Цена</dt>
+                <dt className="text-[11px] uppercase tracking-[0.16em] text-cream-300/60">Квадро 2×2</dt>
                 <dd className="mt-1 font-display text-lg sm:text-2xl text-cream-50">от {formatPrice(minPrice)}</dd>
               </div>
               <div>
-                <dt className="text-[11px] uppercase tracking-[0.16em] text-cream-300/60">Материал</dt>
+                <dt className="text-[11px] uppercase tracking-[0.16em] text-cream-300/60">Квадро</dt>
                 <dd className="mt-1 font-display text-lg sm:text-2xl text-cream-50">кедр 45 мм</dd>
               </div>
               <div>
-                <dt className="text-[11px] uppercase tracking-[0.16em] text-cream-300/60">Доставка</dt>
-                <dd className="mt-1 font-display text-lg sm:text-2xl text-cream-50">Омск — 0 ₽</dd>
+                <dt className="text-[11px] uppercase tracking-[0.16em] text-cream-300/60">Доставка Квадро</dt>
+                <dd className="mt-1 font-display text-lg sm:text-2xl text-cream-50">по Омску включена</dd>
               </div>
             </dl>
 
             <p className="reveal mt-6 text-sm leading-relaxed text-cream-300/70" style={{ ["--reveal-delay" as string]: "380ms" }}>
-              Проверим подъезд и место установки до заказа. Если манипулятор не пройдёт — заранее согласуем сборку на участке.
+              Каркасная 5,5×2,2 — {formatPrice(saunas.find((s) => s.modelKey === "f55")!.price)}; её доставка и установка согласуются отдельно. <a href={mapsUrl(company.showroom)} target="_blank" rel="noopener noreferrer" className="text-cedar-300 underline underline-offset-4">Посмотреть образец на площадке ↗</a>.
             </p>
           </div>
 
-          <div className="order-1 lg:order-2 relative">
+          <div className="order-2 relative">
             <div ref={imgRef} className="relative will-change-transform">
               <div className="kvadro-mask relative overflow-hidden shadow-card aspect-[4/3] bg-bark-800">
                 <img
                   src={images.hero}
-                  alt="Семья отдыхает рядом с кедровой баней и бассейном на дачном участке"
+                  alt="Кедровая мобильная баня на дачном участке"
                   className="h-full w-full object-cover"
                   width={1536}
                   height={1024}
@@ -95,10 +95,10 @@ export function Hero() {
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-bark-950/70 to-transparent" aria-hidden="true" />
                 <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between gap-3">
                   <div>
-                    <p className="font-display text-sm text-cream-50">Квадро 4×2</p>
-                    <p className="text-xs text-cream-200/80">комната отдыха + парная · {formatPrice(saunas.find((s) => s.modelKey === "k4")!.price)}</p>
+                    <p className="font-display text-sm text-cream-50">Мобильные бани «Сила Леса»</p>
+                    <p className="text-xs text-cream-200/80">Планировки, фото и цены — в каталоге</p>
                   </div>
-                  <Link to="/product/10407084" className="hidden sm:inline-flex items-center gap-1 rounded-full bg-cream-50/12 px-3 py-1.5 text-xs text-cream-50 backdrop-blur hover:bg-cream-50/20">
+                  <Link to="/mobilnaya-banya-omsk/" className="hidden sm:inline-flex items-center gap-1 rounded-full bg-cream-50/12 px-3 py-1.5 text-xs text-cream-50 backdrop-blur hover:bg-cream-50/20">
                     Подробнее <ArrowIcon className="h-3 w-3" />
                   </Link>
                 </div>
@@ -119,14 +119,11 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="marquee relative mt-14 sm:mt-20 border-y border-cream-50/10 bg-bark-950/60 py-3 overflow-hidden" aria-label="Что входит в стандарт">
-        <div className="marquee-track flex w-max gap-10 whitespace-nowrap text-sm text-cream-200/80">
-          {[...facts, ...facts].map((f, i) => (
-            <span key={i} className="flex items-center gap-10">
-              <span>{f}</span>
-              <span className="h-1 w-1 rounded-full bg-cedar-400" aria-hidden="true" />
-            </span>
-          ))}
+      <div className="relative mt-12 border-y border-cream-50/10 bg-bark-950/60 py-4">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-x-8 gap-y-2 px-4 text-sm text-cream-200 sm:px-6 lg:px-8">
+          <span>Квадро: установка на блоки включена</span>
+          <span>Квадро: доставка по Омску включена</span>
+          <span>Опции и нестандартный подъезд — по согласованию</span>
         </div>
       </div>
     </section>

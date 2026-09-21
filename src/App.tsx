@@ -61,11 +61,11 @@ function Home() {
   return (
     <div ref={root}>
       <Hero />
-      <ReadyPromise />
       <Lineup model={model} setModel={setModel} />
       <StandardSection />
       <LayoutSection model={model} setModel={setModel} />
       <Process />
+      <ReadyPromise />
       <Configurator model={model} setModel={setModel} />
       <Quiz setModel={setModel} />
       <WinterBand />

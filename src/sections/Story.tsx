@@ -1,5 +1,6 @@
 import { ArrowIcon, SectionHead } from "../components/Brand";
-import { company, images, mapsUrl } from "../data/products";
+import { Link } from "../lib/router";
+import { images } from "../data/products";
 import { track } from "../lib/utils";
 
 export function WinterBand() {
@@ -30,8 +31,9 @@ export function WinterBand() {
             </li>
           </ul>
           <p className="reveal mt-6 text-sm leading-relaxed text-cream-300/70" style={{ ["--reveal-delay" as string]: "220ms" }}>
-            Время прогрева и расход дров зависят от наружной температуры, режима топки и эксплуатации — универсальные цифры для всех участков не обещаем.
+            Прогрев зависит от погоды и режима топки. Перед использованием соблюдайте инструкцию печи и рекомендации специалиста по дымоходу и электрике; срок прогрева не фиксирован.
           </p>
+          <Link to="/guides/bani/chek-list-priemki-gotovoy-bani/" className="mt-5 inline-flex min-h-11 items-center text-sm text-cedar-300 underline underline-offset-4">Что проверить перед первым использованием →</Link>
         </div>
       </div>
     </section>
@@ -39,19 +41,17 @@ export function WinterBand() {
 }
 
 const steps = [
-  { n: "01", t: "Звонок или заявка", d: "Обсуждаем размер, количество помещений, вход (с торца или сбоку) и куда выводить топку печи.", link: { label: company.phonePrimary.display, to: `tel:${company.phonePrimary.tel}` } },
-  { n: "02", t: "Посмотреть вживую", d: `Образцы стоят на площадке — ${company.showroom}. Можно зайти внутрь, потрогать кедр и посидеть на полке.`, link: { label: "Открыть в картах", to: mapsUrl(company.showroom) } },
-  { n: "03", t: "Проверить участок", d: "Сверяем место установки, основание, подъезд и точку разгрузки. Если манипулятор не проходит, заранее согласуем сборку на участке." },
-  { n: "04", t: "Сборка, доставка и установка", d: "При доступном подъезде собираем в цеху, привозим готовую и ставим на блоки. По Омску доставка Квадро бесплатна; другой город рассчитываем отдельно." },
-  { n: "05", t: "Подготовка к эксплуатации", d: "После установки остаётся подключить электричество и, при необходимости, воду — затем баню можно готовить к первой топке." },
+  { n: "01", t: "Выберите планировку", d: "Сравните реальные цены, комнаты и опции в карточках моделей. Начинать с конфигуратора необязательно.", link: { label: "Каталог четырёх моделей", to: "/mobilnaya-banya-omsk/" } },
+  { n: "02", t: "Согласуйте участок", d: "Сообщите адрес, пришлите фото въезда и места установки. До заказа определим способ доставки и основание без универсальных обещаний.", link: { label: "Как подготовить доставку", to: "/guides/bani/podgotovka-uchastka-dostavka-manipulyator/" } },
+  { n: "03", t: "Подтвердите заказ и примите баню", d: "Сверьте модель, цену, комплектацию, дату и доставку письменно. При приёмке проверьте комплект; печь, дымоход и электрику — со специалистом.", link: { label: "Чек-лист приёмки", to: "/guides/bani/chek-list-priemki-gotovoy-bani/" } },
 ];
 
 export function Process() {
   return (
     <section id="process" className="scroll-mt-20 bg-bark-900 py-20 sm:py-28" aria-labelledby="process-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SectionHead index="05 — От выбора до установки" title={<span id="process-title">От выбора модели до первой топки — пять понятных шагов</span>} />
-        <ol className="relative mt-12 grid gap-8 md:grid-cols-5">
+        <SectionHead index="04 — Как заказать" title={<span id="process-title">От выбора бани до приёмки — три шага</span>} lead="Сначала модель, затем условия участка и согласование заказа. Без обязательной анкеты перед первым ответом." />
+        <ol className="relative mt-12 grid gap-8 md:grid-cols-3">
           <div className="strap absolute left-0 right-0 top-5 hidden md:block opacity-70" aria-hidden="true" />
           {steps.map((s, i) => (
             <li key={s.n} className="reveal relative md:pt-12" style={{ ["--reveal-delay" as string]: `${i * 80}ms` }}>
@@ -60,15 +60,9 @@ export function Process() {
                 <h3 className="font-display text-base text-cream-50">{s.t}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-cream-200/75">{s.d}</p>
                 {s.link && (
-                  <a
-                    href={s.link.to}
-                    target={s.link.to.startsWith("http") ? "_blank" : undefined}
-                    rel={s.link.to.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="mt-3 inline-flex items-center gap-1 text-sm text-cedar-300 hover:text-cedar-200"
-                    onClick={() => track("cta_click", { type: s.link!.to.startsWith("tel") ? "call" : "map", where: "process" })}
-                  >
+                  <Link to={s.link.to} className="mt-3 inline-flex min-h-11 items-center gap-1 text-sm text-cedar-300 hover:text-cedar-200" onClick={() => track("nav", { to: s.link!.to, from: "process" })}>
                     {s.link.label} <ArrowIcon className="h-3.5 w-3.5" />
-                  </a>
+                  </Link>
                 )}
               </div>
             </li>
