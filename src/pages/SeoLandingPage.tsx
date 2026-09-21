@@ -7,6 +7,7 @@ import { RenovationSequenceGuide } from "../components/RenovationSequenceGuide";
 import { PlasterProcessGuide } from "../components/PlasterProcessGuide";
 import { SaunaChoiceGuide } from "../components/SaunaChoiceGuide";
 import { OperationalGuide } from "../components/OperationalGuide";
+import { SaunaOffer } from "../components/SaunaOffer";
 import saunaChoiceModels from "../data/sauna-choice-models.json";
 import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
@@ -96,12 +97,15 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isGuide = page.kind === "guide";
   const isSaunaChoiceGuide = Boolean(page.choiceModels?.length);
   const isOperationalGuide = Boolean(page.operationSteps?.length);
+  const isSaunaOffer = Boolean(page.offerModel || page.offerModels?.length);
   const firstChoice = page.choiceModels?.length ? saunaChoiceModels.find((model) => model.key === page.choiceModels?.[0]) : undefined;
   const lastChoice = page.choiceModels?.length ? saunaChoiceModels.find((model) => model.key === page.choiceModels?.at(-1)) : undefined;
   const keyPoints = page.summary ?? page.points;
   const comparison = isService ? serviceComparisonBySlug[page.slug] : undefined;
   const waText = isService && page.requestPrompt
     ? page.requestPrompt + " Страница: " + SITE_BASE + page.slug + "/"
+    : page.offerPrompt
+    ? `${page.offerPrompt} Страница: ${SITE_BASE}${page.slug}/`
     : product
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
     : isGuide && page.choicePrompt
@@ -141,7 +145,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         areaServed: "Омск",
         ...(isService
           ? {}
-          : { offers: { "@type": "Offer", priceCurrency: "RUB", price: product.price, availability: "https://schema.org/InStock" } }),
+          : { offers: { "@type": "Offer", priceCurrency: "RUB", price: product.price } }),
         url: `${SITE_BASE}${page.slug}/`,
       }
     : isGuide
@@ -211,7 +215,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             )}
             {!isGuide && (
               <div className="mt-7 flex flex-wrap items-baseline gap-3">
-                <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{page.priceLabel ?? ((isService || isCategory ? "от " : "") + formatPrice(price))}</span>
+                <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{page.priceLabel ?? ((isService || isCategory || page.offerModel === "f55" ? "от " : "") + formatPrice(price))}</span>
                 {product?.dims && <span className="text-sm text-cream-300/70">{product.dims}</span>}
               </div>
             )}
@@ -259,6 +263,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                   {page.printChecklistPath && <a href={`${import.meta.env.BASE_URL}${page.printChecklistPath}/`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-cedar-300/60 px-5 py-3 font-semibold text-cedar-300 hover:bg-cedar-300 hover:text-bark-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Чек-лист для печати ↗</a>}
                   <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" variant="ghost">{isDrillingGuide ? "Цена и состав бурения" : "Модели и комплектация"} <ArrowIcon /></LinkButton>
                 </>
+              ) : isSaunaOffer ? (
+                <>
+                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r7-hero", slug })}>{page.offerCtaLabel ?? "Уточнить предложение"} <ArrowIcon /></LinkButton>
+                  {isCategory ? <a href="#models" className="inline-flex min-h-11 items-center rounded-full border border-cedar-300/60 px-5 py-3 font-semibold text-cedar-300 hover:bg-bark-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Сравнить четыре модели ↓</a> : <LinkButton to="/mobilnaya-banya-omsk/" size="lg" variant="ghost">Сравнить модели <ArrowIcon /></LinkButton>}
+                </>
               ) : isGuide ? (
                 <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" onClick={() => track("cta_click", { type: isDrillingGuide ? "guide_to_drilling" : "guide_to_catalog", where: "seo-landing", slug })}>
                   {isDrillingGuide ? "Узнать об услуге бурения" : "Смотреть готовые бани"} <ArrowIcon />
@@ -291,7 +300,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-16">
             <div className="reveal">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Коротко по делу</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isPlasterGuide ? "Выбор за минуту" : isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{isPlasterGuide ? "Выбор за минуту" : isSaunaOffer ? "Модель и условия за минуту" : isGuide ? "Главное по теме" : "Что важно знать до обращения"}</h2>
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-bark-600 sm:text-base">
                 {isPlasterGuide
                   ? "Четыре ориентира, чтобы быстро понять различия. Подробности и условия — ниже."
@@ -325,7 +334,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           {page.slug === "polusuhaya-styazhka-omsk" && (
             <p className="mt-6 text-sm"><Link to={`/${SCREED_GUIDE_SLUG}/`} className="font-medium text-cedar-700 underline underline-offset-4 hover:text-bark-900">Полусухая или мокрая стяжка: в чём разница? →</Link></p>
           )}
-          {product && !isService && (
+          {product && !isService && !isSaunaOffer && (
             <div className="reveal mt-12 flex flex-col gap-5 rounded-3xl bg-bark-950 p-6 text-cream-50 sm:flex-row sm:items-center sm:justify-between sm:p-8">
               <div>
                 <p className="font-display text-xl">{isService ? "Нужны подробности по услуге?" : "Нужна полная комплектация и детали?"}</p>
@@ -363,6 +372,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </section>
       )}
 
+      {isSaunaOffer && <SaunaOffer page={page} />}
       {isSaunaChoiceGuide && <SaunaChoiceGuide page={page} />}
       {isOperationalGuide && <OperationalGuide page={page} />}
 

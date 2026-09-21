@@ -3,6 +3,7 @@ import path from "node:path";
 import { renderPlasterFallback } from "./plaster-fallback.mjs";
 import { saunaChoiceFallback } from "./sauna-choice-fallback.mjs";
 import { operationalGuideFallback } from "./operational-guide-fallback.mjs";
+import { saunaOfferFallback } from "./sauna-offer-fallback.mjs";
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, "dist");
@@ -23,14 +24,26 @@ const basePages = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-materials.json"), "utf8")),
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
+const assets = await fs.readdir(path.join(DIST, "assets"));
+const modelAssets = Object.fromEntries([
+  ["k2", "kvadro-2x2-"], ["k3", "kvadro-3x2-"], ["k4", "kvadro-4x2-"], ["f55", "karkasnaya-5-5-"],
+].map(([key, prefix]) => {
+  const file = assets.find((name) => name.startsWith(prefix) && name.endsWith(".webp"));
+  if (!file) throw new Error(`Missing real packaged model image ${key}`);
+  return [key, `${BASE_PATH}assets/${file}`];
+}));
 const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-next.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r4.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r5.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r6.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r7.json"), "utf8")),
 ];
-const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));
+const overrideBySlug = new Map();
+for (const override of pageOverrides) {
+  overrideBySlug.set(override.slug, { ...(overrideBySlug.get(override.slug) ?? {}), ...override });
+}
 const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
 const servicePages = pages.filter((page) => page.kind === "service");
 const whatsappMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8")).match(/whatsapp:\s*"(\d+)"/);
@@ -83,6 +96,7 @@ function staticSnapshot(page) {
   const isMaterialGuide = page.slug === MATERIAL_GUIDE_SLUG;
   const saunaChoice = saunaChoiceFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1]);
   const operation = operationalGuideFallback(page, saunaChoiceModels, servicePages.find((item) => item.slug === "burenie-skvazhiny-omsk")?.priceLabel, SITE_URL, whatsappMatch[1]);
+  const offer = saunaOfferFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1], modelAssets);
   const comparison = isGuide && page.comparison
     ? `${page.choiceModels?.length ? '<details><summary>Подробная таблица сравнения готовой бани и строительства</summary>' : ''}<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>${page.choiceModels?.length ? '</details>' : ''}`
     : "";
@@ -153,7 +167,11 @@ function staticSnapshot(page) {
       ? { "@type": "ItemList", name: page.h1 }
       : isGuide
         ? { "@type": "Thing", name: page.h1 }
-        : { "@type": "Product", name: page.h1 };
+        : { "@type": "Product", name: page.h1, ...(page.offerModel ? { offers: {
+          "@type": "Offer", priceCurrency: "RUB",
+          price: saunaChoiceModels.find((model) => model.key === page.offerModel)?.price,
+          url: canonical,
+        } } : {}) };
 
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
@@ -185,7 +203,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}${operation.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {

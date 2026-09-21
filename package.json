@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && node scripts/prerender.mjs && node scripts/check-r1.mjs && node scripts/check-r2.mjs && node scripts/sync-r3-prerender.mjs && node scripts/prerender-r3.mjs && node scripts/check-r3.mjs && node scripts/check-r4.mjs && node scripts/check-r4-1.mjs && node scripts/check-r5.mjs && node scripts/check-pre-r6.mjs && node scripts/check-r6.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/prerender.mjs && node scripts/check-r1.mjs && node scripts/check-r2.mjs && node scripts/sync-r3-prerender.mjs && node scripts/prerender-r3.mjs && node scripts/check-r3.mjs && node scripts/check-r4.mjs && node scripts/check-r4-1.mjs && node scripts/check-r5.mjs && node scripts/check-pre-r6.mjs && node scripts/check-r6.mjs && node scripts/check-r7.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
