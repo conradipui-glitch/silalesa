@@ -31,13 +31,15 @@ jobs:
           PY
       - name: Apply home and shared-navigation patches
         run: python3 scripts/apply-r8-temporary.py
-      - name: Finalize imports and permanent R8 build gate
+      - name: Finalize imports, static contacts and R8 build gate
         run: |
           python3 - <<'PY'
           from pathlib import Path
           modifications = [
               ('src/sections/Story.tsx', 'import { company, images, mapsUrl } from "../data/products";', 'import { images } from "../data/products";'),
               ('package.json', '&& node scripts/check-r7.mjs",', '&& node scripts/check-r7.mjs && node scripts/check-r8.mjs",'),
+              ('scripts/home-fallback.mjs', '#contacts', '#features'),
+              ('scripts/home-fallback.mjs', 'id="contacts"', 'id="features"'),
           ]
           for filename, old, new in modifications:
               path = Path(filename)
@@ -53,7 +55,7 @@ jobs:
       - name: Commit verified implementation, discard workflow
         run: |
           git rm -f scripts/apply-r8-temporary.py .github/workflows/r8-apply-temporary.yml
-          git add src/sections/Hero.tsx src/sections/Models.tsx src/sections/Story.tsx src/sections/Trust.tsx src/sections/ServicesAbout.tsx src/components/Brand.tsx src/App.tsx scripts/prerender.mjs index.html package.json
+          git add src/sections/Hero.tsx src/sections/Models.tsx src/sections/Story.tsx src/sections/Trust.tsx src/sections/ServicesAbout.tsx src/components/Brand.tsx src/App.tsx scripts/prerender.mjs scripts/home-fallback.mjs index.html package.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git diff --cached --check
