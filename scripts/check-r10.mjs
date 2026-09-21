@@ -33,6 +33,7 @@ verify(new Set(effective.map((p) => p.slug)).size === effective.length, 'Duplica
 verify(sitemap.length === 22 && new Set(sitemap).size === 22, `Sitemap: expected 22 distinct URLs, found ${sitemap.length}`);
 verify(JSON.stringify(sitemap) === JSON.stringify(routes), 'Sitemap differs from actual source registry/order');
 verify([...overrides.keys()].every((slug) => effective.some((p) => p.slug === slug)), 'Orphan override slug');
+verify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');
 verify(read('dist/robots.txt').includes(`Sitemap: ${site}sitemap.xml`), 'robots.txt sitemap differs from production');
 verify(read('dist/llms.txt').includes('Нефтезаводская, 49/1'), 'Public showroom not reflected in llms.txt');
 const products = read('src/data/products.ts');
