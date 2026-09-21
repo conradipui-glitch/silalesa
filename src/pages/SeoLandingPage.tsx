@@ -6,6 +6,7 @@ import { ScreedComparisonGuide } from "../components/ScreedComparisonGuide";
 import { RenovationSequenceGuide } from "../components/RenovationSequenceGuide";
 import { PlasterProcessGuide } from "../components/PlasterProcessGuide";
 import { SaunaChoiceGuide } from "../components/SaunaChoiceGuide";
+import { OperationalGuide } from "../components/OperationalGuide";
 import saunaChoiceModels from "../data/sauna-choice-models.json";
 import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
@@ -94,6 +95,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isCategory = page.kind === "category";
   const isGuide = page.kind === "guide";
   const isSaunaChoiceGuide = Boolean(page.choiceModels?.length);
+  const isOperationalGuide = Boolean(page.operationSteps?.length);
   const firstChoice = page.choiceModels?.length ? saunaChoiceModels.find((model) => model.key === page.choiceModels?.[0]) : undefined;
   const lastChoice = page.choiceModels?.length ? saunaChoiceModels.find((model) => model.key === page.choiceModels?.at(-1)) : undefined;
   const keyPoints = page.summary ?? page.points;
@@ -104,13 +106,15 @@ export function SeoLandingPage({ slug }: { slug: string }) {
     ? `Здравствуйте! Интересует ${product.name}. Страница: ${SITE_BASE}${page.slug}/`
     : isGuide && page.choicePrompt
       ? `${page.choicePrompt} Страница: ${SITE_BASE}${page.slug}/`
+      : isGuide && page.operationPrompt
+      ? `${page.operationPrompt} Страница: ${SITE_BASE}${page.slug}/`
       : isGuide
       ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
       : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
 
   const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_BASE}${page.slug}/`;
 
-  const otherGuides = isGuide && !isRepairGuide && !isScreedGuide && !isPlasterGuide && !isMaterialGuide
+  const otherGuides = isGuide && !isOperationalGuide && !isRepairGuide && !isScreedGuide && !isPlasterGuide && !isMaterialGuide
     ? seoPages.filter((item) => item.kind === "guide" && item.slug !== page.slug && item.slug !== REPAIR_GUIDE_SLUG)
     : [];
   const related = isMaterialGuide
@@ -199,6 +203,12 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <p className="mt-2 text-sm leading-relaxed text-cream-200">Выберите планировку ниже. Условия доставки и итоговый состав уточним под ваш участок.</p>
               </div>
             )}
+            {isOperationalGuide && (
+              <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
+                <p className="font-display text-xl text-cedar-300">{isDrillingGuide ? seoPageBySlug("burenie-skvazhiny-omsk")?.priceLabel : `Квадро — от ${formatPrice(Math.min(...saunas.map((model) => model.price)))}`}</p>
+                <p className="mt-2 text-sm leading-relaxed text-cream-200">{isDrillingGuide ? "Цена за погонный метр, не за всю скважину. Глубина и оснащение уточняются для участка." : "Для стандартных Квадро доставка по Омску и установка на блоки включены. Нестандартные условия согласуются отдельно."}</p>
+              </div>
+            )}
             {!isGuide && (
               <div className="mt-7 flex flex-wrap items-baseline gap-3">
                 <span className="font-display text-3xl text-cedar-300 sm:text-4xl">{page.priceLabel ?? ((isService || isCategory ? "от " : "") + formatPrice(price))}</span>
@@ -242,6 +252,12 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <>
                   <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r5-guide-hero", slug })}>{page.choiceCtaLabel ?? "Помогите выбрать баню"} <ArrowIcon /></LinkButton>
                   <LinkButton to="/mobilnaya-banya-omsk/" size="lg" variant="ghost">Каталог моделей <ArrowIcon /></LinkButton>
+                </>
+              ) : isOperationalGuide ? (
+                <>
+                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r6-guide-hero", slug })}>{page.operationCtaLabel ?? "Уточнить следующий шаг"} <ArrowIcon /></LinkButton>
+                  {page.printChecklistPath && <a href={`${import.meta.env.BASE_URL}${page.printChecklistPath}/`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-cedar-300/60 px-5 py-3 font-semibold text-cedar-300 hover:bg-cedar-300 hover:text-bark-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Чек-лист для печати ↗</a>}
+                  <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" variant="ghost">{isDrillingGuide ? "Цена и состав бурения" : "Модели и комплектация"} <ArrowIcon /></LinkButton>
                 </>
               ) : isGuide ? (
                 <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" onClick={() => track("cta_click", { type: isDrillingGuide ? "guide_to_drilling" : "guide_to_catalog", where: "seo-landing", slug })}>
@@ -348,6 +364,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       )}
 
       {isSaunaChoiceGuide && <SaunaChoiceGuide page={page} />}
+      {isOperationalGuide && <OperationalGuide page={page} />}
 
       {isPlasterGuide && <PlasterProcessGuide />}
 
@@ -434,7 +451,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </section>
         </details>
       )}
-      {isGuide && page.sections && page.sections.length > 0 && (
+      {isGuide && !isOperationalGuide && page.sections && page.sections.length > 0 && (
         <section className="bg-cream-50 py-16 text-bark-950 sm:py-20" aria-label="Подробный разбор вариантов">
           <div className="mx-auto max-w-5xl space-y-12 px-4 sm:px-6 lg:px-8">
             {page.sections.map((section) => (
@@ -451,7 +468,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           </div>
         </section>
       )}
-      {isGuide && page.printChecklistPath && (
+      {isGuide && !isOperationalGuide && page.printChecklistPath && (
         <div className="bg-cream-50 px-4 pb-12 text-center sm:px-6">
           <a href={`${import.meta.env.BASE_URL}${page.printChecklistPath}/`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full bg-bark-950 px-6 py-3 font-medium text-cream-50 hover:bg-bark-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-500">
             Открыть чек-лист для печати ↗
