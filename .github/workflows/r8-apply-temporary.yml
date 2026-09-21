@@ -31,6 +31,21 @@ jobs:
           PY
       - name: Apply home and shared-navigation patches
         run: python3 scripts/apply-r8-temporary.py
+      - name: Finalize imports and permanent R8 build gate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          modifications = [
+              ('src/sections/Story.tsx', 'import { company, images, mapsUrl } from "../data/products";', 'import { images } from "../data/products";'),
+              ('package.json', '&& node scripts/check-r7.mjs",', '&& node scripts/check-r7.mjs && node scripts/check-r8.mjs",'),
+          ]
+          for filename, old, new in modifications:
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              if text.count(old) != 1:
+                  raise RuntimeError(f'Expected exactly one occurrence in {filename}: {old}')
+              path.write_text(text.replace(old,new), encoding='utf-8')
+          PY
       - name: Install dependencies
         run: npm ci
       - name: Build and test R1 through R8
