@@ -7,6 +7,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const P01 = 'guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka';
 const r5Slugs = new Set(JSON.parse(read("src/data/seo-page-overrides-r5.json")).map((page) => page.slug));
 const r6Slugs = new Set(JSON.parse(read("src/data/seo-page-overrides-r6.json")).map((page) => page.slug));
+const r7Slugs = new Set(JSON.parse(read("src/data/seo-page-overrides-r7.json")).map((page) => page.slug));
 const BASE = 'https://conradipui-glitch.github.io/silalesa/';
 const names = [
   'seo-pages.json', 'seo-page-guides.json', 'seo-page-guides-remont.json',
@@ -72,8 +73,8 @@ for (const page of pages) {
   // This R1 regression still verifies all 20 routes, canonical links, FAQ and original guide copy.
   if (page.kind !== 'service') {
     assert(html.includes(escapeHtml(page.h1)), `H1 ${page.slug}`);
-    if (!r5Slugs.has(page.slug) && !r6Slugs.has(page.slug)) assert(html.includes(escapeHtml(page.lead)), `lead ${page.slug}`);
-    if (!r5Slugs.has(page.slug) && !r6Slugs.has(page.slug)) for (const item of page.summary ?? page.points) assert(html.includes(escapeHtml(item)), `summary/points ${page.slug}`);
+    if (!r5Slugs.has(page.slug) && !r6Slugs.has(page.slug) && !r7Slugs.has(page.slug)) assert(html.includes(escapeHtml(page.lead)), `lead ${page.slug}`);
+    if (!r5Slugs.has(page.slug) && !r6Slugs.has(page.slug) && !r7Slugs.has(page.slug)) for (const item of page.summary ?? page.points) assert(html.includes(escapeHtml(item)), `summary/points ${page.slug}`);
   }
   if (page.slug !== P01) {
     assert.equal(page.summary, undefined, `other SEO page untouched by R1 summary ${page.slug}`);

@@ -63,7 +63,7 @@ export function ProductPage({ id }: { id: string }) {
   const metaTitle = p ? `${p.name} | Омск — Сила Леса` : "Страница не найдена — Сила Леса";
   const metaDescription = seoPage?.description ?? p?.intro ?? "Запрошенная страница не найдена на сайте Сила Леса.";
 
-  useProductMeta(metaTitle, metaDescription, canonicalUrl, Boolean(p));
+  useProductMeta(metaTitle, metaDescription, canonicalUrl, Boolean(p && !seoPage));
   const root = useRevealRoot<HTMLDivElement>([id]);
 
   useEffect(() => {
@@ -88,7 +88,6 @@ export function ProductPage({ id }: { id: string }) {
           "@type": "Offer",
           priceCurrency: "RUB",
           price: p.price,
-          availability: "https://schema.org/InStock",
           url: canonicalUrl,
         },
       }
@@ -109,9 +108,7 @@ export function ProductPage({ id }: { id: string }) {
         },
       };
   const waText = `Здравствуйте! Интересует «${p.name}» (${formatPrice(p.price)}). ${canonicalUrl}`;
-  const safeOutro = p.modelKey === "k2"
-    ? [p.outro?.[0], "Квадро 2×2 — самая маленькая и мобильная модель серии. Ориентир по вместимости — до 4 человек; фактический комфорт зависит от сценария использования и количества людей одновременно в парной."].filter(Boolean) as string[]
-    : p.outro;
+  const safeOutro = p.modelKey === "k2" ? p.outro?.slice(0, 1) : p.outro;
 
   return (
     <div ref={root} className="bg-bark-900 pt-24 sm:pt-28">
@@ -144,7 +141,7 @@ export function ProductPage({ id }: { id: string }) {
             </div>
             {p.priceNote && <p className="mt-2 text-xs text-cream-300/60">{p.priceNote}</p>}
 
-            {isSauna && <ul className="mt-6 flex flex-wrap gap-2" aria-label="Входит в цену">{standardIncluded.map((s) => <li key={s} className="inline-flex items-center gap-1.5 rounded-full border border-cream-50/12 px-3 py-1 text-xs text-cream-200/85"><CheckIcon className="h-3.5 w-3.5 text-moss-400" /> {s}</li>)}</ul>}
+            {isSauna && p.modelKey !== "f55" && <ul className="mt-6 flex flex-wrap gap-2" aria-label="Входит в цену">{standardIncluded.map((s) => <li key={s} className="inline-flex items-center gap-1.5 rounded-full border border-cream-50/12 px-3 py-1 text-xs text-cream-200/85"><CheckIcon className="h-3.5 w-3.5 text-moss-400" /> {s}</li>)}</ul>}
 
             <div className="mt-8 flex flex-wrap gap-3">
               <LinkButton to={`tel:${company.phonePrimary.tel}`} size="lg" onClick={() => track("cta_click", { type: "call", where: "product", id: p.id })}><PhoneIcon /> Позвонить {company.phonePrimary.display}</LinkButton>
@@ -157,7 +154,7 @@ export function ProductPage({ id }: { id: string }) {
         <div className="mt-16 grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-16">
           <article className="reveal max-w-2xl">
             <h2 className="font-display text-xs uppercase tracking-[0.2em] text-cedar-300">Описание</h2>
-            <p className="mt-4 text-base sm:text-lg leading-relaxed text-cream-100">{p.intro}</p>
+            <p className="mt-4 text-base sm:text-lg leading-relaxed text-cream-100">{seoPage?.lead ?? p.intro}</p>
             <h3 className="mt-8 font-display text-lg text-cream-50">{isSauna ? "Комплектация" : "Как проходит работа"}</h3>
             <ul className="mt-4 space-y-2.5">{p.bullets.map((b) => <li key={b} className="flex gap-3 text-sm sm:text-[15px] leading-relaxed text-cream-200/85"><CheckIcon className="mt-1 shrink-0 text-cedar-400" /> {b}</li>)}</ul>
             {safeOutro?.map((o) => <p key={o} className="mt-5 text-sm sm:text-[15px] leading-relaxed text-cream-200/80">{o}</p>)}
