@@ -19,7 +19,7 @@ assert.ok(!products.includes('  address:'), 'Do not advertise unverified old leg
 assert.ok(index.includes('"streetAddress": "ул. Нефтезаводская, 49/1"'), 'Schema references actual visit location');
 assert.ok(footer.includes('Осмотр по предварительной договорённости') && !footer.includes('company.address'));
 assert.ok(about.includes('Перед оформлением заказа попросите письменно подтвердить срок изготовления, условия гарантии') && about.includes('Фотографии моделей не выдаём за отзывы'));
-assert.ok(cards.includes('const productUrl = landing ?') && (cards.match(/to=\{productUrl\}/g) ?? []).length === 2, 'Home cards point at canonical landing instead of numeric legacy URLs');
+assert.ok(cards.includes('const productUrl = landing ?') && (cards.match(/to=\{productUrl\}/g) ?? []).length === 3, 'Home cards point at canonical landing instead of numeric legacy URLs');
 for (const page of models) {
   const legacy = `dist/product/${page.productId}/index.html`;
   assert.ok(fs.existsSync(legacy), `Static 200-able legacy route missing: ${legacy}`);

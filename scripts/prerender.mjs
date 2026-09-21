@@ -239,6 +239,23 @@ for (const page of pages) {
   await fs.writeFile(path.join(dir, "index.html"), html, "utf8");
 }
 
+
+// GitHub Pages serves its SPA fallback with an HTTP 404 for unknown paths.
+// Give legacy numeric product links a real static file (HTTP 200), and direct
+// both users and crawlers to the unique descriptive product/service URL.
+// GitHub Pages cannot issue an HTTP 301 redirect without another host layer.
+for (const page of pages.filter((entry) => entry.productId)) {
+  if (!/^\d+$/.test(page.productId)) throw new Error(`Invalid legacy product ID: ${page.productId}`);
+  const canonical = `${SITE_URL}${page.slug}/`;
+  let html = applyPageMeta(template, { title: page.title, description: page.description, canonical });
+  html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
+  html = html.replace('</head>', `<meta http-equiv="refresh" content="0;url=${canonical}" />\n</head>`);
+  html = html.replace(/<div id="root"><\/div>/i, `<div id="root"><main><h1>${escapeHtml(page.h1)}</h1><p>У страницы новый адрес: <a href="${canonical}">открыть модель или услугу</a>.</p></main></div>`);
+  const directory = path.join(DIST, 'product', page.productId);
+  await fs.mkdir(directory, { recursive: true });
+  await fs.writeFile(path.join(directory, 'index.html'), html, 'utf8');
+}
+
 {
   const canonical = `${SITE_URL}${servicesHub.slug}/`;
   let html = applyPageMeta(template, {
@@ -264,7 +281,7 @@ await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
 const pageList = pages
   .map((page) => `- [${page.h1}](${SITE_URL}${page.slug}/): ${page.description}`)
   .join("\n");
-const llms = `# Сила Леса\n\n> Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Производственная/контактная точка из данных компании: Омск, ул. Заозерная, 11/1И.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные модели бань: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
+const llms = `# Сила Леса\n\n> Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Осмотр образцов — по предварительной договорённости, время уточните по телефону.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные модели бань: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
 await fs.writeFile(path.join(DIST, "llms.txt"), llms, "utf8");
 
 console.log(`Prerendered ${pages.length} SEO pages + services hub and generated sitemap.xml + llms.txt.`);
