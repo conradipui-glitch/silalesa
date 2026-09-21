@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { renderPlasterFallback } from "./plaster-fallback.mjs";
 import { saunaChoiceFallback } from "./sauna-choice-fallback.mjs";
+import { operationalGuideFallback } from "./operational-guide-fallback.mjs";
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, "dist");
@@ -27,6 +28,7 @@ const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-next.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r4.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r5.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r6.json"), "utf8")),
 ];
 const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));
 const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
@@ -80,6 +82,7 @@ function staticSnapshot(page) {
   const isPlasterGuide = page.slug === PLASTER_GUIDE_SLUG;
   const isMaterialGuide = page.slug === MATERIAL_GUIDE_SLUG;
   const saunaChoice = saunaChoiceFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1]);
+  const operation = operationalGuideFallback(page, saunaChoiceModels, servicePages.find((item) => item.slug === "burenie-skvazhiny-omsk")?.priceLabel, SITE_URL, whatsappMatch[1]);
   const comparison = isGuide && page.comparison
     ? `${page.choiceModels?.length ? '<details><summary>Подробная таблица сравнения готовой бани и строительства</summary>' : ''}<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>${page.choiceModels?.length ? '</details>' : ''}`
     : "";
@@ -103,6 +106,7 @@ function staticSnapshot(page) {
   const sections = isGuide && page.sections
     ? page.sections.map((section) => `<section><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>` : ""}</section>`).join("")
     : "";
+  const detailedSections = operation.hasSteps && sections ? `<details><summary>Подробные инструкции и безопасность</summary>${sections}</details>` : sections;
   const guideTarget = page.slug === "guides/uchastok/kogda-burit-skvazhinu"
     ? { path: "burenie-skvazhiny-omsk", label: "Узнать об услуге бурения" }
     : isPlasterGuide
@@ -126,7 +130,7 @@ function staticSnapshot(page) {
       ? `<p><a href="${SITE_URL}${REPAIR_GUIDE_SLUG}/">Штукатурка или стяжка: что делать сначала?</a></p>`
       : "";
   const guideLinks = isGuide
-    ? isRepairGuide
+    ? operation.hasSteps ? "" : isRepairGuide
       ? repairServiceLinks
       : isPlasterGuide || isMaterialGuide
         ? `<p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка в Омске</a></p>`
@@ -135,7 +139,7 @@ function staticSnapshot(page) {
       : `<nav aria-label="Ещё полезные гайды"><h2>Другие полезные гайды</h2><ul>${pages.filter((guide) => guide.kind === "guide" && guide.slug !== page.slug && guide.slug !== REPAIR_GUIDE_SLUG && guide.slug !== SCREED_GUIDE_SLUG && guide.slug !== PLASTER_GUIDE_SLUG && guide.slug !== MATERIAL_GUIDE_SLUG).map((guide) => `<li><a href="${SITE_URL}${guide.slug}/">${escapeHtml(guide.h1)}</a></li>`).join("")}</ul></nav><p><a href="${SITE_URL}${guideTarget.path}/">${escapeHtml(guideTarget.label)}</a></p>`
     : "";
 
-  const printLink = isGuide && page.printChecklistPath
+  const printLink = isGuide && page.printChecklistPath && !operation.hasSteps
     ? `<p><a href="${SITE_URL}${page.printChecklistPath}/">Открыть чек-лист для печати</a></p>`
     : "";
 
@@ -181,7 +185,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${sections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}${operation.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {

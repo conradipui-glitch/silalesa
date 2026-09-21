@@ -46,7 +46,7 @@ for (const revised of revisions) {
   for (const line of revised.summary) assert(html.includes(escapeHtml(line)), `First-screen takeaway: ${line}`);
   for (const step of revised.operationSteps) for (const text of [step.title,step.do,step.send,step.outcome]) assert(html.includes(escapeHtml(text)), `No-JS step: ${text}`);
   for (const link of revised.operationLinks) assert(html.includes(`${base}${link.slug}/`) && html.includes(escapeHtml(link.label)), `Contextual interlink: ${link.slug}`);
-  assert(html.includes('<details><summary>Подробные инструкции и безопасность</summary>'), 'Detailed safety information optional in static HTML');
+  if (original.sections?.length) assert(html.includes('<details><summary>Подробные инструкции и безопасность</summary>'), 'Existing detailed safety information optional in static HTML');
   for (const section of original.sections ?? []) {
     assert(html.includes(escapeHtml(section.heading)), `Detailed heading kept: ${section.heading}`);
     for (const p of section.paragraphs) assert(html.includes(escapeHtml(p)), `Detailed paragraph retained: ${revised.slug}`);

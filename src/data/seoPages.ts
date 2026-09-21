@@ -9,6 +9,7 @@ import rawNextOverrides from "./seo-page-overrides-next.json";
 import rawR3Overrides from "./seo-page-overrides-r3.json";
 import rawR4Overrides from "./seo-page-overrides-r4.json";
 import rawR5Overrides from "./seo-page-overrides-r5.json";
+import rawR6Overrides from "./seo-page-overrides-r6.json";
 
 export type SeoFaq = [question: string, answer: string];
 export type SeoGuideSection = { heading: string; paragraphs: string[]; bullets?: string[] };
@@ -43,12 +44,18 @@ export type SeoPage = {
   choiceChecklist?: string[];
   choicePrompt?: string;
   choiceCtaLabel?: string;
+  operationHeading?: string;
+  operationIntro?: string;
+  operationSteps?: { title: string; do: string; send: string; outcome: string }[];
+  operationPrompt?: string;
+  operationCtaLabel?: string;
+  operationLinks?: { slug: string; label: string }[];
 };
 
 type SeoPageOverride = { slug: string } & Partial<Omit<SeoPage, "slug">>;
 
 const overrideBySlug = new Map(
-  ([...rawOverrides, ...rawNextOverrides, ...rawR3Overrides, ...rawR4Overrides, ...rawR5Overrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
+  ([...rawOverrides, ...rawNextOverrides, ...rawR3Overrides, ...rawR4Overrides, ...rawR5Overrides, ...rawR6Overrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
 );
 
 const rawAllPages = [...rawPages, ...rawGuides, ...rawRepairGuides, ...rawScreedGuides, ...rawPlasterGuides, ...rawMaterialGuides] as SeoPage[];

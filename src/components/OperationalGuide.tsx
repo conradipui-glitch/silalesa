@@ -54,6 +54,16 @@ export function OperationalGuide({ page }: { page: SeoPage }) {
             <li key={link.slug}><Link to={`/${link.slug}/`} className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-cream-50/20 px-4 py-3 text-sm text-cream-100 hover:border-cedar-300 hover:text-cedar-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">{link.label} <ArrowIcon /></Link></li>
           ))}</ul>
         </nav> : null}
+        {page.sections?.length ? <details className="mt-10 rounded-2xl border border-cream-50/20 bg-bark-950 p-5 sm:p-7">
+          <summary className="cursor-pointer font-display text-xl font-semibold text-cedar-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Подробные инструкции и безопасность</summary>
+          <div className="mt-7 space-y-9">{page.sections.map((section) => (
+            <article key={section.heading} className="border-l-2 border-cedar-300/50 pl-4 sm:pl-6">
+              <h3 className="font-display text-xl text-cream-50">{section.heading}</h3>
+              {section.paragraphs.map((paragraph) => <p key={paragraph} className="mt-3 text-sm leading-relaxed text-cream-200 sm:text-base">{paragraph}</p>)}
+              {section.bullets && <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-cream-200 sm:text-base">{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
+            </article>
+          ))}</div>
+        </details> : null}
       </div>
     </section>
   );
