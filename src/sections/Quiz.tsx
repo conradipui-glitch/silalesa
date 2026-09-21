@@ -3,6 +3,7 @@ import { ArrowIcon, Button, CheckIcon, LinkButton, SectionHead } from "../compon
 import { formatPrice, saunas, whatsappUrl, type Product } from "../data/products";
 import { loadJSON, removeKey, saveJSON, storageAvailable, track } from "../lib/utils";
 import { cn } from "../utils/cn";
+import { seoPages } from "../data/seoPages";
 import type { ModelKey } from "./Models";
 
 const KEY = "silalesa.quiz.v2";
@@ -40,17 +41,6 @@ const accessLabels: Record<AccessKey, string> = {
 
 const questions = [
   {
-    id: "people" as const,
-    title: "Сколько человек обычно будут париться?",
-    hint: "Это ориентир по вместимости, а не обещание точного комфорта для любой компании.",
-    options: [
-      { v: 2, label: "1–2", sub: "вдвоём или в одиночку" },
-      { v: 4, label: "3–4", sub: "семья" },
-      { v: 6, label: "5–6", sub: "компания" },
-      { v: 8, label: "Больше шести", sub: "большие посиделки" },
-    ],
-  },
-  {
     id: "rooms" as const,
     title: "Что нужно, кроме парной?",
     hint: "От этого зависит длина бани и планировка.",
@@ -72,6 +62,28 @@ const questions = [
     ],
   },
   {
+    id: "budget" as const,
+    title: "Комфортный бюджет?",
+    hint: "Необязательное уточнение. Квадро: доставка по Омску включена; каркасная — отдельно.",
+    options: [
+      { v: 250000, label: "До 250 тысяч" },
+      { v: 350000, label: "До 350 тысяч" },
+      { v: 400000, label: "До 400 тысяч" },
+      { v: 650000, label: "До 650 тысяч" },
+    ],
+  },
+  {
+    id: "people" as const,
+    title: "Сколько человек обычно будут париться?",
+    hint: "Это ориентир по вместимости, а не обещание точного комфорта для любой компании.",
+    options: [
+      { v: 2, label: "1–2", sub: "вдвоём или в одиночку" },
+      { v: 4, label: "3–4", sub: "семья" },
+      { v: 6, label: "5–6", sub: "компания" },
+      { v: 8, label: "Больше шести", sub: "большие посиделки" },
+    ],
+  },
+  {
     id: "access" as const,
     title: "Манипулятор сможет подъехать к месту установки?",
     hint: "Это влияет на сценарий монтажа, но не отменяет покупку: для Квадро возможна сборка на участке.",
@@ -81,41 +93,26 @@ const questions = [
       { v: "no", label: "Нет", sub: "готовую баню не завезти" },
     ],
   },
-  {
-    id: "budget" as const,
-    title: "Комфортный бюджет?",
-    hint: "Цены Квадро — за комплектацию «Стандарт» с доставкой по Омску.",
-    options: [
-      { v: 250000, label: "До 250 тысяч" },
-      { v: 350000, label: "До 350 тысяч" },
-      { v: 400000, label: "До 400 тысяч" },
-      { v: 650000, label: "До 650 тысяч" },
-    ],
-  },
 ] as const;
 
 type Verdict = { product: Product; score: number; ok: string[]; warn: string[] };
 
-function evaluate(a: Required<Answers>): Verdict[] {
-  const site = spaces[a.space];
+function evaluate(a: Answers): Verdict[] {
+  const site = a.space ? spaces[a.space] : null;
+  if (!site || !a.rooms) return [];
   const list = saunas.map((p): Verdict => {
     let score = 0;
     const ok: string[] = [];
     const warn: string[] = [];
-    const cap = p.capacity?.people ?? 4;
-    if (cap >= a.people) {
-      score += 3;
-      ok.push(`ориентир по вместимости: до ${cap} человек`);
-    } else {
-      score -= 2 * (a.people - cap);
-      warn.push(`ориентир по вместимости — до ${cap} человек; для ${a.people} стоит смотреть модель крупнее`);
+    if (a.people && p.capacity?.people && a.people > p.capacity.people) {
+      warn.push("Количество гостей необходимо обсудить по планировке и размеру парной; вместимость не гарантируется автоматически.");
     }
 
     const have = p.roomsList?.length ?? 1;
-    if (have === a.rooms) {
+    if (have === a.rooms!) {
       score += 3;
       ok.push("нужный набор помещений");
-    } else if (have > a.rooms) {
+    } else if (have > a.rooms!) {
       score += 1;
       ok.push("помещений больше, чем вы указали");
     } else {
@@ -137,11 +134,13 @@ function evaluate(a: Required<Answers>): Verdict[] {
       ok.push("вы указали доступный подъезд для готовой установки");
     } else if (a.access === "unsure") {
       warn.push("подъезд и точку разгрузки нужно проверить до заказа");
-    } else {
+    } else if (a.access === "no") {
       warn.push(p.modelKey?.startsWith("k") ? "готовую баню не завезти; для Квадро можно обсудить сборку на участке" : "сценарий монтажа нужно отдельно согласовать");
     }
 
-    if (p.price <= a.budget) {
+    if (a.budget === undefined) {
+      // The budget is optional: the first result must not invent one.
+    } else if (p.price <= a.budget) {
       score += 2;
       ok.push(`в бюджете: ${formatPrice(p.price)}`);
     } else {
@@ -151,7 +150,13 @@ function evaluate(a: Required<Answers>): Verdict[] {
     }
     return { product: p, score, ok, warn };
   });
-  return list.sort((x, y) => y.score - x.score || x.product.price - y.product.price);
+  // A model that does not fit the stated site or lacks required rooms is never recommended.
+  // Setbacks, unloading space and permits are still verified separately by a specialist.
+  return list.filter(({ product }) =>
+    (product.roomsList?.length ?? 1) >= a.rooms!
+    && (product.footprint?.l ?? Infinity) <= site.l
+    && (product.footprint?.w ?? Infinity) <= site.w,
+  ).sort((x, y) => y.score - x.score || x.product.price - y.product.price);
 }
 
 export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
@@ -163,11 +168,11 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
 
   useEffect(() => {
     const s = loadJSON<Saved>(KEY);
-    if (s?.result) setSaved(s);
+    if (s?.result && s.answers?.rooms && s.answers?.space && saunas.some((p) => p.id === s.result)) setSaved(s);
   }, []);
 
-  const complete = answers.people && answers.rooms && answers.space && answers.access && answers.budget;
-  const verdicts = useMemo(() => (complete ? evaluate(answers as Required<Answers>) : []), [answers, complete]);
+  const complete = Boolean(answers.rooms && answers.space);
+  const verdicts = useMemo(() => (complete ? evaluate(answers) : []), [answers, complete]);
 
   const start = () => {
     setAnswers({});
@@ -181,17 +186,20 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
     const next = { ...answers, [q.id]: v } as Answers;
     setAnswers(next);
     track("quiz_step", { step: q.id, value: String(v) });
-    if (step < questions.length - 1) {
-      setStep(step + 1);
-    } else {
-      const res = evaluate(next as Required<Answers>);
+    if (step === 1 || step === questions.length - 1) {
+      const res = evaluate(next);
       setStage("result");
-      track("quiz_complete", { result: res[0].product.modelKey ?? "", score: res[0].score });
-      if (canStore) {
+      track("quiz_complete", { result: res[0]?.product.modelKey ?? "none", score: res[0]?.score ?? 0 });
+      if (canStore && res[0]) {
         const savedNext: Saved = { answers: next, result: res[0].product.id, ts: Date.now() };
         saveJSON(KEY, savedNext);
         setSaved(savedNext);
+      } else if (!res[0]) {
+        removeKey(KEY);
+        setSaved(null);
       }
+    } else {
+      setStep(step + 1);
     }
   };
 
@@ -213,6 +221,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
   const best = verdicts[0];
   const alt = verdicts[1];
   const savedProduct = saved ? saunas.find((p) => p.id === saved.result) : null;
+  const modelHref = (p: Product) => `/${seoPages.find((page) => page.productId === p.id)?.slug ?? `product/${p.id}`}/`;
 
   const quizMessage = best
     ? [
@@ -235,11 +244,11 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
             <SectionHead
               light
               index="07 — Если не определились"
-              title={<span id="quiz-title">Подберём модель по пяти ответам</span>}
-              lead="Сопоставим людей, помещения, габарит площадки, подъезд и бюджет. Это предварительный подбор: он не заменяет проверку отступов, основания и точки разгрузки."
+              title={<span id="quiz-title">Подбор бани: два ответа для первого результата</span>}
+              lead="Сначала два ответа — нужные помещения и место под баню. Сразу покажем подходящие по этим условиям модели и цены. Бюджет, количество гостей и подъезд можно уточнить после первого результата."
             />
             <p className="reveal mt-6 text-xs text-bark-600/70">
-              После подбора можно одним нажатием отправить результат менеджеру в WhatsApp — модель и ваши ответы подставятся в сообщение автоматически.
+              Это ориентир по габаритам самой бани, а не проект установки: отступы, основание и подъезд проверяются отдельно. Сообщение откроется в WhatsApp, отправите его вы сами.
             </p>
           </div>
 
@@ -248,18 +257,16 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
               <div className="flex flex-1 flex-col justify-between gap-8">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Предварительный подбор</p>
-                  <h3 className="mt-3 font-display text-2xl sm:text-3xl text-cream-50">Покажем подходящую модель и отдельно отметим, что ещё нужно проверить на участке</h3>
-                  <ul className="mt-6 grid gap-2 text-sm text-cream-200/80 sm:grid-cols-2">
-                    {questions.map((q, i) => (
-                      <li key={q.id} className="flex items-center gap-2">
-                        <span className="font-display text-xs text-cedar-400">0{i + 1}</span> {q.title}
-                      </li>
-                    ))}
+                  <h3 className="mt-3 font-display text-2xl sm:text-3xl text-cream-50">Два ответа — и видны подходящие по помещениям и размеру варианты</h3>
+                  <p className="mt-3 text-sm text-cream-200/80">Без анкеты можно сразу открыть любую модель с известной стартовой ценой:</p>
+                  <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                    {saunas.map((p) => <li key={p.id}><LinkButton to={modelHref(p)} variant="ghost" className="w-full justify-between text-xs" onClick={() => track("product_view", { id: p.id, from: "quiz-before-questions" })}>{p.shortName} · {formatPrice(p.price)}</LinkButton></li>)}
                   </ul>
+                  <p className="mt-4 text-xs text-cream-300/70">Нужны только помещения и габарит места. Остальные три вопроса — по желанию.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button size="lg" onClick={start}>
-                    Начать подбор <ArrowIcon />
+                    Подобрать за два ответа <ArrowIcon />
                   </Button>
                   {savedProduct && (
                     <button type="button" onClick={reuse} className="text-sm text-cream-200/80 hover:text-cream-50 underline underline-offset-4">
@@ -273,13 +280,13 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
             {stage === "q" && (
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between text-xs text-cream-300/70">
-                  <span className="font-display">Вопрос {step + 1} из {questions.length}</span>
-                  <button type="button" onClick={() => (step === 0 ? setStage("idle") : setStep(step - 1))} className="hover:text-cream-50">
+                  <span className="font-display">{step < 2 ? `Основной вопрос ${step + 1} из 2` : `Уточнение ${step - 1} из 3`}</span>
+                  <button type="button" onClick={() => (step === 0 ? setStage("idle") : step === 2 && complete ? setStage("result") : setStep(step - 1))} className="hover:text-cream-50">
                     ← {step === 0 ? "Отмена" : "Назад"}
                   </button>
                 </div>
                 <div className="mt-3 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${questions.length}, minmax(0, 1fr))` }} aria-hidden="true">
-                  {questions.map((q, i) => (
+                  {questions.slice(0, step < 2 ? 2 : 5).map((q, i) => (
                     <span key={q.id} className={cn("h-1 rounded-full transition-colors", i <= step ? "bg-cedar-400" : "bg-cream-50/15")} />
                   ))}
                 </div>
@@ -308,9 +315,21 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
               </div>
             )}
 
+            {stage === "result" && !best && (
+              <div className="flex flex-1 flex-col gap-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Нужна проверка условий</p>
+                <h3 className="font-display text-2xl text-cream-50">По указанным помещениям и габариту места подходящей модели в каталоге нет</h3>
+                <p className="text-sm text-cream-200/85">Не предлагаем баню, которая физически не помещается или не содержит нужные помещения. Проверьте размеры площадки и свободное место для установки с менеджером.</p>
+                <div className="mt-auto flex flex-wrap gap-3">
+                  <LinkButton to={whatsappUrl(`Здравствуйте! Не нашёл подходящую баню: помещения — ${answers.rooms ? roomLabels[answers.rooms] : "не указаны"}, место — ${answers.space ? spaces[answers.space].label : "не указано"}. Помогите уточнить вариант и условия установки.`)} external>Уточнить в WhatsApp <ArrowIcon /></LinkButton>
+                  <button type="button" onClick={() => { setStep(0); setStage("q"); }} className="rounded-full border border-cream-50/20 px-4 py-2 text-sm">Изменить ответы</button>
+                  <LinkButton to="/mobilnaya-banya-omsk/" variant="ghost">Посмотреть каталог</LinkButton>
+                </div>
+              </div>
+            )}
             {stage === "result" && best && (
               <div className="flex flex-1 flex-col">
-                <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Лучшее совпадение по ответам</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Предварительный вариант по вашим условиям</p>
                 <div className="mt-4 flex flex-col sm:flex-row gap-5">
                   <div className="kvadro-mask-sm overflow-hidden w-full sm:w-44 shrink-0 aspect-[4/3] bg-bark-800">
                     <img src={best.product.image} alt={best.product.imageAlt} className="h-full w-full object-cover" loading="lazy" decoding="async" />
@@ -345,6 +364,10 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
                   Это не заключение по участку. Перед заказом отдельно подтверждаем отступы, основание, подъезд/разгрузку и выбранный способ монтажа.
                 </p>
 
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button type="button" onClick={() => { setStep(2); setStage("q"); }} className="rounded-full border border-cedar-400/60 px-4 py-2 text-sm text-cream-50 hover:bg-cream-50/10">{answers.access ? "Изменить уточнения" : "Уточнить бюджет, гостей и подъезд (необязательно)"}</button>
+                  <button type="button" onClick={() => { setStep(0); setStage("q"); }} className="rounded-full border border-cream-50/20 px-4 py-2 text-sm text-cream-50 hover:bg-cream-50/10">Изменить помещения или размер</button>
+                </div>
                 <div className="mt-auto pt-8 flex flex-wrap gap-3">
                   <LinkButton
                     to={whatsappUrl(quizMessage)}
@@ -353,7 +376,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
                   >
                     Отправить подбор в WhatsApp <ArrowIcon />
                   </LinkButton>
-                  <LinkButton to={`/product/${best.product.id}`} variant="ghost" onClick={() => track("product_view", { id: best.product.id, from: "quiz" })}>
+                  <LinkButton to={modelHref(best.product)} variant="ghost" onClick={() => track("product_view", { id: best.product.id, from: "quiz" })}>
                     Открыть модель
                   </LinkButton>
                   <LinkButton
