@@ -18,7 +18,8 @@ assert.ok(products.includes('showroom: "Омск, ул. Нефтезаводск
 assert.ok(!products.includes('  address:'), 'Do not advertise unverified old legal/production address');
 assert.ok(index.includes('"streetAddress": "ул. Нефтезаводская, 49/1"'), 'Schema references actual visit location');
 assert.ok(footer.includes('Осмотр по предварительной договорённости') && !footer.includes('company.address'));
-assert.ok(about.includes('Перед оформлением заказа попросите письменно подтвердить срок изготовления, условия гарантии') && about.includes('Фотографии моделей не выдаём за отзывы'));
+// R8 shortens the About copy, but keeps a truthful catalogue/photo description and written-order verification.
+assert.ok(about.includes('Сверьте с заказом опции, сроки, гарантийные условия, доставку и итоговую цену.') && about.includes('Фотографии, цены и планировки') && !about.includes('отзывы клиентов:'), 'Honest model photos and written confirmation of order, guarantee and delivery are retained');
 assert.ok(cards.includes('const productUrl = landing ?') && (cards.match(/to=\{productUrl\}/g) ?? []).length === 3, 'Home cards point at canonical landing instead of numeric legacy URLs');
 for (const page of models) {
   const legacy = `dist/product/${page.productId}/index.html`;
