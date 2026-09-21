@@ -39,7 +39,8 @@ assert(brand.includes('to="/mobilnaya-banya-omsk/"') && brand.includes('Стро
 assert(html.includes('<div id="root" data-prerendered="true">') && html.includes('<h1>Бани Квадро в Омске — от 230 000 ₽</h1>') || html.includes('<div id="root" data-prerendered="true">') && html.includes('<h1>Бани Квадро в Омске — от 230 000 ₽</h1>'), 'Buyer-first readable home without JavaScript');
 assert(html.includes('<link rel="canonical" href="' + base + '"') && html.includes('LocalBusiness'), 'Root canonical and structured business');
 assert(html.includes('https://wa.me/' + phone + '?text=') && html.includes('tel:+79136884533') && html.includes('Спросить о бане в WhatsApp'), 'No-JS buyer contact paths');
-assert(html.indexOf('<h1>') < html.indexOf('Четыре модели'), 'Price and direct CTA precede catalogue');
+const homeBody = html.slice(html.indexOf('<div id="root" data-prerendered="true">'));
+assert(homeBody.indexOf('<h1>') < homeBody.indexOf('<h2>Четыре модели') && homeBody.indexOf('Спросить о бане в WhatsApp') < homeBody.indexOf('<h2>Четыре модели'), 'Price and direct CTA precede catalogue in the actual page, not document metadata');
 for (const model of models) {
   assert(html.includes(`${base}${model.slug}/`), `Canonical model href ${model.slug}`);
   assert(html.includes(`${Number(model.price).toLocaleString('ru-RU')} ₽`), `Source price ${model.key}`);

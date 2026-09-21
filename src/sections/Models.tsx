@@ -20,7 +20,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <SectionHead
-            index="02 — Модели"
+            index="01 — Модели"
             title={
               <span id="models-title">
                 Выберите баню по тому, <span className="text-cedar-400">как будете ей пользоваться</span>
@@ -35,7 +35,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
 
         <div className="reveal mt-12 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <div className="min-w-[640px]">
-            <div className="flex items-end gap-4 sm:gap-6" role="tablist" aria-label="Модели бань в масштабе">
+            <div className="flex items-end gap-4 sm:gap-6" role="group" aria-label="Модели бань в масштабе">
               {saunas.map((p) => {
                 const key = p.modelKey!;
                 const active = model === key;
@@ -43,9 +43,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
                   <button
                     key={p.id}
                     type="button"
-                    role="tab"
-                    aria-selected={active}
-                    aria-controls="layout-panel"
+                    aria-pressed={active}
                     onClick={() => {
                       setModel(key);
                       track("config_change", { field: "model", value: key, where: "lineup" });
@@ -84,6 +82,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
             </li>
           ))}
         </ul>
+        <p className="mt-4 text-sm text-cream-300/70">Листайте карточки по горизонтали на телефоне. Все четыре модели с ценами и планировками есть также в <Link to="/mobilnaya-banya-omsk/" className="font-medium text-cedar-300 underline underline-offset-4">общем каталоге</Link>.</p>
       </div>
     </section>
   );
@@ -92,7 +91,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
 function ModelCard({ product: p, active, onSelect }: { product: Product; active: boolean; onSelect: () => void }) {
   const landing = seoPages.find((page) => page.productId === p.id);
   const productUrl = landing ? `/${landing.slug}/` : `/product/${p.id}/`;
-  const useCase = p.modelKey === "k2" ? "Вечер вдвоём" : p.modelKey === "k3" ? "Выходные с семьёй" : p.modelKey === "k4" ? "Встреча с друзьями" : "Полный банный цикл";
+  const useCase = p.modelKey === "k2" ? "Одна парная" : p.modelKey === "k3" ? "Парная + комната отдыха" : p.modelKey === "k4" ? "Два помещения" : "Три помещения с помывочной";
   return (
     <article
       className={cn(
@@ -119,12 +118,9 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
               {r}
             </li>
           ))}
-          {p.capacity && (
-            <li className="rounded-full border border-cream-50/12 px-2.5 py-1 text-[11px] text-cream-200/80" title={p.capacity.note}>
-              ориентир: до {p.capacity.people} чел.
-            </li>
-          )}
+
         </ul>
+        <p className="mt-3 text-xs leading-relaxed text-cream-300/70">{p.modelKey === "f55" ? "Каркасная: доставку и монтаж уточняем отдельно." : p.modelKey === "k4" ? "Вход сбоку и увеличенное окно на фото — опции; в стандарте вход с торца." : "Стандарт Квадро: установка на блоки и доставка по Омску включены."}</p>
         <div className="mt-auto pt-5 flex items-center justify-between">
           <Link to={productUrl} className="inline-flex items-center gap-1.5 text-sm text-cream-50 hover:text-cedar-300" onClick={() => track("product_view", { id: p.id, from: "card-link" })}>
             Подробнее <ArrowIcon />
@@ -150,20 +146,19 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
       <div className="absolute inset-0 grid-paper opacity-40" aria-hidden="true" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHead
-          index="04 — Планировка"
-          title={<span id="layout-title">До покупки понятно, что поместится внутри</span>}
-          lead="Переключайте модель: планировка перестраивается в пропорциях. Видно не только длину бани, но и сколько места остаётся под отдых, парную и помывочную."
+          index="03 — Планировка"
+          title={<span id="layout-title">Планировка каждой модели — до обращения</span>}
+          lead="Выберите модель и посмотрите помещения, их размеры и состав. Планировка каркасной показана условно; боковой вход Квадро 4×2 — дополнительная опция."
         />
 
-        <div className="reveal mt-10 inline-flex flex-wrap gap-1 rounded-full border border-cream-50/10 bg-bark-900/80 p-1" role="tablist" aria-label="Выбор модели для планировки">
+        <div className="reveal mt-10 inline-flex flex-wrap gap-1 rounded-full border border-cream-50/10 bg-bark-900/80 p-1" role="group" aria-label="Выбор модели для планировки">
           {saunas.map((s) => {
             const active = s.modelKey === model;
             return (
               <button
                 key={s.id}
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 onClick={() => {
                   setModel(s.modelKey!);
                   track("config_change", { field: "model", value: s.modelKey!, where: "layout" });
@@ -179,7 +174,7 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
           })}
         </div>
 
-        <div id="layout-panel" role="tabpanel" className="mt-8 grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-14 items-start">
+        <div id="layout-panel" className="mt-8 grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-14 items-start">
           <div className="reveal rounded-3xl border border-cream-50/8 bg-bark-900/70 p-4 sm:p-8">
             <PlanDiagram layout={layout} highlight={hover} onHover={setHover} />
             <p className="mt-4 text-center text-xs text-cream-300/60">
@@ -257,12 +252,14 @@ export function StandardSection() {
         <div>
           <SectionHead
             light
-            index="03 — Что входит"
+            index="02 — Что входит"
             title={<span id="standard-title">Цена — за готовую баню, а не за пустую коробку</span>}
-            lead="До заказа видно, что уже включено: конструкция, печь, дымоход, бак, электрика, мебель по модели, установка и доставка по Омску. Дополнительные опции считаются отдельно."
+            lead="В стандарт Квадро входят конструкция, печь, дымоход, бак и элементы по спецификации модели. Доставка по Омску и установка на блоки включены. У каркасной бани другой состав и отдельные условия логистики."
           />
 
-          <div className="mt-10 space-y-8">
+          <details className="mt-8 rounded-2xl border border-bark-950/15 p-5 sm:p-6">
+            <summary className="cursor-pointer font-display text-lg font-medium text-bark-950">Полные характеристики Квадро 3×2</summary>
+          <div className="mt-8 space-y-8">
             {std.map((g, gi) => (
               <div key={g.title} className="reveal" style={{ ["--reveal-delay" as string]: `${gi * 60}ms` }}>
                 <h3 className="font-display text-xs uppercase tracking-[0.2em] text-cedar-700">{g.title}</h3>
@@ -278,6 +275,7 @@ export function StandardSection() {
             ))}
           </div>
 
+          </details>
           <div className="reveal mt-10 rounded-3xl bg-bark-950 text-cream-50 p-6 sm:p-8">
             <p className="font-display text-sm uppercase tracking-[0.18em] text-cedar-300">Уже входит в цену любой Квадро</p>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -287,7 +285,8 @@ export function StandardSection() {
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-cream-300/60">Для каркасной 5,5×2,2 комплектация своя — она описана на странице модели. Спецификации приведены по данным производителя.</p>
+            <p className="mt-4 text-xs text-cream-300/70">Для каркасной 5,5×2,2 комплектация и доставка указаны отдельно на странице модели.</p>
+            <Link to="/guides/bani/chto-vhodit-v-tsenu/" className="mt-4 inline-flex min-h-11 items-center text-sm text-cedar-300 underline underline-offset-4">Что включено и какие бывают доплаты →</Link>
           </div>
         </div>
       </div>

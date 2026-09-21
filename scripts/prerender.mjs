@@ -3,6 +3,7 @@ import path from "node:path";
 import { renderPlasterFallback } from "./plaster-fallback.mjs";
 import { saunaChoiceFallback } from "./sauna-choice-fallback.mjs";
 import { operationalGuideFallback } from "./operational-guide-fallback.mjs";
+import { homeFallback } from "./home-fallback.mjs";
 import { saunaOfferFallback } from "./sauna-offer-fallback.mjs";
 
 const ROOT = process.cwd();
@@ -292,6 +293,20 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(dir, "index.html"), html, "utf8");
 }
 
+// Give the home page the same meaningful first answer and canonical product links without JavaScript.
+{
+  const prefix = { k2: "kvadro-2x2-", k3: "kvadro-3x2-", k4: "kvadro-4x2-", f55: "karkasnaya-5-5-" };
+  const builtAssets = await fs.readdir(path.join(DIST, "assets"));
+  const assets = Object.fromEntries(Object.entries(prefix).map(([key, stem]) => {
+    const match = builtAssets.filter((name) => name.startsWith(stem) && name.endsWith(".webp"));
+    if (match.length !== 1) throw new Error(`Home static image ambiguous or missing: ${key}`);
+    return [key, match[0]];
+  }));
+  const home = homeFallback(saunaChoiceModels, assets, SITE_URL, whatsappMatch[1], "+79136884533", "Омск, ул. Нефтезаводская, 49/1");
+  if (!template.includes('<div id="root"></div>')) throw new Error('Home root placeholder missing');
+  await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
+}
+
 const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`)];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls
   .map((url) => `  <url><loc>${url}</loc></url>`)
@@ -306,4 +321,4 @@ const pageList = pages
 const llms = `# Сила Леса\n\n> Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Осмотр образцов — по предварительной договорённости, время уточните по телефону.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные модели бань: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
 await fs.writeFile(path.join(DIST, "llms.txt"), llms, "utf8");
 
-console.log(`Prerendered ${pages.length} SEO pages + services hub and generated sitemap.xml + llms.txt.`);
+console.log(`Prerendered home + ${pages.length} SEO pages + services hub and generated sitemap.xml + llms.txt.`);

@@ -1,5 +1,5 @@
 import { ArrowIcon, LinkButton, LogoMark, PhoneIcon, SectionHead } from "../components/Brand";
-import { company, formatPrice, mapsUrl, services } from "../data/products";
+import { company, formatPrice, mapsUrl, services, whatsappUrl } from "../data/products";
 import { seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
@@ -65,43 +65,25 @@ export function About() {
     <section id="features" className="scroll-mt-20 bg-cream-50 text-bark-950 py-20 sm:py-28" aria-labelledby="about-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
         <div>
-          <SectionHead light index="09 — Производство и контакты" title={<span id="about-title">Баню можно проверить не по обещаниям, а вживую</span>} />
+          <SectionHead light index="08 — Площадка и контакты" title={<span id="about-title">Посмотреть образец и уточнить условия</span>} />
           <div className="reveal mt-8 flex items-start gap-5">
             <LogoMark size={64} className="ring-cedar-500/40 shrink-0" />
             <div className="space-y-4 text-base leading-relaxed text-bark-700">
               <p>
-                «Сила Леса» производит мобильные бани в Омске. До заказа можно приехать на площадку, зайти внутрь готового образца, посмотреть узлы печи и дымохода, оценить размеры помещений и фактуру кедра.
+                На площадке в Омске можно осмотреть образец, сравнить размеры и планировку с карточкой выбранной бани. Время визита согласуйте заранее.
               </p>
               <p>
-                Мы не прячем техническую часть за красивой картинкой: на сайте открыты планировки, состав стандартной комплектации, базовые цены и известные доплаты. Если участок сложный для доставки, вариант монтажа обсуждается заранее.
+                До заказа подтвердите выбранную комплектацию, опции, срок, итоговую цену и условия доставки письменно. Способ установки зависит от модели и подъезда.
               </p>
             </div>
           </div>
           <div className="reveal mt-8 rounded-2xl border border-bark-950/15 bg-white p-5 sm:p-6">
             <h3 className="font-display text-lg text-bark-950">Что можно проверить до заказа</h3>
             <ul className="mt-4 space-y-3 text-sm leading-relaxed text-bark-700 sm:text-base">
-              <li>Модели, фотографии и планировки — <Link to="/mobilnaya-banya-omsk/" className="font-medium text-cedar-700 underline underline-offset-2">в каталоге бань</Link>. Фотографии моделей не выдаём за отзывы или отчёты о стройках клиентов.</li>
+              <li>Фотографии, цены и планировки — <Link to="/mobilnaya-banya-omsk/" className="font-medium text-cedar-700 underline underline-offset-2">в каталоге бань</Link>.</li>
               <li>Осмотр образцов — на Нефтезаводской, 49/1. Заранее согласуйте время визита по телефону.</li>
-              <li>Перед оформлением заказа попросите письменно подтвердить срок изготовления, условия гарантии, комплектацию, доставку и итоговую стоимость для вашей модели.</li>
+              <li>Сверьте с заказом опции, сроки, гарантийные условия, доставку и итоговую цену.</li>
             </ul>
-          </div>
-          <div className="reveal mt-10">
-            <h3 className="font-display text-xs uppercase tracking-[0.2em] text-cedar-700">Что можно проверить на площадке</h3>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {[
-                "реальные размеры парной и комнаты отдыха",
-                "кедровый брус и качество сборки",
-                "печь Aston 16, бак и дымоход",
-                "полки, скамейки, двери и окна",
-                "варианты входа и расположения топки",
-                "как баня устанавливается на основание",
-              ].map((a) => (
-                <li key={a} className="flex gap-2 text-sm text-bark-700">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cedar-500" aria-hidden="true" /> {a}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-xs text-bark-600/70">Лучший способ выбрать размер — постоять внутри бань вживую, а не сравнивать только цифры на экране.</p>
           </div>
         </div>
 
@@ -145,8 +127,8 @@ export function About() {
             <LinkButton to={`tel:${company.phonePrimary.tel}`} onClick={() => track("cta_click", { type: "call", where: "contacts-btn" })}>
               <PhoneIcon /> Позвонить
             </LinkButton>
-            <LinkButton to="/#configurator" variant="ghost" onClick={() => track("cta_click", { type: "configurator", where: "contacts" })}>
-              Рассчитать баню
+            <LinkButton to={whatsappUrl("Здравствуйте! Хочу посмотреть баню и уточнить комплектацию. Страница: https://conradipui-glitch.github.io/silalesa/")} variant="ghost" external onClick={() => track("cta_click", { type: "whatsapp", where: "contacts" })}>
+              Написать в WhatsApp
             </LinkButton>
           </div>
         </div>
