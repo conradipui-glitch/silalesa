@@ -1,0 +1,36 @@
+name: Update R7 published status
+on:
+  push:
+    branches: ["revision/r7-published-status"]
+    paths:
+      - ".github/workflows/r7-status-temporary.yml"
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mark verified R7 publication
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('docs/CONTENT-CONVERSION-REVISION-PLAN.md')
+          text = p.read_text(encoding='utf-8')
+          rows = text.splitlines(keepends=True)
+          indexes = [i for i, line in enumerate(rows) if '| **R7** |' in line]
+          if len(indexes) != 1 or '| ☐ План |' not in rows[indexes[0]]:
+              raise RuntimeError('Expected one pending R7 row')
+          rows[indexes[0]] = rows[indexes[0]].replace('| ☐ План |', '| ☑ Техническая реализация опубликована · PR #31; TypeScript, сборка, проверки R1–R7, CI и GitHub Pages build/deploy успешны. Ручной визуальный просмотр mobile/desktop, проверка публичных HTTP-ответов и отправка WhatsApp остаются пунктами приёмки |')
+          p.write_text(''.join(rows), encoding='utf-8')
+          print('Verified R7 publication recorded in master plan')
+          PY
+      - name: Commit only plan status and remove temporary workflow
+        run: |
+          git rm -f .github/workflows/r7-status-temporary.yml
+          git add docs/CONTENT-CONVERSION-REVISION-PLAN.md
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Docs: mark published R7 and retain manual acceptance caveat'
+          git push origin HEAD:revision/r7-published-status
