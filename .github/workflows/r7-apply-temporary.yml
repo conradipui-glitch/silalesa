@@ -22,6 +22,36 @@ jobs:
           cache: npm
       - name: Integrate source and static commercial pages
         run: python3 scripts/apply-r7-temporary.py
+      - name: Preserve prior SEO fields while applying latest commercial copy
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          file = Path('src/data/seoPages.ts')
+          text = file.read_text(encoding='utf-8')
+          old = '''const overrideBySlug = new Map(
+            ([...rawOverrides, ...rawNextOverrides, ...rawR3Overrides, ...rawR4Overrides, ...rawR5Overrides, ...rawR6Overrides, ...rawR7Overrides] as SeoPageOverride[]).map((override) => [override.slug, override]),
+          );'''
+          # Dedentation is not part of the file: match the exact TypeScript source independently.
+          old = old.replace('            (', '  (').replace('          );', ');')
+          new = '''const overrideBySlug = new Map<string, SeoPageOverride>();
+          for (const override of [...rawOverrides, ...rawNextOverrides, ...rawR3Overrides, ...rawR4Overrides, ...rawR5Overrides, ...rawR6Overrides, ...rawR7Overrides] as SeoPageOverride[]) {
+            overrideBySlug.set(override.slug, { ...(overrideBySlug.get(override.slug) ?? {}), ...override });
+          }'''
+          if text.count(old) != 1:
+            raise RuntimeError('Expected exactly one existing TypeScript override map')
+          file.write_text(text.replace(old, new), encoding='utf-8')
+          file = Path('scripts/prerender.mjs')
+          text = file.read_text(encoding='utf-8')
+          old = 'const overrideBySlug = new Map(pageOverrides.map((override) => [override.slug, override]));'
+          new = '''const overrideBySlug = new Map();
+          for (const override of pageOverrides) {
+            overrideBySlug.set(override.slug, { ...(overrideBySlug.get(override.slug) ?? {}), ...override });
+          }'''
+          if text.count(old) != 1:
+            raise RuntimeError('Expected exactly one existing prerender override map')
+          file.write_text(text.replace(old, new), encoding='utf-8')
+          print('R7: earlier title/FAQ/meta fields preserved alongside latest buyer copy')
+          PY
       - name: Install dependencies
         run: npm ci
       - name: Build and test R1 through R7
