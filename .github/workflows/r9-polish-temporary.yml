@@ -17,44 +17,18 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Put model switch beside mobile quote and adjust progress
+      - name: Put model selector beside quote and adjust progress
+        run: python3 scripts/polish-r9-temporary.py
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run complete R1-R9 build and regression suite
+        run: npm run build
+      - name: Keep verified source and remove temporary helpers
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('src/sections/Configurator.tsx')
-          source = path.read_text(encoding='utf-8')
-          lead = '            <fieldset className="reveal">\n              <legend className="font-display text-xs uppercase tracking-[0.2em] text-cedar-300">1. Выберите модель — цена уже рассчитана</legend>'
-          if source.count(lead) != 1: raise RuntimeError('Model fieldset differs from reviewed version')
-          start = source.index(lead)
-          end = source.index('            {isFrame ? (', start)
-          chooser = source[start:end]
-          if chooser.count('saunas.map') != 1 or chooser.count('setModel(s.modelKey!)') != 1: raise RuntimeError('Expected intact one-choice selector')
-          source = source[:start] + source[end:]
-          chooser = chooser.replace('className="reveal"', 'className="mt-5"', 1).replace('1. Выберите модель — цена уже рассчитана', 'Выберите модель — цена обновится сразу', 1).replace('mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4', 'mt-3 grid grid-cols-2 gap-2', 1)
-          anchor = '            </div>\n\n            <ul className="mt-6 divide-y divide-cream-50/8 text-sm">'
-          if source.count(anchor) != 1: raise RuntimeError('Unique quote header not found')
-          quick = '''            <div className="mt-4">
-              <LinkButton to={whatsappUrl(message)} size="sm" external onClick={() => track("cta_click", { type: "whatsapp", where: "configurator-quick", model })}>Уточнить стоимость в WhatsApp <ArrowIcon /></LinkButton>
-            </div>
-'''
-          source = source.replace(anchor, '            </div>\n\n' + chooser + quick + '            <ul className="mt-6 divide-y divide-cream-50/8 text-sm">', 1)
-          path.write_text(source, encoding='utf-8')
-          path = Path('src/sections/Quiz.tsx')
-          source = path.read_text(encoding='utf-8')
-          old = 'gridTemplateColumns: `repeat(${questions.length}, minmax(0, 1fr))`'
-          if source.count(old) != 1: raise RuntimeError('Unexpected quiz progress')
-          path.write_text(source.replace(old, 'gridTemplateColumns: `repeat(${step < 2 ? 2 : 5}, minmax(0, 1fr))`'), encoding='utf-8')
-          PY
-      - name: Run whole production test suite
-        run: |
-          npm ci
-          npm run build
-      - name: Retain verified source only
-        run: |
-          git rm -f .github/workflows/r9-polish-temporary.yml
+          git rm -f .github/workflows/r9-polish-temporary.yml scripts/polish-r9-temporary.py
           git add src/sections/Configurator.tsx src/sections/Quiz.tsx
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git diff --cached --check
-          git commit -m 'R9: keep model selector and quick WhatsApp alongside initial price on mobile'
+          git commit -m 'R9: keep model selector and quick contact beside mobile quote'
           git push origin HEAD:revision/r9-configurator-quiz
