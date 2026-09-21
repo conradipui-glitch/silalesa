@@ -1,0 +1,45 @@
+name: Record verified R9 publication
+
+on:
+  push:
+    branches: ["revision/r9-published-status"]
+    paths: [".github/workflows/r9-status-temporary.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Record only verified R9 implementation status
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('docs/CONTENT-CONVERSION-REVISION-PLAN.md')
+          data = p.read_text(encoding='utf-8')
+          lines = data.splitlines(keepends=True)
+          matches = [i for i, line in enumerate(lines) if line.startswith('| **R9** |') and line.rstrip().endswith('| ☐ План |')]
+          if len(matches) != 1: raise RuntimeError('Expected precisely one planned R9 row')
+          i = matches[0]
+          lines[i] = lines[i].replace('| ☐ План |', '| ☑ Техническая реализация опубликована · PR #35; автоматические сценарии R1–R9, TypeScript и CI успешны; GitHub Pages run #35646323331: build/deploy success. Ручная проверка mobile/desktop, реальная отправка WhatsApp и публичные HTTP-ответы остаются в R10 |')
+          p.write_text(''.join(lines), encoding='utf-8')
+          PY
+      - name: Verify published build remains green
+        run: |
+          npm ci
+          npm run build
+      - name: Commit status only
+        run: |
+          git rm -f .github/workflows/r9-status-temporary.yml
+          git add docs/CONTENT-CONVERSION-REVISION-PLAN.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --check
+          git commit -m 'Docs: mark R9 technically published; keep human acceptance explicit'
+          git push origin HEAD:revision/r9-published-status
