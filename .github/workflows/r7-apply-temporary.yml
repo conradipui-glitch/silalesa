@@ -1,0 +1,37 @@
+name: Apply and verify R7 sauna commercial pages
+
+on:
+  push:
+    branches: ["revision/r7-sauna-commercial-pages"]
+    paths:
+      - ".github/workflows/r7-apply-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Integrate source and static commercial pages
+        run: python3 scripts/apply-r7-temporary.py
+      - name: Install dependencies
+        run: npm ci
+      - name: Build and test R1 through R7
+        run: npm run build
+      - name: Commit only verified changes, remove temporary workflow
+        run: |
+          git rm -f scripts/apply-r7-temporary.py .github/workflows/r7-apply-temporary.yml
+          git add src/data/seoPages.ts src/pages/SeoLandingPage.tsx src/pages/ProductPage.tsx scripts/prerender.mjs scripts/check-r1.mjs package.json docs/CONTENT-CONVERSION-REVISION-PLAN.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --check
+          git commit -m 'R7: integrate four model offers and catalogue with static parity and regression'
+          git push origin HEAD:revision/r7-sauna-commercial-pages
