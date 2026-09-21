@@ -77,6 +77,14 @@ export function About() {
               </p>
             </div>
           </div>
+          <div className="reveal mt-8 rounded-2xl border border-bark-950/15 bg-white p-5 sm:p-6">
+            <h3 className="font-display text-lg text-bark-950">Что можно проверить до заказа</h3>
+            <ul className="mt-4 space-y-3 text-sm leading-relaxed text-bark-700 sm:text-base">
+              <li>Модели, фотографии и планировки — <Link to="/mobilnaya-banya-omsk/" className="font-medium text-cedar-700 underline underline-offset-2">в каталоге бань</Link>. Фотографии моделей не выдаём за отзывы или отчёты о стройках клиентов.</li>
+              <li>Осмотр образцов — на Нефтезаводской, 49/1. Заранее согласуйте время визита по телефону.</li>
+              <li>Перед оформлением заказа попросите письменно подтвердить срок изготовления, условия гарантии, комплектацию, доставку и итоговую стоимость для вашей модели.</li>
+            </ul>
+          </div>
           <div className="reveal mt-10">
             <h3 className="font-display text-xs uppercase tracking-[0.2em] text-cedar-700">Что можно проверить на площадке</h3>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -120,8 +128,8 @@ export function About() {
               </dd>
             </div>
             <div>
-              <dt className="text-cream-300/60">Адрес</dt>
-              <dd className="mt-1 text-cream-50">{company.address}</dd>
+              <dt className="text-cream-300/60">Когда приехать</dt>
+              <dd className="mt-1 text-cream-50">Осмотр образцов — по предварительной договорённости. Время визита уточните по телефону.</dd>
             </div>
             <div>
               <dt className="text-cream-300/60">Онлайн</dt>

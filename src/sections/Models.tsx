@@ -3,6 +3,7 @@ import { ArrowIcon, CheckIcon, LinkButton, SectionHead } from "../components/Bra
 import { PlanDiagram, Silhouette } from "../components/PlanDiagram";
 import { byModel, formatPrice, images, saunas, standardIncluded, type Product, type RoomKey } from "../data/products";
 import { Link } from "../lib/router";
+import { seoPages } from "../data/seoPages";
 import { cn } from "../utils/cn";
 import { track } from "../lib/utils";
 
@@ -89,6 +90,8 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
 }
 
 function ModelCard({ product: p, active, onSelect }: { product: Product; active: boolean; onSelect: () => void }) {
+  const landing = seoPages.find((page) => page.productId === p.id);
+  const productUrl = landing ? `/${landing.slug}/` : `/product/${p.id}/`;
   const useCase = p.modelKey === "k2" ? "Вечер вдвоём" : p.modelKey === "k3" ? "Выходные с семьёй" : p.modelKey === "k4" ? "Встреча с друзьями" : "Полный банный цикл";
   return (
     <article
@@ -97,7 +100,7 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
         active ? "border-cedar-500/60" : "border-cream-50/8 hover:border-cream-50/20",
       )}
     >
-      <Link to={`/product/${p.id}`} className="block" aria-label={`${p.name} — подробнее`} onClick={() => track("product_view", { id: p.id, from: "card" })}>
+      <Link to={productUrl} className="block" aria-label={`${p.name} — подробнее`} onClick={() => track("product_view", { id: p.id, from: "card" })}>
         <div className="relative aspect-[4/3] overflow-hidden bg-bark-700">
           <img src={p.image} alt={p.imageAlt} loading="lazy" decoding="async" width={1536} height={1024} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
           <span className="absolute left-3 top-3 rounded-full bg-bark-950/70 px-2.5 py-1 text-[11px] font-display text-cream-50 backdrop-blur">{p.dims}</span>
@@ -123,7 +126,7 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
           )}
         </ul>
         <div className="mt-auto pt-5 flex items-center justify-between">
-          <Link to={`/product/${p.id}`} className="inline-flex items-center gap-1.5 text-sm text-cream-50 hover:text-cedar-300" onClick={() => track("product_view", { id: p.id, from: "card-link" })}>
+          <Link to={productUrl} className="inline-flex items-center gap-1.5 text-sm text-cream-50 hover:text-cedar-300" onClick={() => track("product_view", { id: p.id, from: "card-link" })}>
             Подробнее <ArrowIcon />
           </Link>
           <Link to="/#layout" className="text-xs text-cream-300/60 hover:text-cream-100" onClick={onSelect}>
@@ -137,6 +140,8 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
 
 export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: (k: ModelKey) => void }) {
   const p = byModel(model);
+  const layoutLanding = seoPages.find((page) => page.productId === p.id);
+  const productUrl = layoutLanding ? `/${layoutLanding.slug}/` : `/product/${p.id}/`;
   const [hover, setHover] = useState<RoomKey | null>(null);
   const layout = p.layout!;
 
@@ -223,7 +228,7 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
             </dl>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <LinkButton to={`/product/${p.id}`} onClick={() => track("product_view", { id: p.id, from: "layout" })}>
+              <LinkButton to={productUrl} onClick={() => track("product_view", { id: p.id, from: "layout" })}>
                 Открыть модель <ArrowIcon />
               </LinkButton>
               <LinkButton to="/#configurator" variant="ghost" onClick={() => track("cta_click", { type: "configurator", where: "layout" })}>

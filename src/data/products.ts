@@ -31,7 +31,6 @@ export const company = {
   phoneSecondary: { display: "+7 (999) 456-33-64", tel: "+79994563364", person: "Евгений" },
   whatsapp: "79994563364",
   showroom: "Омск, ул. Нефтезаводская, 49/1",
-  address: "Омск, ул. Заозерная, 11/1И",
   vk: "https://vk.com/silalesa55",
   site: "https://silalesa55.ru/",
   origin: "https://silalesa55.orgs.biz/",
