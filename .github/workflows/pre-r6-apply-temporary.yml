@@ -50,7 +50,7 @@ jobs:
         run: npm run build
       - name: Remove temporary helpers and commit verified changes
         run: |
-          git rm scripts/apply-pre-r6-temporary.py scripts/pre-r6-package-temporary.py .github/workflows/pre-r6-apply-temporary.yml
+          git rm -f scripts/apply-pre-r6-temporary.py scripts/pre-r6-package-temporary.py .github/workflows/pre-r6-apply-temporary.yml
           git add package.json index.html src/data/products.ts src/components/Brand.tsx src/sections/ServicesAbout.tsx src/sections/Models.tsx scripts/prerender.mjs scripts/check-pre-r6.mjs
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
