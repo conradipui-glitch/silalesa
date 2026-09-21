@@ -285,7 +285,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
                     ← {step === 0 ? "Отмена" : "Назад"}
                   </button>
                 </div>
-                <div className="mt-3 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${questions.length}, minmax(0, 1fr))` }} aria-hidden="true">
+                <div className="mt-3 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${step < 2 ? 2 : 5}, minmax(0, 1fr))` }} aria-hidden="true">
                   {questions.slice(0, step < 2 ? 2 : 5).map((q, i) => (
                     <span key={q.id} className={cn("h-1 rounded-full transition-colors", i <= step ? "bg-cedar-400" : "bg-cream-50/15")} />
                   ))}

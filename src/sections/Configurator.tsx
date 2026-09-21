@@ -132,33 +132,6 @@ export function Configurator({ model, setModel }: { model: ModelKey; setModel: (
         <div className="mt-12 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 items-start">
           {/* На телефоне сначала результат и контакт, затем необязательные параметры. */}
           <div className="order-2 space-y-8 lg:order-1">
-            <fieldset className="reveal">
-              <legend className="font-display text-xs uppercase tracking-[0.2em] text-cedar-300">1. Выберите модель — цена уже рассчитана</legend>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {saunas.map((s) => {
-                  const active = s.modelKey === model;
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => {
-                        setModel(s.modelKey!);
-                        track("config_change", { field: "model", value: s.modelKey!, where: "configurator" });
-                      }}
-                      className={cn(
-                        "rounded-2xl border px-4 py-3 text-left transition-colors",
-                        active ? "border-cedar-400 bg-cedar-500/15" : "border-cream-50/12 hover:border-cream-50/35",
-                      )}
-                    >
-                      <span className="block font-display text-sm text-cream-50">{s.shortName}</span>
-                      <span className="block text-xs text-cream-300/70">{formatPrice(s.price)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
-
             {isFrame ? (
               <div className="reveal rounded-2xl border border-cream-50/12 p-5 text-sm text-cream-200/80">
                 Каркасная баня 5,5×2,2: три помещения, панорамное окно и печь со стеклянной дверцей. Опции и бесплатная доставка Квадро к ней не относятся. Условия доставки и установки каркасной модели уточняются отдельно.
@@ -251,6 +224,36 @@ export function Configurator({ model, setModel }: { model: ModelKey; setModel: (
               </button>
             </div>
 
+            <fieldset className="mt-5">
+              <legend className="font-display text-xs uppercase tracking-[0.2em] text-cedar-300">Выберите модель — цена обновится сразу</legend>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {saunas.map((s) => {
+                  const active = s.modelKey === model;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => {
+                        setModel(s.modelKey!);
+                        track("config_change", { field: "model", value: s.modelKey!, where: "configurator" });
+                      }}
+                      className={cn(
+                        "rounded-2xl border px-4 py-3 text-left transition-colors",
+                        active ? "border-cedar-400 bg-cedar-500/15" : "border-cream-50/12 hover:border-cream-50/35",
+                      )}
+                    >
+                      <span className="block font-display text-sm text-cream-50">{s.shortName}</span>
+                      <span className="block text-xs text-cream-300/70">{formatPrice(s.price)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <div className="mt-4">
+              <LinkButton to={whatsappUrl(message)} size="sm" external onClick={() => track("cta_click", { type: "whatsapp", where: "configurator-quick", model })}>Уточнить стоимость в WhatsApp <ArrowIcon /></LinkButton>
+            </div>
             <ul className="mt-6 divide-y divide-cream-50/8 text-sm">
               {lines.map((x) => (
                 <li key={x.label} className="flex items-start justify-between gap-4 py-2.5">
