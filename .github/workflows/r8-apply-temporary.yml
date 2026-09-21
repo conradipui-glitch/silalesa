@@ -47,6 +47,14 @@ jobs:
               if text.count(old) != 1:
                   raise RuntimeError(f'Expected exactly one occurrence in {filename}: {old}')
               path.write_text(text.replace(old,new), encoding='utf-8')
+          checks = Path('scripts/check-r8.mjs')
+          old = "assert(html.indexOf('<h1>') < html.indexOf('Четыре модели'), 'Price and direct CTA precede catalogue');"
+          new = """const homeBody = html.slice(html.indexOf('<div id=\"root\" data-prerendered=\"true\">'));
+          assert(homeBody.indexOf('<h1>') < homeBody.indexOf('<h2>Четыре модели') && homeBody.indexOf('Спросить о бане в WhatsApp') < homeBody.indexOf('<h2>Четыре модели'), 'Price and direct CTA precede catalogue in the actual page, not document metadata');"""
+          text = checks.read_text(encoding='utf-8')
+          if text.count(old) != 1:
+              raise RuntimeError('R8 HTML body-order assertion missing or changed')
+          checks.write_text(text.replace(old, new), encoding='utf-8')
           PY
       - name: Install dependencies
         run: npm ci
@@ -55,7 +63,7 @@ jobs:
       - name: Commit verified implementation, discard workflow
         run: |
           git rm -f scripts/apply-r8-temporary.py .github/workflows/r8-apply-temporary.yml
-          git add src/sections/Hero.tsx src/sections/Models.tsx src/sections/Story.tsx src/sections/Trust.tsx src/sections/ServicesAbout.tsx src/components/Brand.tsx src/App.tsx scripts/prerender.mjs scripts/home-fallback.mjs index.html package.json
+          git add src/sections/Hero.tsx src/sections/Models.tsx src/sections/Story.tsx src/sections/Trust.tsx src/sections/ServicesAbout.tsx src/components/Brand.tsx src/App.tsx scripts/prerender.mjs scripts/home-fallback.mjs scripts/check-r8.mjs index.html package.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git diff --cached --check
