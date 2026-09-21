@@ -1,0 +1,51 @@
+name: Verify R10 cross-site and public routes
+
+on:
+  push:
+    branches: ["revision/r10-final-acceptance"]
+    paths: [".github/workflows/r10-final-verify-temporary.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Correct the outdated R9 quiz description in catalogue FAQ
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/data/seo-pages.json')
+          old='На главной есть подбор по пяти вопросам.'
+          new='На главной первый результат подбора виден после двух ответов; дополнительные уточнения необязательны.'
+          s=p.read_text(encoding='utf-8')
+          if s.count(old)!=1: raise RuntimeError('Expected single obsolete catalogue FAQ; inspect source before editing')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          p=Path('scripts/check-r10.mjs')
+          s=p.read_text(encoding='utf-8')
+          old="verify([...overrides.keys()].every((slug) => effective.some((p) => p.slug === slug)), 'Orphan override slug');"
+          new=old+"\nverify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');"
+          if s.count(old)!=1: raise RuntimeError('R10 audit structure changed')
+          p.write_text(s.replace(old,new),encoding='utf-8')
+          PY
+      - name: Build, typecheck and run R1–R10 audits
+        run: |
+          npm ci
+          npm run build
+      - name: Check all actual public URLs including REAL printable checklist
+        run: node scripts/check-r10-live.mjs
+      - name: Record audited files and remove temporary workflow
+        run: |
+          git rm -f .github/workflows/r10-final-verify-temporary.yml
+          git add src/data/seo-pages.json scripts/check-r10.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git diff --cached --check
+          git commit -m 'R10: correct outdated quiz FAQ and include cross-site regression'
+          git push origin HEAD:revision/r10-final-acceptance
