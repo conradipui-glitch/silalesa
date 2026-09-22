@@ -25,17 +25,25 @@ jobs:
         run: |
           npm ci
           npm audit --audit-level=low
-      - name: Generate slim route manifest and inspect dependents
+      - name: Apply checked split migration
         run: |
           node scripts/generate-route-manifest.mjs --write
-          git grep -n -E 'seoPages|seoSlugs|seoPageBySlug' -- src || true
-          cat src/data/routeManifest.ts
-      - name: Commit generated manifest
+          node scripts/apply-r10-code-splitting.mjs
+          node scripts/generate-route-manifest.mjs
+          git diff --stat
+      - name: Full build and bundle size measurement
+        env:
+          GITHUB_PAGES: 'true'
+        run: |
+          npm run build > /tmp/build-log 2>&1 || { tail -120 /tmp/build-log; exit 1; }
+          grep -E 'kB|warning|R10 PASS|ROUTE MANIFEST' /tmp/build-log | tail -55 || true
+          git grep -n 'from "../data/seoPages"' -- src || true
+      - name: Commit only validated changes
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/data/routeManifest.ts
+          git add src/App.tsx src/lib/router.tsx src/components/Brand.tsx src/sections/Models.tsx src/sections/Configurator.tsx src/sections/Quiz.tsx src/sections/ServicesAbout.tsx src/data/routeManifest.ts package.json
           if ! git diff --staged --quiet; then
-            git commit -m 'perf(r10): add checked lightweight routing registry'
+            git commit -m 'perf(r10): defer SEO guide code and data from homepage entry'
             git push origin HEAD:fix/r10-security-speed-images
           fi
