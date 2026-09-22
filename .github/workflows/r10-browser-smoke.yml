@@ -1,0 +1,42 @@
+name: R10 Chromium browser smoke
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install and build
+        env:
+          GITHUB_PAGES: 'true'
+        run: |
+          npm ci
+          npm run build
+      - name: Install isolated Chromium test dependency
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.1
+          npx playwright install --with-deps chromium
+      - name: Test responsive pages and lazy routes
+        env:
+          GITHUB_PAGES: 'true'
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/r10-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID" || true' EXIT
+          for i in $(seq 1 30); do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:4173/silalesa/; then break; fi
+            sleep 1
+          done
+          node scripts/check-r10-browser.mjs
