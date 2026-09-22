@@ -10,6 +10,8 @@ on:
       - 'src/**'
       - 'scripts/**'
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   inspect:
     runs-on: ubuntu-latest
@@ -29,7 +31,19 @@ jobs:
           console.log('R10_AUDIT_COUNTS',JSON.stringify(a.metadata?.vulnerabilities));
           for(const [name,v] of Object.entries(a.vulnerabilities??{})) console.log('R10_AUDIT_PACKAGE',JSON.stringify({name,severity:v.severity,isDirect:v.isDirect,range:v.range,via:v.via,fixAvailable:v.fixAvailable,effects:v.effects,nodes:v.nodes}));
           NODE
-          npm ls --depth=1 || true
+      - name: Targeted nonbreaking Vite upgrade and security check
+        run: |
+          npm install --save-dev --save-exact vite@7.3.6
+          npm audit --json > /tmp/r10-post-audit.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const a=JSON.parse(fs.readFileSync('/tmp/r10-post-audit.json','utf8'));
+          console.log('R10_POST_AUDIT_COUNTS',JSON.stringify(a.metadata?.vulnerabilities));
+          for(const [name,v] of Object.entries(a.vulnerabilities??{})) console.log('R10_POST_AUDIT_PACKAGE',JSON.stringify({name,severity:v.severity,range:v.range,fixAvailable:v.fixAvailable}));
+          NODE
+          git diff --stat -- package.json package-lock.json
+          npm ci
+          npm audit --audit-level=low
       - name: Build and list assets
         env:
           GITHUB_PAGES: 'true'
@@ -45,3 +59,12 @@ jobs:
             for(const f of files) console.log('R10_ASSET',f.bytes,f.name);
           }
           NODE
+      - name: Commit validated dependency upgrades
+        run: |
+          if ! git diff --quiet -- package.json package-lock.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add package.json package-lock.json
+            git commit -m 'fix(r10): update Vite and transitive build dependencies to resolve advisories'
+            git push origin HEAD:fix/r10-security-speed-images
+          fi
