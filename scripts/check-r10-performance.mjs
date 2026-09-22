@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const dir = path.join(process.cwd(), 'dist/assets');
+const files = fs.readdirSync(dir);
+const match = (re) => files.filter((name) => re.test(name));
+const byteSize = (name) => fs.statSync(path.join(dir, name)).size;
+const entry = match(/^index-[\w-]+\.js$/);
+assert.equal(entry.length, 1, 'Expected one bootstrapping JavaScript entry');
+assert.ok(byteSize(entry[0]) < 400_000, `Bootstrapping JS must remain below 400 KB, got ${byteSize(entry[0])}`);
+assert.equal(match(/^SeoLandingPage-[\w-]+\.js$/).length, 1, 'SEO landing must be lazy-loaded');
+assert.equal(match(/^seoPages-[\w-]+\.js$/).length, 1, 'Full SEO content must not live in the entry bundle');
+const hero = match(/^hero-home-[\w-]+\.webp$/);
+assert.equal(hero.length, 1, 'Homepage hero photo must exist');
+assert.ok(byteSize(hero[0]) < 230_000, `Hero photo exceeds 230 KB: ${byteSize(hero[0])}`);
+const images = files.filter((name) => /\.(?:jpe?g|webp|png|avif)$/i.test(name));
+const imageBytes = images.reduce((sum, name) => sum + byteSize(name), 0);
+assert.ok(imageBytes < 2_850_000, `Production photo total exceeds 2.85 MB: ${imageBytes}`);
+console.log(`R10 PERFORMANCE PASS: entry=${byteSize(entry[0])} bytes, SEO chunks lazy, hero=${byteSize(hero[0])} bytes, ${images.length} photos=${imageBytes} bytes`);
