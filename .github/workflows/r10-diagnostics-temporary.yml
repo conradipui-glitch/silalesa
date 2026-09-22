@@ -21,38 +21,21 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Install and audit exact lockfile
+      - name: Install and security gate
         run: |
           npm ci
           npm audit --audit-level=low
-          npm ls vite esbuild
-      - name: Optimize production photos with image quality checks
+      - name: Generate slim route manifest and inspect dependents
         run: |
-          python -m pip install --quiet Pillow==11.3.0
-          python scripts/optimize-images.py
-          python scripts/optimize-images.py --apply
-          git diff --stat -- src/assets/img
-      - name: Build and list assets
-        env:
-          GITHUB_PAGES: 'true'
+          node scripts/generate-route-manifest.mjs --write
+          git grep -n -E 'seoPages|seoSlugs|seoPageBySlug' -- src || true
+          cat src/data/routeManifest.ts
+      - name: Commit generated manifest
         run: |
-          npm run build > /tmp/r10-build.log 2>&1 || { tail -100 /tmp/r10-build.log; exit 1; }
-          grep -E '(!|warning|kB|R10|PASS)' /tmp/r10-build.log | tail -65 || true
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs'; import path from 'node:path';
-          const list=(dir)=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(x=>x.isDirectory()?list(path.join(dir,x.name)):[{name:path.join(dir,x.name),bytes:fs.statSync(path.join(dir,x.name)).size}]);
-          for(const dir of ['src/assets','public','dist/assets']) {
-            const files=list(dir).filter(f=>/\.(png|jpe?g|webp|avif|svg|js|css)$/i.test(f.name)).sort((a,b)=>b.bytes-a.bytes);
-            console.log('R10_ASSETS',dir,'count',files.length,'total_bytes',files.reduce((s,x)=>s+x.bytes,0));
-            for(const f of files) console.log('R10_ASSET',f.bytes,f.name);
-          }
-          NODE
-      - name: Commit validated asset reductions
-        run: |
-          if ! git diff --quiet -- src/assets/img; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src/assets/img
-            git commit -m 'perf(r10): reduce shipped photo bytes with measured quality safeguards'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/data/routeManifest.ts
+          if ! git diff --staged --quiet; then
+            git commit -m 'perf(r10): add checked lightweight routing registry'
             git push origin HEAD:fix/r10-security-speed-images
           fi
