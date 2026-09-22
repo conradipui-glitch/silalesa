@@ -3,7 +3,7 @@ import { ArrowIcon, Button, CheckIcon, LinkButton, SectionHead } from "../compon
 import { formatPrice, saunas, whatsappUrl, type Product } from "../data/products";
 import { loadJSON, removeKey, saveJSON, storageAvailable, track } from "../lib/utils";
 import { cn } from "../utils/cn";
-import { seoPages } from "../data/seoPages";
+import { landingByProductId } from "../data/routeManifest";
 import type { ModelKey } from "./Models";
 
 const KEY = "silalesa.quiz.v2";
@@ -221,7 +221,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
   const best = verdicts[0];
   const alt = verdicts[1];
   const savedProduct = saved ? saunas.find((p) => p.id === saved.result) : null;
-  const modelHref = (p: Product) => `/${seoPages.find((page) => page.productId === p.id)?.slug ?? `product/${p.id}`}/`;
+  const modelHref = (p: Product) => `/${landingByProductId[p.id]?.slug ?? `product/${p.id}`}/`;
 
   const quizMessage = best
     ? [

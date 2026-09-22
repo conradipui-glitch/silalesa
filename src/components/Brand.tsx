@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { cn } from "../utils/cn";
 import { byId, company, whatsappUrl } from "../data/products";
-import { seoPageBySlug } from "../data/seoPages";
+import { landingMetaBySlug } from "../data/routeManifest";
 import { Link, useRouter } from "../lib/router";
 import { track } from "../lib/utils";
 
@@ -83,7 +83,7 @@ export function Header() {
 
 export function MobileBar() {
   const { route } = useRouter();
-  const page = route.name === "landing" ? seoPageBySlug(route.slug) : undefined;
+  const page = route.name === "landing" ? landingMetaBySlug[route.slug] : undefined;
   const product = route.name === "product" ? byId(route.id) : undefined;
   const isService = page?.kind === "service" || product?.kind === "service" || route.name === "services";
   const subject = page?.h1 ?? product?.name ?? (isService ? "строительные услуги" : "мобильная баня");
