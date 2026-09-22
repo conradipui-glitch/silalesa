@@ -1,16 +1,12 @@
 import { ArrowIcon, LinkButton, LogoMark, PhoneIcon, SectionHead } from "../components/Brand";
 import { company, formatPrice, mapsUrl, services, whatsappUrl } from "../data/products";
-import { seoPages } from "../data/seoPages";
+import { landingByProductId } from "../data/routeManifest";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 
 // Service thumbnails intentionally stay on the original product images.
 // Before/after media is only used inside the dedicated service landing pages.
-const serviceLandingByProductId = new Map(
-  seoPages
-    .filter((page) => page.kind === "service" && page.productId)
-    .map((page) => [page.productId as string, page]),
-);
+const serviceLandingByProductId = landingByProductId;
 
 export function Services() {
   return (
@@ -27,7 +23,7 @@ export function Services() {
 
         <ol className="mt-12 divide-y divide-cream-50/8 border-y border-cream-50/8">
           {services.map((s, i) => {
-            const landing = serviceLandingByProductId.get(s.id);
+            const landing = serviceLandingByProductId[s.id]?.kind === "service" ? serviceLandingByProductId[s.id] : undefined;
             const target = landing ? `/${landing.slug}/` : `/product/${s.id}`;
             return (
               <li key={s.id} className="reveal" style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}>

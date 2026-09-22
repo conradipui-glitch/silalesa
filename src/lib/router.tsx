@@ -10,7 +10,7 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
-import { seoSlugs } from "../data/seoPages";
+import { seoSlugs } from "../data/routeManifest";
 import { track } from "./utils";
 
 export type Route =

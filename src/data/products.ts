@@ -3,9 +3,9 @@ import imgK2 from "../assets/img/kvadro-2x2.webp";
 import imgK3 from "../assets/img/kvadro-3x2.webp";
 import imgK4 from "../assets/img/kvadro-4x2.webp";
 import imgF55 from "../assets/img/karkasnaya-5-5.webp";
-import imgParnaya from "../assets/img/interior-parnaya.jpg";
-import imgOtdyh from "../assets/img/interior-otdyh.jpg";
-import imgWinter from "../assets/img/winter.jpg";
+import imgParnaya from "../assets/img/interior-parnaya.webp";
+import imgOtdyh from "../assets/img/interior-otdyh.webp";
+import imgWinter from "../assets/img/winter.webp";
 
 export const images = {
   hero: imgHero,

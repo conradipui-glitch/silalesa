@@ -3,7 +3,7 @@ import { ArrowIcon, CheckIcon, LinkButton, SectionHead } from "../components/Bra
 import { PlanDiagram, Silhouette } from "../components/PlanDiagram";
 import { byModel, formatPrice, images, saunas, standardIncluded, type Product, type RoomKey } from "../data/products";
 import { Link } from "../lib/router";
-import { seoPages } from "../data/seoPages";
+import { landingByProductId } from "../data/routeManifest";
 import { cn } from "../utils/cn";
 import { track } from "../lib/utils";
 
@@ -89,7 +89,7 @@ export function Lineup({ model, setModel }: { model: ModelKey; setModel: (k: Mod
 }
 
 function ModelCard({ product: p, active, onSelect }: { product: Product; active: boolean; onSelect: () => void }) {
-  const landing = seoPages.find((page) => page.productId === p.id);
+  const landing = landingByProductId[p.id];
   const productUrl = landing ? `/${landing.slug}/` : `/product/${p.id}/`;
   const useCase = p.modelKey === "k2" ? "Одна парная" : p.modelKey === "k3" ? "Парная + комната отдыха" : p.modelKey === "k4" ? "Два помещения" : "Три помещения с помывочной";
   return (
@@ -136,7 +136,7 @@ function ModelCard({ product: p, active, onSelect }: { product: Product; active:
 
 export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: (k: ModelKey) => void }) {
   const p = byModel(model);
-  const layoutLanding = seoPages.find((page) => page.productId === p.id);
+  const layoutLanding = landingByProductId[p.id];
   const productUrl = layoutLanding ? `/${layoutLanding.slug}/` : `/product/${p.id}/`;
   const [hover, setHover] = useState<RoomKey | null>(null);
   const layout = p.layout!;

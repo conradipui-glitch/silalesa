@@ -3,7 +3,7 @@ import { ArrowIcon, Button, CheckIcon, LinkButton, PhoneIcon, SectionHead } from
 import { byModel, company, doorOptions, formatPrice, lampPrice, saunas, sidePackPriceK4, standardIncluded, whatsappUrl } from "../data/products";
 import { copyText, loadJSON, removeKey, saveJSON, storageAvailable, track, useInViewOnce } from "../lib/utils";
 import { cn } from "../utils/cn";
-import { seoPages } from "../data/seoPages";
+import { landingByProductId } from "../data/routeManifest";
 import type { ModelKey } from "./Models";
 
 const KEY = "silalesa.config.v1";
@@ -26,7 +26,7 @@ export function Configurator({ model, setModel }: { model: ModelKey; setModel: (
   const product = byModel(model);
   const isFrame = model === "f55";
   const deliveryKnown = !isFrame && opts.city === "omsk";
-  const productHref = `/${seoPages.find((page) => page.productId === product.id)?.slug ?? `product/${product.id}`}/`;
+  const productHref = `/${landingByProductId[product.id]?.slug ?? `product/${product.id}`}/`;
   const quoteHasUnknownDelivery = !deliveryKnown;
 
   // Восстановление черновика

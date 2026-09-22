@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Footer, Header, MobileBar } from "./components/Brand";
-import { seoPages } from "./data/seoPages";
+import { landingByProductId } from "./data/routeManifest";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
-import { NotFound, ProductPage } from "./pages/ProductPage";
-import { SeoLandingPage } from "./pages/SeoLandingPage";
+const ProductPage = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.ProductPage })));
+const NotFound = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.NotFound })));
+const SeoLandingPage = lazy(() => import("./pages/SeoLandingPage").then((m) => ({ default: m.SeoLandingPage })));
 import { Configurator } from "./sections/Configurator";
 import { Hero } from "./sections/Hero";
 import { LayoutSection, Lineup, StandardSection, type ModelKey } from "./sections/Models";
@@ -87,7 +88,7 @@ function ServicesScreen() {
 }
 
 function ProductRoute({ id }: { id: string }) {
-  const landing = seoPages.find((page) => page.productId === id);
+  const landing = landingByProductId[id];
   return landing ? <SeoLandingPage key={landing.slug} slug={landing.slug} /> : <ProductPage key={id} id={id} />;
 }
 
@@ -108,11 +109,13 @@ function Screen() {
       </a>
       <Header />
       <main id="main">
+        <Suspense fallback={<div role="status" className="min-h-screen pt-24 text-center text-cream-200">Загружаем страницу…</div>}>
         {route.name === "home" && <Home />}
         {route.name === "product" && <ProductRoute id={route.id} />}
         {route.name === "services" && <ServicesScreen />}
         {route.name === "landing" && <SeoLandingPage key={route.slug} slug={route.slug} />}
         {route.name === "notfound" && <NotFound path={route.path} />}
+        </Suspense>
       </main>
       <Footer />
       <MobileBar />
