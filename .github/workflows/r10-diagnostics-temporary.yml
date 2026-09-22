@@ -24,21 +24,14 @@ jobs:
       - name: Install and audit exact lockfile
         run: |
           npm ci
-          npm audit --json > /tmp/r10-audit.json || true
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const a=JSON.parse(fs.readFileSync('/tmp/r10-audit.json','utf8'));
-          console.log('R10_AUDIT_COUNTS',JSON.stringify(a.metadata?.vulnerabilities));
-          for(const [name,v] of Object.entries(a.vulnerabilities??{})) console.log('R10_AUDIT_PACKAGE',JSON.stringify({name,severity:v.severity,isDirect:v.isDirect,range:v.range,via:v.via,fixAvailable:v.fixAvailable}));
-          NODE
-      - name: Targeted nonbreaking Vite and esbuild upgrades
-        run: |
-          npm install --save-dev --save-exact vite@7.3.6
-          npm audit fix
-          git diff --stat -- package.json package-lock.json
-          npm ci
           npm audit --audit-level=low
           npm ls vite esbuild
+      - name: Optimize production photos with image quality checks
+        run: |
+          python -m pip install --quiet Pillow==11.3.0
+          python scripts/optimize-images.py
+          python scripts/optimize-images.py --apply
+          git diff --stat -- src/assets/img
       - name: Build and list assets
         env:
           GITHUB_PAGES: 'true'
@@ -54,12 +47,12 @@ jobs:
             for(const f of files) console.log('R10_ASSET',f.bytes,f.name);
           }
           NODE
-      - name: Commit validated dependency upgrades
+      - name: Commit validated asset reductions
         run: |
-          if ! git diff --quiet -- package.json package-lock.json; then
+          if ! git diff --quiet -- src/assets/img; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add package.json package-lock.json
-            git commit -m 'fix(r10): update Vite and esbuild to resolve advisories'
+            git add src/assets/img
+            git commit -m 'perf(r10): reduce shipped photo bytes with measured quality safeguards'
             git push origin HEAD:fix/r10-security-speed-images
           fi
