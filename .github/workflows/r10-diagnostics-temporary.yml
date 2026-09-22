@@ -1,0 +1,47 @@
+name: R10 diagnostics temporary
+on:
+  push:
+    branches: [fix/r10-security-speed-images]
+    paths:
+      - '.github/workflows/r10-diagnostics-temporary.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'src/**'
+      - 'scripts/**'
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install and audit exact lockfile
+        run: |
+          npm ci
+          npm audit --json > /tmp/r10-audit.json || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const a=JSON.parse(fs.readFileSync('/tmp/r10-audit.json','utf8'));
+          console.log('R10_AUDIT_COUNTS',JSON.stringify(a.metadata?.vulnerabilities));
+          for(const [name,v] of Object.entries(a.vulnerabilities??{})) console.log('R10_AUDIT_PACKAGE',JSON.stringify({name,severity:v.severity,isDirect:v.isDirect,range:v.range,via:v.via,fixAvailable:v.fixAvailable,effects:v.effects,nodes:v.nodes}));
+          NODE
+          npm ls --depth=1 || true
+      - name: Build and list assets
+        env:
+          GITHUB_PAGES: 'true'
+        run: |
+          npm run build > /tmp/r10-build.log 2>&1 || { tail -100 /tmp/r10-build.log; exit 1; }
+          grep -E '(!|warning|kB|R10|PASS)' /tmp/r10-build.log | tail -65 || true
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs'; import path from 'node:path';
+          const list=(dir)=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(x=>x.isDirectory()?list(path.join(dir,x.name)):[{name:path.join(dir,x.name),bytes:fs.statSync(path.join(dir,x.name)).size}]);
+          for(const dir of ['src/assets','public','dist/assets']) {
+            const files=list(dir).filter(f=>/\.(png|jpe?g|webp|avif|svg|js|css)$/i.test(f.name)).sort((a,b)=>b.bytes-a.bytes);
+            console.log('R10_ASSETS',dir,'count',files.length,'total_bytes',files.reduce((s,x)=>s+x.bytes,0));
+            for(const f of files) console.log('R10_ASSET',f.bytes,f.name);
+          }
+          NODE
