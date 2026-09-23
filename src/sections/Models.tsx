@@ -174,18 +174,18 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
           })}
         </div>
 
-        <div id="layout-panel" className="mt-8 grid gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-14 items-start">
-          <div className="reveal rounded-3xl border border-cream-50/8 bg-bark-900/70 p-4 sm:p-8">
-            <PlanDiagram layout={layout} highlight={hover} onHover={setHover} />
+        <div id="layout-panel" className="mt-8 grid min-w-0 gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-14 items-start">
+          <div className="reveal min-w-0 overflow-hidden rounded-3xl border border-cream-50/8 bg-bark-900/70 p-4 sm:p-8">
+            <PlanDiagram layout={layout} highlight={hover} onHover={setHover} className="min-w-0" />
             <p className="mt-4 text-center text-xs text-cream-300/60">
               {layout.entranceNote}
               {layout.inner && <> · внутри {layout.inner}</>}
             </p>
           </div>
 
-          <div className="reveal" style={{ ["--reveal-delay" as string]: "120ms" }}>
-            <div className="flex items-baseline justify-between gap-4">
-              <h3 className="font-display text-2xl text-cream-50">{p.name}</h3>
+          <div className="reveal min-w-0" style={{ ["--reveal-delay" as string]: "120ms" }}>
+            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-4">
+              <h3 className="min-w-0 break-words font-display text-2xl text-cream-50">{p.name}</h3>
               <p className="font-display text-xl text-cedar-300 whitespace-nowrap">{formatPrice(p.price)}</p>
             </div>
             <p className="mt-2 text-sm text-cream-300/70">{p.tagline}</p>
@@ -210,15 +210,15 @@ export function LayoutSection({ model, setModel }: { model: ModelKey; setModel: 
             <dl className="mt-6 grid gap-3 text-sm">
               <div className="grid grid-cols-[96px_1fr] gap-3">
                 <dt className="text-cream-300/60">Вход</dt>
-                <dd className="text-cream-100">{layout.entrance === "end" ? "с торца" : "сбоку"} · {layout.entranceNote}</dd>
+                <dd className="min-w-0 break-words text-cream-100">{layout.entrance === "end" ? "с торца" : "сбоку"} · {layout.entranceNote}</dd>
               </div>
               <div className="grid grid-cols-[96px_1fr] gap-3">
                 <dt className="text-cream-300/60">Печь</dt>
-                <dd className="text-cream-100">{layout.stove}</dd>
+                <dd className="min-w-0 break-words text-cream-100">{layout.stove}</dd>
               </div>
               <div className="grid grid-cols-[96px_1fr] gap-3">
                 <dt className="text-cream-300/60">Окна</dt>
-                <dd className="text-cream-100">{layout.windows}</dd>
+                <dd className="min-w-0 break-words text-cream-100">{layout.windows}</dd>
               </div>
             </dl>
 
