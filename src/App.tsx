@@ -1,11 +1,13 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Footer, Header, MobileBar } from "./components/Brand";
+import { useSeasonalTheme } from "./seasonal/calendar";
 import { landingByProductId } from "./data/routeManifest";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
 const ProductPage = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.ProductPage })));
 const NotFound = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.NotFound })));
 const SeoLandingPage = lazy(() => import("./pages/SeoLandingPage").then((m) => ({ default: m.SeoLandingPage })));
+const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
 import { Configurator } from "./sections/Configurator";
 import { Hero } from "./sections/Hero";
 import { LayoutSection, Lineup, StandardSection, type ModelKey } from "./sections/Models";
@@ -94,6 +96,7 @@ function ProductRoute({ id }: { id: string }) {
 
 function Screen() {
   const { route } = useRouter();
+  const seasonalTheme = useSeasonalTheme();
 
   useEffect(() => {
     track("page_view", {
@@ -108,6 +111,11 @@ function Screen() {
         К содержимому
       </a>
       <Header />
+      {seasonalTheme === "halloween" && (
+        <Suspense fallback={null}>
+          <SeasonalDecor />
+        </Suspense>
+      )}
       <main id="main">
         <Suspense fallback={<div role="status" className="min-h-screen pt-24 text-center text-cream-200">Загружаем страницу…</div>}>
         {route.name === "home" && <Home />}
