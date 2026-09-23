@@ -30,6 +30,28 @@ async function run(label, contextOptions) {
   assert.ok(resourceNames.some(name => /index-[\w-]+\.js/.test(name)), 'Homepage loads JS entry');
   assert.ok(!resourceNames.some(name => /seoPages-[\w-]+\.js/.test(name)), 'Homepage does not preload 240 KB SEO registry');
   console.log('CHROMIUM_ENTRY_PASS', label, resourceNames.filter(name => /\.js$/.test(name)).length, 'JS requests');
+  if (label === 'mobile') {
+    const frameButton = page.locator('#layout [role="group"] button').filter({ hasText: '5,5' }).first();
+    await frameButton.scrollIntoViewIfNeeded();
+    await frameButton.click();
+    await page.waitForTimeout(150);
+    const layoutFit = await page.evaluate(() => {
+      const panel = document.querySelector('#layout-panel');
+      if (!panel) return null;
+      const rect = panel.getBoundingClientRect();
+      return {
+        pageScrollWidth: document.documentElement.scrollWidth,
+        viewport: window.innerWidth,
+        panelLeft: Math.round(rect.left),
+        panelRight: Math.round(rect.right),
+        panelWidth: Math.round(rect.width),
+      };
+    });
+    assert.ok(layoutFit, 'Mobile frame layout panel exists');
+    assert.ok(layoutFit.pageScrollWidth <= layoutFit.viewport + 2, `Mobile frame layout page overflow: ${JSON.stringify(layoutFit)}`);
+    assert.ok(layoutFit.panelLeft >= -1 && layoutFit.panelRight <= layoutFit.viewport + 1, `Mobile frame layout panel clipped: ${JSON.stringify(layoutFit)}`);
+    console.log('CHROMIUM_LAYOUT_PASS', layoutFit);
+  }
   await visit(page, 'mobilnaya-banya-omsk/', `${label}: catalogue`);
   await visit(page, 'banya-kvadro-3x2-omsk/', `${label}: product`);
   await visit(page, 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/', `${label}: guide`);
