@@ -317,7 +317,7 @@ body {
     opacity: 0.55;
   }
   100% {
-    transform: translate3d(calc(var(--leaf-drift) * -0.45), 118vh, 0) rotate(calc(var(--leaf-rotate) + 420deg));
+    transform: translate3d(calc(0px - var(--leaf-drift)), 118vh, 0) rotate(calc(var(--leaf-rotate) + 420deg));
     opacity: 0;
   }
 }
