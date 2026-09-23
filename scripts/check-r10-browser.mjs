@@ -50,6 +50,10 @@ async function run(label, contextOptions) {
     assert.ok(layoutFit, 'Mobile frame layout panel exists');
     assert.ok(layoutFit.pageScrollWidth <= layoutFit.viewport + 2, `Mobile frame layout page overflow: ${JSON.stringify(layoutFit)}`);
     assert.ok(layoutFit.panelLeft >= -1 && layoutFit.panelRight <= layoutFit.viewport + 1, `Mobile frame layout panel clipped: ${JSON.stringify(layoutFit)}`);
+    const layoutText = await page.locator('#layout-panel').innerText();
+    assert.ok(layoutText.includes('≈ 2,2 м'), 'Frame sauna shows approximate 2.2 m room lengths');
+    assert.ok(layoutText.includes('≈ 1,1 м'), 'Frame sauna shows approximate 1.1 m wash-room length');
+    assert.ok(layoutText.includes('размеры помещений ориентировочные'), 'Frame sauna explains approximate room dimensions');
     console.log('CHROMIUM_LAYOUT_PASS', layoutFit);
   }
   await visit(page, 'mobilnaya-banya-omsk/', `${label}: catalogue`);
