@@ -17,6 +17,20 @@ async function visit(page, path, label) {
   console.log('CHROMIUM_ROUTE_PASS', label, response?.status(), h1.slice(0, 70));
 }
 
+async function checkSeasonalDecor(page, label) {
+  await page.goto(new URL('?decor=halloween', base).href, { waitUntil: 'networkidle', timeout: 30_000 });
+  const decor = page.locator('[data-seasonal-theme="halloween"]');
+  await decor.waitFor({ state: 'visible', timeout: 10_000 });
+  assert.equal(await decor.evaluate(el => getComputedStyle(el).pointerEvents), 'none', `${label}: seasonal decor never intercepts clicks`);
+  assert.equal(await page.locator('.seasonal-falling-leaf').count(), 7, `${label}: Halloween leaf field rendered`);
+  const dimensions = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, width: window.innerWidth }));
+  assert.ok(dimensions.scrollWidth <= dimensions.width + 2, `${label}: seasonal decor creates horizontal overflow: ${JSON.stringify(dimensions)}`);
+  console.log('CHROMIUM_HALLOWEEN_PASS', label, dimensions);
+
+  await page.goto(new URL('?decor=off', base).href, { waitUntil: 'networkidle', timeout: 30_000 });
+  assert.equal(await page.locator('[data-seasonal-theme="halloween"]').count(), 0, `${label}: decor=off disables seasonal layer`);
+}
+
 async function run(label, contextOptions) {
   const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
@@ -30,6 +44,8 @@ async function run(label, contextOptions) {
   assert.ok(resourceNames.some(name => /index-[\w-]+\.js/.test(name)), 'Homepage loads JS entry');
   assert.ok(!resourceNames.some(name => /seoPages-[\w-]+\.js/.test(name)), 'Homepage does not preload 240 KB SEO registry');
   console.log('CHROMIUM_ENTRY_PASS', label, resourceNames.filter(name => /\.js$/.test(name)).length, 'JS requests');
+  await checkSeasonalDecor(page, label);
+  await visit(page, '', `${label}: homepage after seasonal override`);
   if (label === 'mobile') {
     const frameButton = page.locator('#layout [role="group"] button').filter({ hasText: '5,5' }).first();
     await frameButton.scrollIntoViewIfNeeded();
