@@ -190,6 +190,198 @@ body {
   background-size: 48px 48px;
 }
 
+/* ---- Ситуативное оформление: Halloween ---- */
+.seasonal-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: layout paint style;
+}
+
+.seasonal-halloween-web {
+  position: absolute;
+  top: 50px;
+  right: -24px;
+  width: min(31vw, 430px);
+  min-width: 300px;
+  opacity: 0.78;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.38));
+  animation: halloween-web-breathe 8s ease-in-out infinite;
+}
+
+.seasonal-halloween-pumpkin-wrap {
+  position: absolute;
+  right: clamp(-38px, -1.5vw, -10px);
+  bottom: 26px;
+  width: clamp(150px, 14vw, 218px);
+  aspect-ratio: 1 / 1;
+  opacity: 0.92;
+  filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.6));
+}
+
+.seasonal-pumpkin {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.seasonal-pumpkin-face {
+  transform-origin: center;
+  animation: halloween-pumpkin-flicker 3.8s ease-in-out infinite;
+}
+
+.seasonal-halloween-ground-glow {
+  position: absolute;
+  z-index: 0;
+  left: 20%;
+  right: 8%;
+  bottom: 13%;
+  height: 28%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236, 126, 42, 0.28), rgba(236, 126, 42, 0));
+  filter: blur(12px);
+  animation: halloween-glow 3.8s ease-in-out infinite;
+}
+
+.seasonal-ground-leaf {
+  position: absolute;
+  z-index: 3;
+  width: 35%;
+  height: auto;
+  filter: drop-shadow(0 8px 9px rgba(0, 0, 0, 0.42));
+}
+
+.seasonal-ground-leaf-a {
+  left: -7%;
+  bottom: 5%;
+  color: #9d3525;
+  transform: rotate(-28deg);
+}
+
+.seasonal-ground-leaf-b {
+  right: -2%;
+  bottom: -1%;
+  color: #b86d2f;
+  transform: rotate(31deg);
+}
+
+.seasonal-ground-leaf-c {
+  right: 24%;
+  bottom: -6%;
+  width: 27%;
+  color: #d59a32;
+  transform: rotate(8deg);
+}
+
+.seasonal-leaf-field {
+  position: absolute;
+  inset: 0;
+}
+
+.seasonal-falling-leaf {
+  --leaf-drift: 50px;
+  --leaf-rotate: 12deg;
+  position: absolute;
+  top: -18vh;
+  opacity: 0.68;
+  filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.28));
+  animation-name: halloween-leaf-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.seasonal-falling-leaf svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@keyframes halloween-leaf-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(var(--leaf-rotate));
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.62;
+  }
+  45% {
+    transform: translate3d(var(--leaf-drift), 48vh, 0) rotate(calc(var(--leaf-rotate) + 190deg));
+  }
+  78% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(calc(var(--leaf-drift) * -0.45), 118vh, 0) rotate(calc(var(--leaf-rotate) + 420deg));
+    opacity: 0;
+  }
+}
+
+@keyframes halloween-pumpkin-flicker {
+  0%, 100% {
+    opacity: 0.88;
+    filter: brightness(0.92);
+  }
+  33% {
+    opacity: 1;
+    filter: brightness(1.13);
+  }
+  47% {
+    opacity: 0.9;
+    filter: brightness(0.97);
+  }
+  63% {
+    opacity: 1;
+    filter: brightness(1.08);
+  }
+}
+
+@keyframes halloween-glow {
+  0%, 100% { opacity: 0.48; transform: scale(0.96); }
+  50% { opacity: 0.92; transform: scale(1.08); }
+}
+
+@keyframes halloween-web-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.72; }
+  50% { transform: translate3d(-2px, 3px, 0); opacity: 0.82; }
+}
+
+@media (max-width: 767px) {
+  .seasonal-halloween-web {
+    top: 54px;
+    right: -82px;
+    width: 270px;
+    min-width: 0;
+    opacity: 0.54;
+  }
+
+  .seasonal-halloween-pumpkin-wrap {
+    right: -28px;
+    bottom: 72px;
+    width: 118px;
+    opacity: 0.78;
+  }
+
+  .seasonal-falling-leaf {
+    opacity: 0.48;
+  }
+
+  .seasonal-falling-leaf:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+@media print {
+  .seasonal-decor {
+    display: none !important;
+  }
+}
+
 /* ---- Фокус ---- */
 :focus-visible {
   outline: 2px solid var(--color-cedar-400);
@@ -219,11 +411,18 @@ body {
     transition: none;
   }
   .marquee-track,
-  .steam-puff {
+  .steam-puff,
+  .seasonal-pumpkin-face,
+  .seasonal-halloween-ground-glow,
+  .seasonal-halloween-web,
+  .seasonal-falling-leaf {
     animation: none;
   }
   .plan-anim {
     transition: none;
+  }
+  .seasonal-falling-leaf {
+    display: none;
   }
   *,
   *::before,
