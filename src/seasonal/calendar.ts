@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 export type SeasonalTheme = "halloween";
 
 const OMSK_TIMEZONE = "Asia/Omsk";
-const TEMP_HALLOWEEN_TEST_START = "2026-09-23";
-const TEMP_HALLOWEEN_TEST_END = "2026-09-30";
+const AUTOMATIC_HALLOWEEN_ENABLED = false;
 
 function datePartsInOmsk(now: Date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -17,9 +16,6 @@ function datePartsInOmsk(now: Date) {
   return { year: read("year"), month: read("month"), day: read("day") };
 }
 
-function dateKey({ year, month, day }: ReturnType<typeof datePartsInOmsk>) {
-  return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
 
 function halloweenCalendarWindow({ month, day }: ReturnType<typeof datePartsInOmsk>) {
   const mmdd = month * 100 + day;
@@ -33,12 +29,8 @@ export function resolveSeasonalTheme(now = new Date(), search = ""): SeasonalThe
   if (forced === "halloween") return "halloween";
 
   const parts = datePartsInOmsk(now);
-  const key = dateKey(parts);
-
-  // Временный предпросмотр на опубликованном сайте. После 30.09 тема сама отключится,
-  // а затем включится уже по постоянному календарю 20.10–02.11 каждого года.
-  if (key >= TEMP_HALLOWEEN_TEST_START && key <= TEMP_HALLOWEEN_TEST_END) return "halloween";
-  if (halloweenCalendarWindow(parts)) return "halloween";
+  // Автоматический календарь будет включён после визуального согласования версии 2.
+  if (AUTOMATIC_HALLOWEEN_ENABLED && halloweenCalendarWindow(parts)) return "halloween";
 
   return null;
 }
