@@ -61,9 +61,15 @@ if (constructionMode) {
     assert(asset && fs.existsSync(`dist/assets/${asset}`), `Bundled model photo ${model.key}`);
   }
 }
-for (const slug of ['mobilnaya-banya-omsk','services','guides/bani/chto-vhodit-v-tsenu','guides/bani/podgotovka-uchastka-dostavka-manipulyator','guides/bani/chek-list-priemki-gotovoy-bani','guides/bani/fundament-dlya-mobilnoy-bani','guides/bani/kak-vybrat-razmer-2x2-3x2-4x2']) {
-  assert(html.includes(`${base}${slug}/`), `Useful navigable static guide: ${slug}`);
-  assert(fs.existsSync(`dist/${slug}/index.html`), `Page is actually generated: ${slug}`);
+const legacyUsefulRoutes = ['mobilnaya-banya-omsk','services','guides/bani/chto-vhodit-v-tsenu','guides/bani/podgotovka-uchastka-dostavka-manipulyator','guides/bani/chek-list-priemki-gotovoy-bani','guides/bani/fundament-dlya-mobilnoy-bani','guides/bani/kak-vybrat-razmer-2x2-3x2-4x2'];
+for (const slug of legacyUsefulRoutes) {
+  assert(fs.existsSync(`dist/${slug}/index.html`), `Legacy/useful page is still generated: ${slug}`);
+}
+const rootLinkedRoutes = constructionMode
+  ? ['mobilnaya-banya-omsk','services','mehanizirovannaya-shtukaturka-omsk','polusuhaya-styazhka-omsk']
+  : legacyUsefulRoutes;
+for (const slug of rootLinkedRoutes) {
+  assert(html.includes(`${base}${slug}/`), `Useful navigable static root link: ${slug}`);
 }
 assert(!html.includes('href="/product/'), 'No old numeric product links from home');
 const sitemap = read('dist/sitemap.xml');
