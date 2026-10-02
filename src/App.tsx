@@ -1,25 +1,21 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { Footer, Header, MobileBar } from "./components/Brand";
-import { useSeasonalTheme } from "./seasonal/calendar";
+import { lazy, Suspense, useEffect } from "react";
+import { ConstructionFooter, ConstructionHeader, ConstructionMobileBar } from "./components/ConstructionChrome";
 import { landingByProductId } from "./data/routeManifest";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
+import { useSeasonalTheme } from "./seasonal/calendar";
+import { ConstructionHome, ConstructionServicesPage } from "./sections/ConstructionHome";
+
 const ProductPage = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.ProductPage })));
 const NotFound = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.NotFound })));
 const SeoLandingPage = lazy(() => import("./pages/SeoLandingPage").then((m) => ({ default: m.SeoLandingPage })));
 const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
-import { Configurator } from "./sections/Configurator";
-import { Hero } from "./sections/Hero";
-import { LayoutSection, Lineup, StandardSection, type ModelKey } from "./sections/Models";
-import { Quiz } from "./sections/Quiz";
-import { About, Services } from "./sections/ServicesAbout";
-import { Process, WinterBand } from "./sections/Story";
-import { Faq, ReadyPromise } from "./sections/Trust";
 
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
-const SERVICES_TITLE = "Строительные услуги в Омске — Сила Леса";
-const SERVICES_DESCRIPTION = "Строительные услуги в Омске: механизированная штукатурка от 550 ₽/м², полусухая стяжка от 600 ₽/м², бурение скважин от 2 500 ₽/пог. м. Условия и расчёт.";
+const SERVICES_TITLE = "Строительные работы под ключ в Омске — Сила Леса";
+const SERVICES_DESCRIPTION =
+  "Строительные работы в Омске: коттеджи под ключ, монолит, кладка, штукатурка, стяжка, промышленные полы, металлоконструкции, ангары, кровля, фасады и демонтаж.";
 
 function useServicesMeta() {
   useEffect(() => {
@@ -57,23 +53,11 @@ function useServicesMeta() {
 }
 
 function Home() {
-  const [model, setModel] = useState<ModelKey>("k3");
-  useDocumentTitle("Сила Леса — бани-квадро из кедра в Омске. Готовые мобильные бани с доставкой");
+  useDocumentTitle("Сила Леса — строительство под ключ в Омске");
   const root = useRevealRoot<HTMLDivElement>([]);
-
   return (
     <div ref={root}>
-      <Hero />
-      <Lineup model={model} setModel={setModel} />
-      <StandardSection />
-      <LayoutSection model={model} setModel={setModel} />
-      <Process />
-      <ReadyPromise />
-      <Configurator model={model} setModel={setModel} />
-      <Quiz setModel={setModel} />
-      <WinterBand />
-      <Faq />
-      <About />
+      <ConstructionHome />
     </div>
   );
 }
@@ -82,9 +66,9 @@ function ServicesScreen() {
   useServicesMeta();
   const root = useRevealRoot<HTMLDivElement>([]);
   return (
-    <div ref={root} className="pt-16">
-      <h1 className="sr-only">Строительные услуги в Омске</h1>
-      <Services />
+    <div ref={root}>
+      <h1 className="sr-only">Строительные работы под ключ в Омске</h1>
+      <ConstructionServicesPage />
     </div>
   );
 }
@@ -107,10 +91,13 @@ function Screen() {
 
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-cedar-500 focus:px-4 focus:py-2 focus:text-bark-950">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-cedar-500 focus:px-4 focus:py-2 focus:text-bark-950"
+      >
         К содержимому
       </a>
-      <Header />
+      <ConstructionHeader />
       {seasonalTheme === "halloween" && (
         <Suspense fallback={null}>
           <SeasonalDecor />
@@ -118,15 +105,15 @@ function Screen() {
       )}
       <main id="main">
         <Suspense fallback={<div role="status" className="min-h-screen pt-24 text-center text-cream-200">Загружаем страницу…</div>}>
-        {route.name === "home" && <Home />}
-        {route.name === "product" && <ProductRoute id={route.id} />}
-        {route.name === "services" && <ServicesScreen />}
-        {route.name === "landing" && <SeoLandingPage key={route.slug} slug={route.slug} />}
-        {route.name === "notfound" && <NotFound path={route.path} />}
+          {route.name === "home" && <Home />}
+          {route.name === "product" && <ProductRoute id={route.id} />}
+          {route.name === "services" && <ServicesScreen />}
+          {route.name === "landing" && <SeoLandingPage key={route.slug} slug={route.slug} />}
+          {route.name === "notfound" && <NotFound path={route.path} />}
         </Suspense>
       </main>
-      <Footer />
-      <MobileBar />
+      <ConstructionFooter />
+      <ConstructionMobileBar />
     </>
   );
 }
