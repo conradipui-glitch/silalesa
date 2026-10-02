@@ -47,30 +47,41 @@ async function run(label, contextOptions) {
   await checkSeasonalDecor(page, label);
   await visit(page, '', `${label}: homepage after seasonal override`);
   if (label === 'mobile') {
-    const frameButton = page.locator('#layout [role="group"] button').filter({ hasText: '5,5' }).first();
-    await frameButton.scrollIntoViewIfNeeded();
-    await frameButton.click();
-    await page.waitForTimeout(150);
-    const layoutFit = await page.evaluate(() => {
-      const panel = document.querySelector('#layout-panel');
-      if (!panel) return null;
-      const rect = panel.getBoundingClientRect();
-      return {
-        pageScrollWidth: document.documentElement.scrollWidth,
-        viewport: window.innerWidth,
-        panelLeft: Math.round(rect.left),
-        panelRight: Math.round(rect.right),
-        panelWidth: Math.round(rect.width),
-      };
-    });
-    assert.ok(layoutFit, 'Mobile frame layout panel exists');
-    assert.ok(layoutFit.pageScrollWidth <= layoutFit.viewport + 2, `Mobile frame layout page overflow: ${JSON.stringify(layoutFit)}`);
-    assert.ok(layoutFit.panelLeft >= -1 && layoutFit.panelRight <= layoutFit.viewport + 1, `Mobile frame layout panel clipped: ${JSON.stringify(layoutFit)}`);
-    const layoutText = await page.locator('#layout-panel').innerText();
-    assert.ok(layoutText.includes('≈ 2,2 м'), 'Frame sauna shows approximate 2.2 m room lengths');
-    assert.ok(layoutText.includes('≈ 1,1 м'), 'Frame sauna shows approximate 1.1 m wash-room length');
-    assert.ok(layoutText.includes('размеры помещений ориентировочные'), 'Frame sauna explains approximate room dimensions');
-    console.log('CHROMIUM_LAYOUT_PASS', layoutFit);
+    if (await page.locator('#layout').count()) {
+      const frameButton = page.locator('#layout [role="group"] button').filter({ hasText: '5,5' }).first();
+      await frameButton.scrollIntoViewIfNeeded();
+      await frameButton.click();
+      await page.waitForTimeout(150);
+      const layoutFit = await page.evaluate(() => {
+        const panel = document.querySelector('#layout-panel');
+        if (!panel) return null;
+        const rect = panel.getBoundingClientRect();
+        return {
+          pageScrollWidth: document.documentElement.scrollWidth,
+          viewport: window.innerWidth,
+          panelLeft: Math.round(rect.left),
+          panelRight: Math.round(rect.right),
+          panelWidth: Math.round(rect.width),
+        };
+      });
+      assert.ok(layoutFit, 'Mobile frame layout panel exists');
+      assert.ok(layoutFit.pageScrollWidth <= layoutFit.viewport + 2, `Mobile frame layout page overflow: ${JSON.stringify(layoutFit)}`);
+      assert.ok(layoutFit.panelLeft >= -1 && layoutFit.panelRight <= layoutFit.viewport + 1, `Mobile frame layout panel clipped: ${JSON.stringify(layoutFit)}`);
+      const layoutText = await page.locator('#layout-panel').innerText();
+      assert.ok(layoutText.includes('≈ 2,2 м'), 'Frame sauna shows approximate 2.2 m room lengths');
+      assert.ok(layoutText.includes('≈ 1,1 м'), 'Frame sauna shows approximate 1.1 m wash-room length');
+      assert.ok(layoutText.includes('размеры помещений ориентировочные'), 'Frame sauna explains approximate room dimensions');
+      console.log('CHROMIUM_LAYOUT_PASS', layoutFit);
+    } else {
+      const serviceCards = page.locator('#services article');
+      await serviceCards.first().scrollIntoViewIfNeeded();
+      assert.equal(await serviceCards.count(), 14, 'Construction homepage exposes all 14 requested service directions');
+      const serviceText = await page.locator('#services').innerText();
+      assert.ok(serviceText.includes('Коттеджи под ключ') && serviceText.includes('Монолитные работы') && serviceText.includes('Промышленные полы'), 'Core construction directions are visible');
+      const fit = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, width: window.innerWidth }));
+      assert.ok(fit.scrollWidth <= fit.width + 2, `Construction homepage mobile overflow: ${JSON.stringify(fit)}`);
+      console.log('CHROMIUM_CONSTRUCTION_HOME_PASS', fit);
+    }
   }
   await visit(page, 'mobilnaya-banya-omsk/', `${label}: catalogue`);
   await visit(page, 'banya-kvadro-3x2-omsk/', `${label}: product`);
