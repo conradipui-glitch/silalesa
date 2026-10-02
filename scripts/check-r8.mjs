@@ -16,6 +16,7 @@ const about = read('src/sections/ServicesAbout.tsx');
 const app = read('src/App.tsx');
 const brand = read('src/components/Brand.tsx');
 const html = read('dist/index.html');
+const constructionMode = app.includes('ConstructionHome');
 
 assert(hero.includes('Бани Квадро в Омске') && hero.includes('от {formatPrice(minPrice)}'), 'H1 scopes minimum price to Kvadro');
 assert(hero.includes('className="order-1"') && hero.includes('className="order-2 relative"'), 'Mobile first text and action, then image');
@@ -32,21 +33,33 @@ assert(story.includes('проверяйте') || story.includes('соблюда�
 assert(trust.includes('const faqs = [') && trust.includes('Каркасная 5,5×2,2') && trust.includes('Практические инструкции') && trust.includes('Спросить в WhatsApp'), 'Trust, six practical FAQ and direct contact');
 assert(about.includes('Уточнить') || about.includes('уточнить'), 'About/contact real visitor action');
 assert(about.includes('company.showroom') && about.includes('whatsappUrl('), 'Location and WA offer');
-const sections = ['<Hero />', '<Lineup model=', '<StandardSection />', '<LayoutSection model=', '<Process />', '<ReadyPromise />', '<Configurator model=', '<Quiz setModel=', '<WinterBand />', '<Faq />', '<About />'];
-for (let i = 1; i < sections.length; i++) assert(app.indexOf(sections[i - 1]) < app.indexOf(sections[i]), `Home section order: ${sections[i]}`);
+if (constructionMode) {
+  assert(app.includes('<ConstructionHome />') && app.includes('<ConstructionHeader />') && app.includes('<ConstructionFooter />'), 'Construction-first shell is mounted');
+} else {
+  const sections = ['<Hero />', '<Lineup model=', '<StandardSection />', '<LayoutSection model=', '<Process />', '<ReadyPromise />', '<Configurator model=', '<Quiz setModel=', '<WinterBand />', '<Faq />', '<About />'];
+  for (let i = 1; i < sections.length; i++) assert(app.indexOf(sections[i - 1]) < app.indexOf(sections[i]), `Home section order: ${sections[i]}`);
+}
 assert(brand.includes('const isService =') && brand.includes('route.name === "landing"') && brand.includes('whatsappUrl(`Здравствуйте! Интересует ${subject}') && brand.includes('Написать в WhatsApp'), 'Mobile sticky CTA follows service/product route, not generic bath calculator');
 assert(brand.includes('to="/mobilnaya-banya-omsk/"') && brand.includes('Строительные услуги'), 'Header/footer catalogue and services links');
-assert(html.includes('<div id="root" data-prerendered="true">') && html.includes('<h1>Бани Квадро в Омске — от 230 000 ₽</h1>') || html.includes('<div id="root" data-prerendered="true">') && html.includes('<h1>Бани Квадро в Омске — от 230 000 ₽</h1>'), 'Buyer-first readable home without JavaScript');
+assert(html.includes('<div id="root" data-prerendered="true">'), 'Readable home without JavaScript');
 assert(html.includes('<link rel="canonical" href="' + base + '"') && html.includes('LocalBusiness'), 'Root canonical and structured business');
-assert(html.includes('https://wa.me/' + phone + '?text=') && html.includes('tel:+79136884533') && html.includes('Спросить о бане в WhatsApp'), 'No-JS buyer contact paths');
+assert(html.includes('https://wa.me/' + phone + '?text=') && html.includes('tel:+79136884533'), 'No-JS contact paths');
 const homeBody = html.slice(html.indexOf('<div id="root" data-prerendered="true">'));
-assert(homeBody.indexOf('<h1>') < homeBody.indexOf('<h2>Четыре модели') && homeBody.indexOf('Спросить о бане в WhatsApp') < homeBody.indexOf('<h2>Четыре модели'), 'Price and direct CTA precede catalogue in the actual page, not document metadata');
-for (const model of models) {
-  assert(html.includes(`${base}${model.slug}/`), `Canonical model href ${model.slug}`);
-  assert(html.includes(`${Number(model.price).toLocaleString('ru-RU')} ₽`), `Source price ${model.key}`);
-  const stem = model.key === 'f55' ? 'karkasnaya-5-5-' : model.key === 'k2' ? 'kvadro-2x2-' : model.key === 'k3' ? 'kvadro-3x2-' : 'kvadro-4x2-';
-  const asset = read('dist/index.html').match(new RegExp(`assets/(${stem}[^" ]+\\.webp)`))?.[1];
-  assert(asset && fs.existsSync(`dist/assets/${asset}`), `Bundled model photo ${model.key}`);
+if (constructionMode) {
+  assert(html.includes('<h1>Строительство под ключ в Омске — от коттеджа до многоэтажного объекта</h1>'), 'Construction-first no-JS H1');
+  assert(html.includes('Коттеджи под ключ') && html.includes('Монолитные работы') && html.includes('Промышленные полы (топпинг)'), 'Construction directions in no-JS home');
+  assert(homeBody.indexOf('<h1>') < homeBody.indexOf('<h2>Основные направления') && homeBody.indexOf('Обсудить строительный объект в WhatsApp') < homeBody.indexOf('<h2>Основные направления'), 'Construction CTA precedes service list');
+} else {
+  assert(html.includes('<h1>Бани Квадро в Омске — от 230 000 ₽</h1>') || html.includes('<h1>Бани Квадро в Омске — от 230 000 ₽</h1>'), 'Buyer-first sauna H1');
+  assert(html.includes('Спросить о бане в WhatsApp'), 'Sauna-specific no-JS contact');
+  assert(homeBody.indexOf('<h1>') < homeBody.indexOf('<h2>Четыре модели') && homeBody.indexOf('Спросить о бане в WhatsApp') < homeBody.indexOf('<h2>Четыре модели'), 'Price and direct CTA precede catalogue');
+  for (const model of models) {
+    assert(html.includes(`${base}${model.slug}/`), `Canonical model href ${model.slug}`);
+    assert(html.includes(`${Number(model.price).toLocaleString('ru-RU')} ₽`), `Source price ${model.key}`);
+    const stem = model.key === 'f55' ? 'karkasnaya-5-5-' : model.key === 'k2' ? 'kvadro-2x2-' : model.key === 'k3' ? 'kvadro-3x2-' : 'kvadro-4x2-';
+    const asset = read('dist/index.html').match(new RegExp(`assets/(${stem}[^" ]+\\.webp)`))?.[1];
+    assert(asset && fs.existsSync(`dist/assets/${asset}`), `Bundled model photo ${model.key}`);
+  }
 }
 for (const slug of ['mobilnaya-banya-omsk','services','guides/bani/chto-vhodit-v-tsenu','guides/bani/podgotovka-uchastka-dostavka-manipulyator','guides/bani/chek-list-priemki-gotovoy-bani','guides/bani/fundament-dlya-mobilnoy-bani','guides/bani/kak-vybrat-razmer-2x2-3x2-4x2']) {
   assert(html.includes(`${base}${slug}/`), `Useful navigable static guide: ${slug}`);
@@ -55,7 +68,8 @@ for (const slug of ['mobilnaya-banya-omsk','services','guides/bani/chto-vhodit-v
 assert(!html.includes('href="/product/'), 'No old numeric product links from home');
 const sitemap = read('dist/sitemap.xml');
 assert.equal((sitemap.match(/<loc>/g) ?? []).length, 22, 'All 22 canonical URLs retained');
-assert(read('index.html').includes('Квадро 2×2 от 230 000 ₽; каркасная'), 'Social preview does not misattribute entry price');
+if (constructionMode) assert(read('index.html').includes('Сила Леса — строительство под ключ в Омске'), 'Construction social preview is primary');
+else assert(read('index.html').includes('Квадро 2×2 от 230 000 ₽; каркасная'), 'Social preview does not misattribute entry price');
 const assets = {k2:'kvadro-2x2-example.webp',k3:'kvadro-3x2-example.webp',k4:'kvadro-4x2-example.webp',f55:'karkasnaya-5-5-example.webp'};
 assert(homeFallback(models, assets, base, phone, '+79136884533', 'Омск, ул. Нефтезаводская, 49/1').includes('Квадро 2×2'), 'Fallback is derived from model registry');
 assert.throws(() => homeFallback([models[0],models[0],models[2],models[3]], assets, base, phone, '+79136884533', 'Омск'), /distinct/, 'No duplicate model fallback');
