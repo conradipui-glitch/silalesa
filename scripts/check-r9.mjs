@@ -11,6 +11,7 @@ const catalog = read('src/data/products.ts');
 const home = read('dist/index.html');
 const root = read('src/App.tsx');
 const pages = JSON.parse(read('src/data/seo-pages.json'));
+const constructionMode = root.includes('ConstructionHome');
 
 assert.equal(models.length, 4, 'Source catalogue contains four actual models');
 assert(quiz.includes('step === 1 || step === questions.length - 1'), 'First recommendation comes after two required answers');
@@ -29,8 +30,11 @@ assert(config.includes('productHref') && !config.includes('product.originalUrl')
 assert(config.includes('order-1 lg:order-2 lg:sticky') && config.includes('order-2 space-y-8 lg:order-1'), 'Price and contact precede long options on phones');
 assert(config.includes('setModel("k2")') && config.includes('Сбросить расчёт'), 'Reset is always accessible and resets model and options');
 assert(config.includes('Number.isInteger(s.lamps)') && config.includes('doorOptions.some((d) => d.id === s.door)'), 'Malformed persisted configuration is ignored');
-assert(root.includes('<Configurator model=') && root.includes('<Quiz setModel='), 'Both interactive journeys remain mounted');
-assert(home.includes('data-prerendered="true"') && home.includes('230') && home.includes('WhatsApp'), 'Published homepage still useful without JavaScript');
+if (constructionMode) assert(root.includes('<ConstructionHome />') && root.includes('<ConstructionServicesPage />'), 'Construction journeys are mounted');
+else assert(root.includes('<Configurator model=') && root.includes('<Quiz setModel='), 'Both interactive sauna journeys remain mounted');
+assert(home.includes('data-prerendered="true"') && home.includes('WhatsApp'), 'Published homepage still useful without JavaScript');
+if (constructionMode) assert(home.includes('Строительство под ключ') && home.includes('Монолитные работы'), 'Construction-first static homepage');
+else assert(home.includes('230'), 'Sauna entry price remains visible in static homepage');
 assert.equal((read('dist/sitemap.xml').match(/<loc>/g) ?? []).length, 22, 'No SEO URL regression');
 
 // Exercise the ACTUAL production recommendation function (not a test-only copy).
