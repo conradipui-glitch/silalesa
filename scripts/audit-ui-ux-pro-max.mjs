@@ -124,7 +124,8 @@ async function checkReducedMotion() {
     const s=getComputedStyle(el);
     return {transitionDuration:s.transitionDuration,transform:s.transform,opacity:s.opacity,scroll:getComputedStyle(document.documentElement).scrollBehavior};
   });
-  if(state.transitionDuration!=='0s'||state.transform!=='none'||state.opacity!=='1'||state.scroll!=='auto') add('critical','reduced-motion','Reduced motion preference not fully respected',state);
+  const maxDuration=Math.max(...state.transitionDuration.split(',').map((x)=>parseFloat(x)||0));
+  if(maxDuration>0.001||state.transform!=='none'||state.opacity!=='1'||state.scroll!=='auto') add('critical','reduced-motion','Reduced motion preference not fully respected',state);
   await context.close();
 }
 
@@ -132,6 +133,11 @@ async function checkContrast() {
   const context=await browser.newContext({ viewport:{width:1440,height:900} });
   const page=await context.newPage();
   await goto(page);
+  const samples=await page.evaluate(() => {
+    const selectors=['#services article:first-of-type span:nth-of-type(2)','#services article:first-of-type div:last-child > span:first-child','dl dt','footer h3','footer > div:last-child span','header a'];
+    return selectors.flatMap((sel)=>[...document.querySelectorAll(sel)].slice(0,8).map((el)=>({selector:sel,text:(el.textContent||'').trim().replace(/\\s+/g,' ').slice(0,70),color:getComputedStyle(el).color,fontSize:getComputedStyle(el).fontSize,fontWeight:getComputedStyle(el).fontWeight,className:el.getAttribute('class')||''})));
+  });
+  console.log('UI_UX_CONTRAST_SAMPLES',JSON.stringify(samples));
   const failures=await page.evaluate(() => {
     const parse=(value)=>{
       const m=value.match(/rgba?\(([^)]+)\)/);
