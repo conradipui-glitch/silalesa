@@ -2,9 +2,9 @@ import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon, SectionHead } from "../com
 import { company, whatsappUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
-import heroConstruction from "../assets/img/iteration-5-1/hero-home.webp";
-import plasterPhoto from "../assets/img/iteration-5-1/plaster-after.webp";
-import screedPhoto from "../assets/img/iteration-5-1/screed-after.webp";
+const heroConstruction = "https://images.unsplash.com/photo-1770756248866-00b8b7c1dd75?auto=format&fit=crop&fm=webp&q=82&w=1800";
+const plasterPhoto = "https://images.unsplash.com/photo-1761986757577-140af8859587?auto=format&fit=crop&fm=webp&q=80&w=1400";
+const screedPhoto = "https://images.unsplash.com/photo-1743130940796-7a8e6e8b998e?auto=format&fit=crop&fm=webp&q=80&w=1400";
 
 type ServiceGroup = "Генподряд" | "Конструктив" | "Отделка и полы" | "Спецработы";
 
@@ -115,13 +115,13 @@ export function ConstructionHome() {
         <div className="absolute -right-20 top-0 h-[440px] w-[440px] rounded-full bg-cedar-500/10 blur-3xl" aria-hidden="true" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.04fr_.96fr] lg:gap-12">
-            <div>
+          <div className="grid items-center gap-10 xl:grid-cols-[1.04fr_.96fr] xl:gap-12">
+            <div data-qa="hero-copy">
               <p className="reveal flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-cedar-300/90">
                 <span className="h-px w-8 bg-cedar-400" aria-hidden="true" />
                 Омск · строительные работы полного цикла
               </p>
-              <h1 id="construction-hero-title" className="reveal mt-6 text-balance font-display text-[36px] font-semibold leading-[1.03] tracking-tight text-cream-50 sm:text-5xl lg:text-[62px]" style={{ ["--reveal-delay" as string]: "70ms" }}>
+              <h1 id="construction-hero-title" className="reveal mt-6 text-balance font-display text-[36px] font-semibold leading-[1.03] tracking-tight text-cream-50 sm:text-5xl lg:text-[54px] xl:text-[62px]" style={{ ["--reveal-delay" as string]: "70ms" }}>
                 Строительство <span className="text-cedar-400">под ключ</span> — от коттеджа до многоэтажного объекта
               </h1>
               <p className="reveal mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg" style={{ ["--reveal-delay" as string]: "140ms" }}>
@@ -158,24 +158,20 @@ export function ConstructionHome() {
               </dl>
             </div>
 
-            <div className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
-                <img src={heroConstruction} alt="Строительный объект компании «Сила Леса»" className="h-full w-full object-cover" width={1400} height={1050} fetchPriority="high" />
+            <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
+              <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
+                <img data-construction-hero src={heroConstruction} alt="Строительная площадка с монолитными конструкциями, рабочими и башенным краном" className="h-full w-full object-cover" width={1800} height={1125} fetchPriority="high" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bark-950 via-bark-950/10 to-transparent" aria-hidden="true" />
-                <div className="absolute inset-x-5 bottom-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-cream-50/10 bg-bark-950/75 p-4 backdrop-blur">
+                <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
+                  <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/75 p-4 backdrop-blur">
                     <p className="text-[10px] uppercase tracking-[0.18em] text-cedar-300">Частное строительство</p>
                     <p className="mt-1 font-display text-sm text-cream-50">Коттеджи · дома · фасады · кровля</p>
                   </div>
-                  <div className="rounded-2xl border border-cream-50/10 bg-bark-950/75 p-4 backdrop-blur">
+                  <div data-qa="hero-card-commercial" className="rounded-2xl border border-cream-50/10 bg-bark-950/75 p-4 backdrop-blur">
                     <p className="text-[10px] uppercase tracking-[0.18em] text-cedar-300">Коммерческие объекты</p>
                     <p className="mt-1 font-display text-sm text-cream-50">Ангары · монолит · металл · промполы</p>
                   </div>
                 </div>
-              </div>
-              <div className="absolute -bottom-5 -left-3 hidden rounded-2xl border border-cedar-300/20 bg-bark-950 px-5 py-4 shadow-card sm:block">
-                <p className="text-xs uppercase tracking-[0.16em] text-cream-300/55">Один вход</p>
-                <p className="mt-1 font-display text-base text-cream-50">на комплекс строительных задач</p>
               </div>
             </div>
           </div>
@@ -260,9 +256,9 @@ export function ConstructionHome() {
           </div>
 
           <div className="mt-12 grid gap-5 lg:grid-cols-2">
-            <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900">
+            <Link to="/mehanizirovannaya-shtukaturka-omsk/" data-qa="specialty-card" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900">
               <div className="aspect-[16/9] overflow-hidden bg-bark-800">
-                <img src={plasterPhoto} alt="Механизированная штукатурка после выполнения работ" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" width={1200} height={675} />
+                <img src={plasterPhoto} alt="Мастер наносит штукатурку на стену" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" width={1200} height={675} />
               </div>
               <div className="p-6 sm:p-7">
                 <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Отделка стен</p>
@@ -274,9 +270,9 @@ export function ConstructionHome() {
               </div>
             </Link>
 
-            <Link to="/polusuhaya-styazhka-omsk/" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900" style={{ ["--reveal-delay" as string]: "80ms" }}>
+            <Link to="/polusuhaya-styazhka-omsk/" data-qa="specialty-card" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900" style={{ ["--reveal-delay" as string]: "80ms" }}>
               <div className="aspect-[16/9] overflow-hidden bg-bark-800">
-                <img src={screedPhoto} alt="Полусухая стяжка после выполнения работ" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" width={1200} height={675} />
+                <img src={screedPhoto} alt="Строители выравнивают бетонное основание пола" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" width={1200} height={675} />
               </div>
               <div className="p-6 sm:p-7">
                 <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Подготовка пола</p>
