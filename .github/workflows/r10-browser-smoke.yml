@@ -40,3 +40,4 @@ jobs:
             sleep 1
           done
           node scripts/check-r10-browser.mjs
+          node scripts/audit-ui-ux-pro-max.mjs
