@@ -3,7 +3,7 @@ import path from "node:path";
 import { renderPlasterFallback } from "./plaster-fallback.mjs";
 import { saunaChoiceFallback } from "./sauna-choice-fallback.mjs";
 import { operationalGuideFallback } from "./operational-guide-fallback.mjs";
-import { homeFallback } from "./home-fallback.mjs";
+import { constructionHomeFallback } from "./home-fallback.mjs";
 import { saunaOfferFallback } from "./sauna-offer-fallback.mjs";
 
 const ROOT = process.cwd();
@@ -53,10 +53,26 @@ const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 
 const servicesHub = {
   slug: "services",
-  title: "Строительные услуги в Омске — Сила Леса",
-  description: "Строительные услуги в Омске: механизированная штукатурка от 550 ₽/м², полусухая стяжка от 600 ₽/м², бурение скважин от 2 500 ₽/пог. м. Условия и расчёт.",
-  h1: "Строительные услуги в Омске",
-  lead: "Бурение скважин, полусухая стяжка и механизированная штукатурка: стартовые цены за единицу работ, условия и перечень данных для расчёта на каждой странице услуги.",
+  title: "Строительные работы под ключ в Омске — Сила Леса",
+  description: "Строительные работы в Омске: коттеджи под ключ, монолит, кладка, ангары, металлоконструкции, штукатурка, стяжка, промышленные полы, кровля, фасады и демонтаж.",
+  h1: "Строительные работы под ключ в Омске",
+  lead: "Полный строительный цикл или отдельный этап: от коттеджей, монолита и кладки до ангаров, металлоконструкций, полов, кровли, фасада и демонтажа.",
+  directions: [
+    "Коттеджи под ключ",
+    "Жилое и нежилое строительство",
+    "Возведение многоэтажных сооружений и зданий",
+    "Строительство ангаров",
+    "Монолитные работы",
+    "Кладочные работы: блок, кирпич и другие материалы",
+    "Металлоконструкции",
+    "Механизированная штукатурка",
+    "Полусухая стяжка",
+    "Бетонная стяжка",
+    "Промышленные полы (топпинг)",
+    "Кровельные работы",
+    "Фасадные работы",
+    "Демонтажные работы",
+  ],
 };
 
 function escapeHtml(value = "") {
@@ -209,6 +225,7 @@ function staticSnapshot(page) {
 
 function servicesSnapshot() {
   const canonical = `${SITE_URL}${servicesHub.slug}/`;
+  const directionItems = servicesHub.directions.map((name) => `<li>${escapeHtml(name)}</li>`).join("");
   const items = servicePages
     .map(
       (page) => `<li><a href="${SITE_URL}${page.slug}/">${escapeHtml(page.h1)}</a><p>${escapeHtml(page.priceLabel ?? "")}</p><p>${escapeHtml(page.lead)}</p></li>`,
@@ -225,14 +242,17 @@ function servicesSnapshot() {
     inLanguage: "ru-RU",
     isPartOf: { "@id": `${SITE_URL}#website` },
     provider: { "@id": `${SITE_URL}#organization` },
-    hasPart: servicePages.map((page) => ({
-      "@type": "Service",
-      name: page.h1,
-      url: `${SITE_URL}${page.slug}/`,
-    })),
+    hasPart: [
+      ...servicesHub.directions.map((name) => ({ "@type": "Service", name })),
+      ...servicePages.map((page) => ({
+        "@type": "Service",
+        name: page.h1,
+        url: `${SITE_URL}${page.slug}/`,
+      })),
+    ],
   }).replaceAll("<", "\\u003c");
 
-  return `<div id="root" data-prerendered="true"><main><article><p>Другие услуги · Омск</p><h1>${escapeHtml(servicesHub.h1)}</h1><p>${escapeHtml(servicesHub.lead)}</p><ul>${items}</ul><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>Строительство · Омск</p><h1>${escapeHtml(servicesHub.h1)}</h1><p>${escapeHtml(servicesHub.lead)}</p><section><h2>Основные направления</h2><ul>${directionItems}</ul></section><section><h2>Подробные страницы услуг</h2><ul>${items}</ul></section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script></div>`;
 }
 
 for (const page of pages.filter((entry) => entry.kind === "guide" && entry.printChecklistPath)) {
@@ -293,16 +313,9 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(dir, "index.html"), html, "utf8");
 }
 
-// Give the home page the same meaningful first answer and canonical product links without JavaScript.
+// Give the construction-first home page a meaningful no-JS first answer.
 {
-  const prefix = { k2: "kvadro-2x2-", k3: "kvadro-3x2-", k4: "kvadro-4x2-", f55: "karkasnaya-5-5-" };
-  const builtAssets = await fs.readdir(path.join(DIST, "assets"));
-  const assets = Object.fromEntries(Object.entries(prefix).map(([key, stem]) => {
-    const match = builtAssets.filter((name) => name.startsWith(stem) && name.endsWith(".webp"));
-    if (match.length !== 1) throw new Error(`Home static image ambiguous or missing: ${key}`);
-    return [key, match[0]];
-  }));
-  const home = homeFallback(saunaChoiceModels, assets, SITE_URL, whatsappMatch[1], "+79136884533", "Омск, ул. Нефтезаводская, 49/1");
+  const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533");
   if (!template.includes('<div id="root"></div>')) throw new Error('Home root placeholder missing');
   await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
 }
@@ -318,7 +331,8 @@ await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
 const pageList = pages
   .map((page) => `- [${page.h1}](${SITE_URL}${page.slug}/): ${page.description}`)
   .join("\n");
-const llms = `# Сила Леса\n\n> Производство и продажа мобильных бань в Омске: кедровые бани Квадро, каркасные бани и дополнительные строительные услуги.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Осмотр образцов — по предварительной договорённости, время уточните по телефону.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные модели бань: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
+const llms = `# Сила Леса\n\n> Строительная компания в Омске: строительство под ключ, общестроительные работы, отделка и отдельные специализированные этапы. Мобильные бани сохранены как отдельное направление.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Осмотр образцов — по предварительной договорённости, время уточните по телефону.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные строительные направления: коттеджи, монолит, кладка, ангары, металлоконструкции, штукатурка, стяжка, промышленные полы, кровля, фасады и демонтаж.
+- Мобильные бани сохранены как отдельное направление: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
 await fs.writeFile(path.join(DIST, "llms.txt"), llms, "utf8");
 
 console.log(`Prerendered home + ${pages.length} SEO pages + services hub and generated sitemap.xml + llms.txt.`);

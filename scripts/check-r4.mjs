@@ -49,7 +49,8 @@ for (const offer of offers) {
   for (const faq of offer.faq) assert.ok(html.includes(faq[0]) && html.includes(faq[1]), `${offer.slug} FAQ mismatch`);
 }
 const hub = await fs.readFile(path.join(root, "dist/services/index.html"), "utf8");
-assert.ok(hub.includes('data-prerendered="true"') && hub.includes("Строительные услуги в Омске"));
+assert.ok(hub.includes('data-prerendered="true"') && (hub.includes("Строительные работы под ключ в Омске") || hub.includes("Строительные услуги в Омске")), "construction services hub heading");
+assert.ok(hub.includes("Коттеджи под ключ") && hub.includes("Монолитные работы") && hub.includes("Промышленные полы (топпинг)"), "construction services hub keeps expanded directions");
 for (const offer of offers) assert.ok(hub.includes(offer.priceLabel) && hub.includes(offer.lead) && hub.includes(`${site}${offer.slug}/`), `services hub missing ${offer.slug}`);
 assert.ok(hub.includes("550 ₽/м²") && hub.includes("600 ₽/м²") && hub.includes("2 500 ₽/пог. м"), "hub unit prices");
 console.log("R4 PASS: three unit-priced service offers, canonical data, scoped CTA, SEO/static HTML, sitemap and services hub.");
