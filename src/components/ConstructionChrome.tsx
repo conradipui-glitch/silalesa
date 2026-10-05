@@ -63,8 +63,8 @@ export function ConstructionHeader() {
   return (
     <header className={cn("fixed inset-x-0 top-0 z-50 transition-colors duration-300", scrolled || open ? "border-b border-cream-50/8 bg-bark-900/90 backdrop-blur-md" : "bg-transparent")}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <ConstructionLogo compact />
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Разделы">
+        <div data-qa="header-logo"><ConstructionLogo compact /></div>
+        <nav data-qa="header-nav" className="hidden items-center gap-1 xl:flex" aria-label="Разделы">
           {NAV.map((item) => (
             <Link
               key={item.id}
@@ -79,7 +79,7 @@ export function ConstructionHeader() {
             Бани
           </Link>
         </nav>
-        <div className="flex items-center gap-2">
+        <div data-qa="header-actions" className="flex items-center gap-2">
           <a
             href={`tel:${company.phonePrimary.tel}`}
             className="hidden items-center gap-2 px-2 text-sm text-cream-100 transition-colors hover:text-cedar-300 md:inline-flex"
@@ -99,7 +99,7 @@ export function ConstructionHeader() {
           <button
             ref={burger}
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream-50/15 text-cream-50 lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream-50/15 text-cream-50 xl:hidden"
             aria-expanded={open}
             aria-controls="construction-mobile-menu"
             aria-label={open ? "Закрыть меню" : "Открыть меню"}
@@ -113,7 +113,7 @@ export function ConstructionHeader() {
       </div>
 
       {open && (
-        <div id="construction-mobile-menu" className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto bg-bark-900/98 backdrop-blur-xl lg:hidden" role="dialog" aria-modal="true" aria-label="Меню">
+        <div id="construction-mobile-menu" className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto bg-bark-900/98 backdrop-blur-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Меню">
           <nav className="flex flex-col px-6 py-6" aria-label="Разделы">
             {NAV.map((item, index) => (
               <Link
