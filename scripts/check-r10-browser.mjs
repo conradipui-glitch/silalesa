@@ -5,6 +5,73 @@ const base = 'http://127.0.0.1:4173/silalesa/';
 const browser = await chromium.launch({ headless: true });
 const failures = [];
 
+async function assertNoPairOverlap(page, selector, label) {
+  const rects = await page.locator(selector).evaluateAll((elements) =>
+    elements
+      .filter((el) => {
+        const style = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 1 && rect.height > 1;
+      })
+      .map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          name: el.getAttribute('data-qa') || el.id || el.textContent?.trim().slice(0, 45) || el.tagName,
+          left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom,
+        };
+      }),
+  );
+  for (let i = 0; i < rects.length; i += 1) {
+    for (let j = i + 1; j < rects.length; j += 1) {
+      const a = rects[i];
+      const b = rects[j];
+      const overlapX = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+      const overlapY = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      assert.ok(!(overlapX > 1 && overlapY > 1), `${label}: overlap between "${a.name}" and "${b.name}" (${Math.round(overlapX)}×${Math.round(overlapY)} px)`);
+    }
+  }
+}
+
+async function checkConstructionLayout(page, label) {
+  const fit = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    width: window.innerWidth,
+  }));
+  assert.ok(fit.scrollWidth <= fit.width + 2, `${label}: horizontal overflow ${JSON.stringify(fit)}`);
+
+  await assertNoPairOverlap(page, '[data-qa="hero-copy"], [data-qa="hero-media"]', `${label} hero columns`);
+  await assertNoPairOverlap(page, '[data-qa="hero-card-private"], [data-qa="hero-card-commercial"]', `${label} hero cards`);
+  await assertNoPairOverlap(page, '[data-qa="header-logo"], [data-qa="header-nav"], [data-qa="header-actions"]', `${label} header`);
+  await assertNoPairOverlap(page, '#services article', `${label} service cards`);
+  await assertNoPairOverlap(page, '[data-qa="specialty-card"]', `${label} specialty cards`);
+
+  const overlayFit = await page.locator('[data-qa="hero-overlay-cards"]').evaluate((overlay) => {
+    const style = getComputedStyle(overlay);
+    if (style.display === 'none') return { hidden: true };
+    const parent = overlay.parentElement.getBoundingClientRect();
+    const rect = overlay.getBoundingClientRect();
+    return {
+      hidden: false,
+      inside: rect.left >= parent.left - 1 && rect.right <= parent.right + 1 && rect.top >= parent.top - 1 && rect.bottom <= parent.bottom + 1,
+    };
+  });
+  assert.ok(overlayFit.hidden || overlayFit.inside, `${label}: hero overlay cards escape image bounds`);
+  console.log('CHROMIUM_LAYOUT_INTEGRITY_PASS', label, fit);
+}
+
+async function checkHomepageViewport(label, contextOptions) {
+  const context = await browser.newContext(contextOptions);
+  const page = await context.newPage();
+  page.on('pageerror', error => failures.push(`${label}: ${error.message}`));
+  await visit(page, '', `${label}: homepage visual QA`);
+  await checkConstructionLayout(page, label);
+  const hero = page.locator('img[data-construction-hero]');
+  await hero.evaluate((img) => img.decode());
+  const src = await hero.getAttribute('src');
+  assert.ok(src && !src.includes('hero-home'), `${label}: legacy sauna hero must not be used`);
+  await context.close();
+}
+
 async function visit(page, path, label) {
   const response = await page.goto(new URL(path, base).href, { waitUntil: 'networkidle', timeout: 30_000 });
   assert.equal(response?.status(), 200, `${label}: HTTP 200`);
@@ -36,10 +103,13 @@ async function run(label, contextOptions) {
   const page = await context.newPage();
   page.on('pageerror', error => failures.push(`${label}: ${error.message}`));
   await visit(page, '', `${label}: homepage`);
-  const hero = page.locator('main img[src*="hero-home-"]').first();
+  const hero = page.locator('img[data-construction-hero]').first();
   await hero.waitFor({ state: 'visible', timeout: 10_000 });
   await hero.evaluate(img => img.decode());
   assert.ok(await hero.evaluate(img => img.naturalWidth > 500), 'Hero image decoded with real pixels');
+  const heroSrc = await hero.getAttribute('src');
+  assert.ok(heroSrc && !heroSrc.includes('hero-home'), 'Construction homepage does not use legacy sauna hero');
+  await checkConstructionLayout(page, label);
   const resourceNames = await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name));
   assert.ok(resourceNames.some(name => /index-[\w-]+\.js/.test(name)), 'Homepage loads JS entry');
   assert.ok(!resourceNames.some(name => /seoPages-[\w-]+\.js/.test(name)), 'Homepage does not preload 240 KB SEO registry');
@@ -101,10 +171,12 @@ async function run(label, contextOptions) {
 }
 
 try {
+  await checkHomepageViewport('wide', { viewport: { width: 1800, height: 900 } });
+  await checkHomepageViewport('tablet', { viewport: { width: 1024, height: 800 } });
   await run('desktop', { viewport: { width: 1440, height: 900 } });
   await run('mobile', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
   assert.deepEqual(failures, [], 'No uncaught browser JS errors');
-  console.log('R10 BROWSER PASS: two Chromium viewports, homepage/gallery/guide/product/services, lazy SEO, photo decode, WhatsApp link (not sent)');
+  console.log('R10 BROWSER PASS: four Chromium viewport checks (1800/1440/1024/390),, homepage/gallery/guide/product/services, lazy SEO, photo decode, WhatsApp link (not sent)');
 } finally {
   await browser.close();
 }
