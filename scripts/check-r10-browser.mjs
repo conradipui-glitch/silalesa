@@ -68,7 +68,7 @@ async function checkHomepageViewport(label, contextOptions) {
   const hero = page.locator('img[data-construction-hero]');
   await hero.evaluate((img) => img.decode());
   const src = await hero.getAttribute('src');
-  assert.ok(src && !src.includes('hero-home'), `${label}: legacy sauna hero must not be used`);
+  assert.ok(src && src.includes('assets/construction-hero-mixed.webp') && !src.startsWith('https://images.unsplash.com'), `${label}: generated construction hero must be served locally`);
   await context.close();
 }
 
@@ -108,7 +108,7 @@ async function run(label, contextOptions) {
   await hero.evaluate(img => img.decode());
   assert.ok(await hero.evaluate(img => img.naturalWidth > 500), 'Hero image decoded with real pixels');
   const heroSrc = await hero.getAttribute('src');
-  assert.ok(heroSrc && !heroSrc.includes('hero-home'), 'Construction homepage does not use legacy sauna hero');
+  assert.ok(heroSrc && heroSrc.includes('assets/construction-hero-mixed.webp') && !heroSrc.startsWith('https://images.unsplash.com'), 'Construction homepage serves the generated hero locally');
   await checkConstructionLayout(page, label);
   const resourceNames = await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name));
   assert.ok(resourceNames.some(name => /index-[\w-]+\.js/.test(name)), 'Homepage loads JS entry');
