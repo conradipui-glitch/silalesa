@@ -2,7 +2,7 @@ import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon, SectionHead } from "../com
 import { company, whatsappUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
-const heroConstruction = "https://images.unsplash.com/photo-1770756248866-00b8b7c1dd75?auto=format&fit=crop&fm=webp&q=82&w=1800";
+const heroConstruction = `${import.meta.env.BASE_URL}assets/construction-hero-mixed.webp`;
 const plasterPhoto = "https://images.unsplash.com/photo-1761986757577-140af8859587?auto=format&fit=crop&fm=webp&q=80&w=1400";
 const screedPhoto = "https://images.unsplash.com/photo-1743130940796-7a8e6e8b998e?auto=format&fit=crop&fm=webp&q=80&w=1400";
 
@@ -160,10 +160,10 @@ export function ConstructionHome() {
 
             <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
               <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
-                <img data-construction-hero src={heroConstruction} alt="Строительная площадка с монолитными конструкциями, рабочими и башенным краном" className="h-full w-full object-cover" width={1800} height={1125} fetchPriority="high" referrerPolicy="no-referrer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-bark-950 via-bark-950/10 to-transparent" aria-hidden="true" />
+                <img data-construction-hero src={heroConstruction} alt="Строительство современного объекта: монолит, кладка и бригада на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bark-950/75 via-bark-950/5 to-transparent" aria-hidden="true" />
                 <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
-                  <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/75 p-4 backdrop-blur">
+                  <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/88 p-4 backdrop-blur-sm">
                     <p className="text-[10px] uppercase tracking-[0.18em] text-cedar-300">Частное строительство</p>
                     <p className="mt-1 font-display text-sm text-cream-50">Коттеджи · дома · фасады · кровля</p>
                   </div>
