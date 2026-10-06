@@ -112,7 +112,7 @@ async function checkConstructionUx(page, label, { touch = false } = {}) {
 }
 
 async function checkConstructionKeyboard() {
-  const context = await browser.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
   const page = await context.newPage();
   page.on('pageerror', error => failures.push(`keyboard: ${error.message}`));
   await visit(page, '', 'keyboard: homepage');
