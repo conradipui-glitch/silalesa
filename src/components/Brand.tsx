@@ -17,7 +17,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
 }
 
 type BtnVariant = "primary" | "ghost" | "light" | "subtle";
-const btnBase = "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 select-none disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
+const btnBase = "inline-flex cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 select-none disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]";
 const btnVariants: Record<BtnVariant, string> = {
   primary: "bg-cedar-500 text-bark-950 hover:bg-cedar-400 shadow-[0_10px_30px_-10px_rgba(200,129,63,0.7)]",
   ghost: "border border-cream-100/20 text-cream-50 hover:border-cream-100/50 hover:bg-cream-50/5",

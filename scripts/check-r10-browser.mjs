@@ -59,12 +59,127 @@ async function checkConstructionLayout(page, label) {
   console.log('CHROMIUM_LAYOUT_INTEGRITY_PASS', label, fit);
 }
 
+
+async function checkConstructionUx(page, label, { touch = false } = {}) {
+  const serviceBody = page.locator('#services article > p');
+  if (await serviceBody.count()) {
+    const fontSizes = await serviceBody.evaluateAll((els) => els.map((el) => parseFloat(getComputedStyle(el).fontSize)));
+    assert.ok(fontSizes.every((size) => size >= 16), `${label}: service body copy stays at least 16px: ${JSON.stringify(fontSizes)}`);
+  }
+
+  const lowContrastUtility = await page.locator('body').evaluate(() =>
+    [...document.querySelectorAll('[class]')]
+      .filter((el) => {
+        const style = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0
+          && /text-cream-300\/(35|40|45|50|55|60)(?:\s|$)/.test(el.className);
+      })
+      .map((el) => ({ text: (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 70), className: el.className })),
+  );
+  assert.deepEqual(lowContrastUtility, [], `${label}: construction UI must not use known low-contrast cream utilities`);
+
+  if (touch) {
+    const targets = page.locator('header a:visible, header button:visible, .fixed.bottom-0 a:visible');
+    const small = await targets.evaluateAll((els) =>
+      els.map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          text: (el.textContent || el.getAttribute('aria-label') || '').trim().replace(/\s+/g, ' ').slice(0, 70),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+        };
+      }).filter((item) => item.width < 44 || item.height < 44),
+    );
+    assert.deepEqual(small, [], `${label}: visible touch targets stay at least 44x44px`);
+  }
+
+  const specialtyImages = page.locator('[data-qa="specialty-card"] img');
+  if (await specialtyImages.count()) {
+    const attrs = await specialtyImages.evaluateAll((imgs) => imgs.map((img) => ({
+      srcset: img.getAttribute('srcset'),
+      sizes: img.getAttribute('sizes'),
+      loading: img.getAttribute('loading'),
+      decoding: img.getAttribute('decoding'),
+    })));
+    for (const image of attrs) {
+      assert.ok(image.srcset?.includes('640w') && image.srcset.includes('960w') && image.srcset.includes('1400w'), `${label}: specialty image has responsive srcset`);
+      assert.ok(image.sizes, `${label}: specialty image declares sizes`);
+      assert.equal(image.loading, 'lazy', `${label}: below-fold specialty image is lazy loaded`);
+      assert.equal(image.decoding, 'async', `${label}: below-fold specialty image decodes asynchronously`);
+    }
+  }
+}
+
+async function checkConstructionKeyboard() {
+  const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const page = await context.newPage();
+  page.on('pageerror', error => failures.push(`keyboard: ${error.message}`));
+  await visit(page, '', 'keyboard: homepage');
+
+  await page.keyboard.press('Tab');
+  const skip = page.locator('a[href="#main"]');
+  assert.ok(await skip.isVisible(), 'Skip link becomes visible when focused');
+
+  const burger = page.locator('header button[aria-controls="construction-mobile-menu"]');
+  await burger.click();
+  const dialog = page.locator('#construction-mobile-menu');
+  await dialog.waitFor({ state: 'attached' });
+  const dialogState = await dialog.evaluate((el) => {
+    const style = getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    return { display: style.display, visibility: style.visibility, width: Math.round(rect.width), height: Math.round(rect.height) };
+  });
+  assert.ok(dialogState.display !== 'none' && dialogState.visibility !== 'hidden' && dialogState.width > 0 && dialogState.height > 0, `Mobile menu is visibly rendered: ${JSON.stringify(dialogState)}`);
+
+  const focusable = dialog.locator('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+  const count = await focusable.count();
+  assert.ok(count >= 2, 'Mobile dialog contains multiple focusable controls');
+  assert.ok(await focusable.first().evaluate((el) => document.activeElement === el), 'Mobile dialog moves focus to its first link');
+
+  await page.keyboard.press('Shift+Tab');
+  assert.ok(await focusable.last().evaluate((el) => document.activeElement === el), 'Shift+Tab wraps focus to the last dialog control');
+  await page.keyboard.press('Tab');
+  assert.ok(await focusable.first().evaluate((el) => document.activeElement === el), 'Tab wraps focus back to the first dialog control');
+
+  await page.keyboard.press('Escape');
+  await dialog.waitFor({ state: 'detached' });
+  assert.ok(await burger.evaluate((el) => document.activeElement === el), 'Escape closes menu and returns focus to trigger');
+
+  await context.close();
+}
+
+async function checkReducedMotion() {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  page.on('pageerror', error => failures.push(`reduced-motion: ${error.message}`));
+  await visit(page, '', 'reduced-motion: homepage');
+
+  const state = await page.locator('.reveal').first().evaluate((el) => {
+    const style = getComputedStyle(el);
+    const maxTransition = Math.max(...style.transitionDuration.split(',').map((item) => parseFloat(item) || 0));
+    return {
+      opacity: style.opacity,
+      transform: style.transform,
+      maxTransition,
+      scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior,
+    };
+  });
+  assert.equal(state.opacity, '1', 'Reduced motion reveals content immediately');
+  assert.equal(state.transform, 'none', 'Reduced motion removes reveal transforms');
+  assert.ok(state.maxTransition <= 0.001, `Reduced motion transition is effectively disabled: ${state.maxTransition}s`);
+  assert.equal(state.scrollBehavior, 'auto', 'Reduced motion disables smooth scrolling');
+
+  await context.close();
+}
+
 async function checkHomepageViewport(label, contextOptions) {
   const context = await browser.newContext(contextOptions);
   const page = await context.newPage();
   page.on('pageerror', error => failures.push(`${label}: ${error.message}`));
   await visit(page, '', `${label}: homepage visual QA`);
   await checkConstructionLayout(page, label);
+  await checkConstructionUx(page, label, { touch: Boolean(contextOptions.isMobile || contextOptions.hasTouch) });
   const hero = page.locator('img[data-construction-hero]');
   await hero.evaluate((img) => img.decode());
   const src = await hero.getAttribute('src');
@@ -172,11 +287,16 @@ async function run(label, contextOptions) {
 
 try {
   await checkHomepageViewport('wide', { viewport: { width: 1800, height: 900 } });
+  await checkHomepageViewport('small-phone', { viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  await checkHomepageViewport('tablet-touch', { viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  await checkHomepageViewport('landscape-touch', { viewport: { width: 844, height: 390 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
   await checkHomepageViewport('tablet', { viewport: { width: 1024, height: 800 } });
   await run('desktop', { viewport: { width: 1440, height: 900 } });
   await run('mobile', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  await checkConstructionKeyboard();
+  await checkReducedMotion();
   assert.deepEqual(failures, [], 'No uncaught browser JS errors');
-  console.log('R10 BROWSER PASS: four Chromium viewport checks (1800/1440/1024/390),, homepage/gallery/guide/product/services, lazy SEO, photo decode, WhatsApp link (not sent)');
+  console.log('R10 BROWSER PASS: Chromium visual/UX checks at 375/390/768/844x390/1024/1440/1800, focus trap, reduced motion, touch targets, responsive images, lazy SEO and routes');
 } finally {
   await browser.close();
 }

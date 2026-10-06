@@ -3,8 +3,12 @@ import { company, whatsappUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 const heroConstruction = `${import.meta.env.BASE_URL}assets/construction-hero-mixed.webp`;
-const plasterPhoto = "https://images.unsplash.com/photo-1761986757577-140af8859587?auto=format&fit=crop&fm=webp&q=80&w=1400";
-const screedPhoto = "https://images.unsplash.com/photo-1743130940796-7a8e6e8b998e?auto=format&fit=crop&fm=webp&q=80&w=1400";
+const plasterPhotoBase = "https://images.unsplash.com/photo-1761986757577-140af8859587?auto=format&fit=crop&fm=webp&q=80";
+const screedPhotoBase = "https://images.unsplash.com/photo-1743130940796-7a8e6e8b998e?auto=format&fit=crop&fm=webp&q=80";
+const plasterPhoto = `${plasterPhotoBase}&w=1400`;
+const screedPhoto = `${screedPhotoBase}&w=1400`;
+const plasterPhotoSrcSet = [640, 960, 1400].map((width) => `${plasterPhotoBase}&w=${width} ${width}w`).join(", ");
+const screedPhotoSrcSet = [640, 960, 1400].map((width) => `${screedPhotoBase}&w=${width} ${width}w`).join(", ");
 
 type ServiceGroup = "Генподряд" | "Конструктив" | "Отделка и полы" | "Спецработы";
 
@@ -57,7 +61,7 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
             title={<span id="construction-services-title">От коттеджа до промышленного пола — один строительный контур</span>}
             lead="Берём объект под ключ или подключаемся на конкретный этап — от конструктива и коробки до отделки, кровли, фасада и полов."
           />
-          <div className="reveal rounded-2xl border border-cream-50/10 bg-cream-50/[0.03] px-5 py-4 text-sm text-cream-300/75 lg:max-w-xs">
+          <div className="reveal rounded-2xl border border-cream-50/10 bg-cream-50/[0.03] px-5 py-4 text-base leading-relaxed text-cream-300/80 lg:max-w-xs">
             Для предварительного расчёта достаточно прислать проект или план, площадь, адрес и перечень нужных работ.
           </div>
         </div>
@@ -71,12 +75,12 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
             >
               <div className="flex items-start justify-between gap-4">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-cedar-300/75">{service.group}</span>
-                <span className="font-display text-xs text-cream-300/35">{String(index + 1).padStart(2, "0")}</span>
+                <span className="font-display text-xs text-cream-300/70">{String(index + 1).padStart(2, "0")}</span>
               </div>
               <h3 className="mt-5 font-display text-xl font-medium leading-tight text-cream-50">{service.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{service.text}</p>
+              <p className="mt-3 text-base leading-relaxed text-cream-300/80">{service.text}</p>
               <div className="mt-6 flex items-center justify-between gap-3 border-t border-cream-50/8 pt-4">
-                <span className="text-xs text-cream-300/55">{groupCopy[service.group]}</span>
+                <span className="text-xs text-cream-300/75">{groupCopy[service.group]}</span>
                 {service.accent && <span className="rounded-full bg-cedar-500/12 px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-cedar-300">{service.accent}</span>}
               </div>
             </article>
@@ -86,7 +90,7 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
         <div className="reveal mt-8 flex flex-col gap-3 rounded-3xl border border-cedar-400/20 bg-cedar-500/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="font-display text-lg text-cream-50">Нужен комплекс из нескольких направлений?</h3>
-            <p className="mt-1 text-sm text-cream-300/70">Опишите объект одним сообщением — разложим задачу по этапам и скажем, какие исходные данные нужны для расчёта.</p>
+            <p className="mt-1 text-base leading-relaxed text-cream-300/80">Опишите объект одним сообщением — разложим задачу по этапам и скажем, какие исходные данные нужны для расчёта.</p>
           </div>
           <LinkButton
             to={whatsappUrl("Здравствуйте! Нужен комплекс строительных работ. Хочу прислать данные объекта для предварительного расчёта.")}
@@ -144,15 +148,15 @@ export function ConstructionHome() {
 
               <dl className="reveal mt-10 grid max-w-2xl grid-cols-3 gap-3 border-t border-cream-50/10 pt-6" style={{ ["--reveal-delay" as string]: "280ms" }}>
                 <div>
-                  <dt className="text-[10px] uppercase tracking-[0.16em] text-cream-300/55">Направлений</dt>
+                  <dt className="text-[10px] uppercase tracking-[0.16em] text-cream-300/75">Направлений</dt>
                   <dd className="mt-1 font-display text-xl text-cream-50 sm:text-2xl">14</dd>
                 </div>
                 <div>
-                  <dt className="text-[10px] uppercase tracking-[0.16em] text-cream-300/55">Формат</dt>
+                  <dt className="text-[10px] uppercase tracking-[0.16em] text-cream-300/75">Формат</dt>
                   <dd className="mt-1 font-display text-base text-cream-50 sm:text-xl">под ключ / этап</dd>
                 </div>
                 <div>
-                  <dt className="text-[10px] uppercase tracking-[0.16em] text-cream-300/55">Объекты</dt>
+                  <dt className="text-[10px] uppercase tracking-[0.16em] text-cream-300/75">Объекты</dt>
                   <dd className="mt-1 font-display text-base text-cream-50 sm:text-xl">жилые / нежилые</dd>
                 </div>
               </dl>
@@ -204,7 +208,7 @@ export function ConstructionHome() {
             <article className="reveal rounded-3xl border border-bark-950/10 bg-white p-6 sm:p-7">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Под ключ</p>
               <h3 className="mt-4 font-display text-2xl font-medium">Один подрядчик на весь контур</h3>
-              <ul className="mt-6 space-y-4 text-sm leading-relaxed text-bark-700">
+              <ul className="mt-6 space-y-4 text-base leading-relaxed text-bark-700">
                 {["Комплектуем этапы в одну последовательность работ", "Сводим конструктив, коробку и отделочные этапы", "Согласуем объём и точки приёмки до начала работ"].map((item) => (
                   <li key={item} className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-moss-600" />{item}</li>
                 ))}
@@ -213,7 +217,7 @@ export function ConstructionHome() {
             <article className="reveal rounded-3xl border border-bark-950/10 bg-bark-900 p-6 text-cream-50 sm:p-7" style={{ ["--reveal-delay" as string]: "80ms" }}>
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Отдельный этап</p>
               <h3 className="mt-4 font-display text-2xl font-medium">Подключаемся там, где нужны руки и технология</h3>
-              <ul className="mt-6 space-y-4 text-sm leading-relaxed text-cream-300/80">
+              <ul className="mt-6 space-y-4 text-base leading-relaxed text-cream-200/85">
                 {["Монолит и кладка", "Штукатурка, стяжка и промышленные полы", "Металл, кровля, фасад или демонтаж"].map((item) => (
                   <li key={item} className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-cedar-300" />{item}</li>
                 ))}
@@ -235,7 +239,7 @@ export function ConstructionHome() {
               <li key={step.n} className="reveal bg-bark-900 p-6" style={{ ["--reveal-delay" as string]: `${index * 70}ms` }}>
                 <span className="font-display text-sm text-cedar-300">{step.n}</span>
                 <h3 className="mt-6 font-display text-lg leading-tight text-cream-50">{step.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-cream-300/70">{step.text}</p>
+                <p className="mt-3 text-base leading-relaxed text-cream-300/80">{step.text}</p>
               </li>
             ))}
           </ol>
@@ -250,7 +254,7 @@ export function ConstructionHome() {
               title={<span id="specialties-title">Штукатурка и стяжка — отдельно или в составе комплекса</span>}
               lead="Выполняем механизированную штукатурку и полусухую стяжку как самостоятельные работы для квартир, домов и коммерческих объектов."
             />
-            <p className="reveal max-w-xl text-sm leading-relaxed text-cream-300/70 lg:justify-self-end">
+            <p className="reveal max-w-xl text-base leading-relaxed text-cream-300/80 lg:justify-self-end">
               Для крупных объектов эти работы можно включать в общий комплекс. Для частного заказчика — заказывать отдельно, без строительства всего здания.
             </p>
           </div>
@@ -258,7 +262,7 @@ export function ConstructionHome() {
           <div className="mt-12 grid gap-5 lg:grid-cols-2">
             <Link to="/mehanizirovannaya-shtukaturka-omsk/" data-qa="specialty-card" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900">
               <div className="aspect-[16/9] overflow-hidden bg-bark-800">
-                <img src={plasterPhoto} alt="Мастер наносит штукатурку на стену" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" width={1200} height={675} />
+                <img src={plasterPhoto} srcSet={plasterPhotoSrcSet} sizes="(min-width: 1024px) 50vw, 100vw" alt="Мастер наносит штукатурку на стену" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" width={1200} height={675} />
               </div>
               <div className="p-6 sm:p-7">
                 <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Отделка стен</p>
@@ -266,13 +270,13 @@ export function ConstructionHome() {
                   <h3 className="font-display text-2xl text-cream-50">Механизированная штукатурка</h3>
                   <ArrowIcon className="shrink-0 text-cedar-300" />
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-cream-300/70">Машинное нанесение и выравнивание стен с расчётом по площади, состоянию основания и условиям объекта.</p>
+                <p className="mt-3 text-base leading-relaxed text-cream-300/80">Машинное нанесение и выравнивание стен с расчётом по площади, состоянию основания и условиям объекта.</p>
               </div>
             </Link>
 
             <Link to="/polusuhaya-styazhka-omsk/" data-qa="specialty-card" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900" style={{ ["--reveal-delay" as string]: "80ms" }}>
               <div className="aspect-[16/9] overflow-hidden bg-bark-800">
-                <img src={screedPhoto} alt="Строители выравнивают бетонное основание пола" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" width={1200} height={675} />
+                <img src={screedPhoto} srcSet={screedPhotoSrcSet} sizes="(min-width: 1024px) 50vw, 100vw" alt="Строители выравнивают бетонное основание пола" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" width={1200} height={675} />
               </div>
               <div className="p-6 sm:p-7">
                 <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Подготовка пола</p>
@@ -280,7 +284,7 @@ export function ConstructionHome() {
                   <h3 className="font-display text-2xl text-cream-50">Полусухая стяжка</h3>
                   <ArrowIcon className="shrink-0 text-cedar-300" />
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-cream-300/70">Ровное основание под напольные покрытия с механизированной подачей смеси и выравниванием по отметкам.</p>
+                <p className="mt-3 text-base leading-relaxed text-cream-300/80">Ровное основание под напольные покрытия с механизированной подачей смеси и выравниванием по отметкам.</p>
               </div>
             </Link>
           </div>
