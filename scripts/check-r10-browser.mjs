@@ -68,7 +68,7 @@ async function checkConstructionUx(page, label, { touch = false } = {}) {
   }
 
   const lowContrastUtility = await page.locator('body').evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>('[class]')]
+    [...document.querySelectorAll('[class]')]
       .filter((el) => {
         const style = getComputedStyle(el);
         const rect = el.getBoundingClientRect();
