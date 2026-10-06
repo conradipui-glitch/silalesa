@@ -144,7 +144,7 @@ export function ConstructionHeader() {
       </div>
 
       {open && (
-        <div ref={menu} id="construction-mobile-menu" className="fixed inset-x-0 bottom-0 top-16 z-40 block overflow-y-auto bg-bark-900/98 backdrop-blur-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Меню">
+        <div ref={menu} id="construction-mobile-menu" className="fixed inset-x-0 top-16 z-40 block h-[calc(100dvh-4rem)] overflow-y-auto bg-bark-900/98 backdrop-blur-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Меню">
           <nav className="flex flex-col px-6 py-6" aria-label="Разделы">
             {NAV.map((item, index) => (
               <Link
