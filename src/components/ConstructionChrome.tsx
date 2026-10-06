@@ -21,7 +21,7 @@ function ConstructionLogo({ compact = false }: { compact?: boolean }) {
         <span className="block font-display text-[15px] font-semibold tracking-tight text-cream-50 transition-colors group-hover:text-cedar-300 sm:text-base">
           СИЛА ЛЕСА
         </span>
-        <span className="mt-1 block text-[10px] uppercase tracking-[0.16em] text-cream-300/70 sm:text-[11px]">
+        <span className="mt-1 block text-[10px] uppercase tracking-[0.16em] text-cream-300/80 sm:text-[11px]">
           строительство под ключ · Омск
         </span>
       </span>
@@ -35,6 +35,7 @@ export function ConstructionHeader() {
   const { route } = useRouter();
   const firstLink = useRef<HTMLAnchorElement | null>(null);
   const burger = useRef<HTMLButtonElement | null>(null);
+  const menu = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -47,7 +48,37 @@ export function ConstructionHeader() {
     if (!open) return;
     document.body.style.overflow = "hidden";
     firstLink.current?.focus();
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = Array.from(
+        menu.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      ).filter((element) => element.offsetParent !== null);
+
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
@@ -75,14 +106,14 @@ export function ConstructionHeader() {
               {item.label}
             </Link>
           ))}
-          <Link to="/mobilnaya-banya-omsk/" className="rounded-full px-3 py-2 text-[13.5px] text-cream-300/60 transition-colors hover:bg-cream-50/6 hover:text-cream-50">
+          <Link to="/mobilnaya-banya-omsk/" className="rounded-full px-3 py-2 text-[13.5px] text-cream-300/80 transition-colors hover:bg-cream-50/6 hover:text-cream-50">
             Бани
           </Link>
         </nav>
         <div data-qa="header-actions" className="flex items-center gap-2">
           <a
             href={`tel:${company.phonePrimary.tel}`}
-            className="hidden items-center gap-2 px-2 text-sm text-cream-100 transition-colors hover:text-cedar-300 md:inline-flex"
+            className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-sm text-cream-100 transition-colors hover:text-cedar-300 md:inline-flex"
             onClick={() => track("cta_click", { type: "call", where: "construction-header" })}
           >
             <PhoneIcon /> {company.phonePrimary.display}
@@ -91,7 +122,7 @@ export function ConstructionHeader() {
             to={wa}
             external
             size="sm"
-            className="hidden sm:inline-flex"
+            className="hidden h-11 sm:inline-flex"
             onClick={() => track("cta_click", { type: "whatsapp", where: "construction-header" })}
           >
             Обсудить объект
@@ -99,7 +130,7 @@ export function ConstructionHeader() {
           <button
             ref={burger}
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream-50/15 text-cream-50 xl:hidden"
+            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-cream-50/15 text-cream-50 xl:hidden"
             aria-expanded={open}
             aria-controls="construction-mobile-menu"
             aria-label={open ? "Закрыть меню" : "Открыть меню"}
@@ -113,7 +144,7 @@ export function ConstructionHeader() {
       </div>
 
       {open && (
-        <div id="construction-mobile-menu" className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto bg-bark-900/98 backdrop-blur-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Меню">
+        <div ref={menu} id="construction-mobile-menu" className="fixed inset-x-0 bottom-0 top-16 z-40 overflow-y-auto bg-bark-900/98 backdrop-blur-xl xl:hidden" role="dialog" aria-modal="true" aria-label="Меню">
           <nav className="flex flex-col px-6 py-6" aria-label="Разделы">
             {NAV.map((item, index) => (
               <Link
@@ -133,10 +164,10 @@ export function ConstructionHeader() {
             </Link>
           </nav>
           <div className="space-y-3 px-6 pb-10">
-            <a href={`tel:${company.phonePrimary.tel}`} className="flex items-center gap-3 text-lg text-cream-50">
+            <a href={`tel:${company.phonePrimary.tel}`} className="flex min-h-11 items-center gap-3 text-lg text-cream-50">
               <PhoneIcon className="text-cedar-400" /> {company.phonePrimary.display}
             </a>
-            <a href={`tel:${company.phoneSecondary.tel}`} className="flex items-center gap-3 text-lg text-cream-50">
+            <a href={`tel:${company.phoneSecondary.tel}`} className="flex min-h-11 items-center gap-3 text-lg text-cream-50">
               <PhoneIcon className="text-cedar-400" /> {company.phoneSecondary.display}
             </a>
             <LinkButton to={wa} external size="md" className="mt-4 w-full" onClick={() => setOpen(false)}>
@@ -177,7 +208,7 @@ export function ConstructionFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 pt-12 sm:px-6 md:grid-cols-[1.35fr_1fr_1fr] lg:px-8">
         <div>
           <ConstructionLogo />
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-cream-300/70">
+          <p className="mt-5 max-w-md text-base leading-relaxed text-cream-300/80">
             {company.fullName}. Строительство жилых и нежилых объектов, коттеджей и ангаров, а также отдельные этапы — от монолита и кладки до фасадов, кровли и полов.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
@@ -187,14 +218,14 @@ export function ConstructionFooter() {
             <a href={company.site} target="_blank" rel="noopener noreferrer" className="text-sm text-cedar-300 hover:text-cedar-200">
               silalesa55.ru
             </a>
-            <Link to="/mobilnaya-banya-omsk/" className="text-sm text-cream-300/70 hover:text-cream-50">
+            <Link to="/mobilnaya-banya-omsk/" className="text-sm text-cream-300/80 hover:text-cream-50">
               Мобильные бани
             </Link>
           </div>
         </div>
 
         <div>
-          <h3 className="text-xs uppercase tracking-[0.2em] text-cream-300/60">Разделы</h3>
+          <h3 className="text-xs uppercase tracking-[0.2em] text-cream-300/80">Разделы</h3>
           <ul className="mt-4 space-y-2">
             {NAV.map((item) => (
               <li key={item.id}>
@@ -211,14 +242,14 @@ export function ConstructionFooter() {
           <h3 className="text-xs uppercase tracking-[0.2em] text-cream-300/60">Связаться</h3>
           <ul className="mt-4 space-y-2 text-sm text-cream-200/80">
             <li><a href={`tel:${company.phonePrimary.tel}`} className="hover:text-cream-50">{company.phonePrimary.display}</a></li>
-            <li><a href={`tel:${company.phoneSecondary.tel}`} className="hover:text-cream-50">{company.phoneSecondary.display}</a> <span className="text-cream-300/60">— {company.phoneSecondary.person}</span></li>
-            <li className="pt-2 text-cream-300/70">{company.city}</li>
+            <li><a href={`tel:${company.phoneSecondary.tel}`} className="hover:text-cream-50">{company.phoneSecondary.display}</a> <span className="text-cream-300/80">— {company.phoneSecondary.person}</span></li>
+            <li className="pt-2 text-cream-300/80">{company.city}</li>
             <li><a href={wa} target="_blank" rel="noopener noreferrer" className="text-cedar-300 hover:text-cedar-200">Обсудить объект в WhatsApp</a></li>
           </ul>
         </div>
       </div>
 
-      <div className="mx-auto mt-10 flex max-w-7xl flex-col justify-between gap-3 border-t border-cream-50/8 px-4 pt-6 text-xs text-cream-300/50 sm:flex-row sm:px-6 lg:px-8">
+      <div className="mx-auto mt-10 flex max-w-7xl flex-col justify-between gap-3 border-t border-cream-50/8 px-4 pt-6 text-xs text-cream-300/80 sm:flex-row sm:px-6 lg:px-8">
         <span>© {new Date().getFullYear()} «Сила Леса», Омск.</span>
         <span>Стоимость и сроки рассчитываются после уточнения объёма, проекта и условий объекта.</span>
       </div>
