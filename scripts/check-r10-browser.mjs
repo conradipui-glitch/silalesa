@@ -124,7 +124,13 @@ async function checkConstructionKeyboard() {
   const burger = page.locator('header button[aria-controls="construction-mobile-menu"]');
   await burger.click();
   const dialog = page.locator('#construction-mobile-menu');
-  await dialog.waitFor({ state: 'visible' });
+  await dialog.waitFor({ state: 'attached' });
+  const dialogState = await dialog.evaluate((el) => {
+    const style = getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    return { display: style.display, visibility: style.visibility, width: Math.round(rect.width), height: Math.round(rect.height) };
+  });
+  assert.ok(dialogState.display !== 'none' && dialogState.visibility !== 'hidden' && dialogState.width > 0 && dialogState.height > 0, `Mobile menu is visibly rendered: ${JSON.stringify(dialogState)}`);
 
   const focusable = dialog.locator('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
   const count = await focusable.count();
