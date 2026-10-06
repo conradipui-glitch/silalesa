@@ -130,7 +130,7 @@ export function ConstructionHeader() {
           <button
             ref={burger}
             type="button"
-            className="inline-flex h-11 w-11 touch-manipulation items-center justify-center rounded-full border border-cream-50/15 text-cream-50 xl:hidden"
+            className="inline-flex h-11 w-11 cursor-pointer touch-manipulation items-center justify-center rounded-full border border-cream-50/15 text-cream-50 xl:hidden"
             aria-expanded={open}
             aria-controls="construction-mobile-menu"
             aria-label={open ? "Закрыть меню" : "Открыть меню"}
@@ -239,7 +239,7 @@ export function ConstructionFooter() {
         </div>
 
         <div>
-          <h3 className="text-xs uppercase tracking-[0.2em] text-cream-300/60">Связаться</h3>
+          <h3 className="text-xs uppercase tracking-[0.2em] text-cream-300/80">Связаться</h3>
           <ul className="mt-4 space-y-2 text-sm text-cream-200/80">
             <li><a href={`tel:${company.phonePrimary.tel}`} className="hover:text-cream-50">{company.phonePrimary.display}</a></li>
             <li><a href={`tel:${company.phoneSecondary.tel}`} className="hover:text-cream-50">{company.phoneSecondary.display}</a> <span className="text-cream-300/80">— {company.phoneSecondary.person}</span></li>
