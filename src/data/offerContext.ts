@@ -1,4 +1,6 @@
-import demand from "./seasonal-demand.json";
+import demandFile from "./seasonal-demand.json";
+
+const demand = demandFile as { verified: boolean; region: string; source: string | null; period: string | null; leaderByMonth: Record<string, string> };
 
 /**
  * Every explicit focus must correspond to an actual service on the homepage.
