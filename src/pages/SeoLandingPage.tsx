@@ -194,7 +194,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         <div className="mt-8 grid items-center gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-14">
           <div className="reveal">
             <p className="text-xs uppercase tracking-[0.22em] text-cedar-300">{page.eyebrow}</p>
-            <h1 className="mt-4 max-w-3xl font-display text-[34px] font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[58px]">{page.h1}</h1>
+            <h1 className="mt-4 max-w-3xl font-display text-[34px] font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] sm:text-5xl lg:text-[58px]">{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
 
             {isPlasterGuide && (
