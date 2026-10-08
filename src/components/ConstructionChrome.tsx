@@ -204,14 +204,6 @@ export function ConstructionFooter() {
           <p className="mt-5 max-w-md text-base leading-relaxed text-cream-300/80">
             {company.fullName}. Строительные работы в Омске: монолит, кладка, отделка, полы, металл, кровля, фасады и демонтаж. Также можно обсудить комплексное строительство объекта.
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <a href={company.vk} target="_blank" rel="noopener noreferrer" className="text-sm text-cedar-300 hover:text-cedar-200">
-              VK
-            </a>
-            <a href={company.site} target="_blank" rel="noopener noreferrer" className="text-sm text-cedar-300 hover:text-cedar-200">
-              silalesa55.ru
-            </a>
-          </div>
         </div>
 
         <div>
