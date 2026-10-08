@@ -60,6 +60,36 @@ async function checkConstructionLayout(page, label) {
 }
 
 
+
+async function checkServiceDiscovery(page, label) {
+  const groups = page.locator('#services [data-qa="service-group"]');
+  assert.equal(await groups.count(), 4, `${label}: services are grouped into four customer-readable categories`);
+
+  const distribution = [];
+  for (const group of await groups.all()) {
+    distribution.push(await group.locator('article').count());
+  }
+  assert.deepEqual(distribution, [4, 3, 4, 3], `${label}: all 14 directions remain visible in correct groups`);
+
+  const navLinks = page.locator('#services nav[aria-label="Группы строительных работ"] a');
+  assert.equal(await navLinks.count(), 4, `${label}: service group navigation is available`);
+  const targets = await navLinks.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
+  assert.deepEqual(targets, ['#services-general', '#services-structure', '#services-finishing', '#services-special'], `${label}: group navigation uses real in-page anchors`);
+
+  const serviceLinks = page.locator('#services [data-qa="service-group"] article a');
+  assert.equal(await serviceLinks.count(), 14, `${label}: every construction direction has an action`);
+  const linkKinds = await serviceLinks.evaluateAll((els) => els.map((el) => ({
+    href: el.getAttribute('href') || '',
+    label: el.getAttribute('aria-label') || '',
+    height: Math.round(el.getBoundingClientRect().height),
+  })));
+  assert.equal(linkKinds.filter((entry) => entry.href.startsWith('https://wa.me/')).length, 12, `${label}: 12 directions open a service-specific consultation`);
+  assert.equal(linkKinds.filter((entry) => /mehanizirovannaya-shtukaturka-omsk|polusuhaya-styazhka-omsk/.test(entry.href)).length, 2, `${label}: two detailed service pages remain linked`);
+  assert.ok(linkKinds.every((entry) => entry.height >= 44 && entry.label.length > 15), `${label}: every service action has a readable, accessible 44px target`);
+  assert.equal(await page.locator('#process ol > li').count(), 6, `${label}: five process steps plus clear contact action`);
+  console.log('CHROMIUM_SERVICE_DISCOVERY_PASS', label, distribution);
+}
+
 async function checkConstructionUx(page, label, { touch = false } = {}) {
   const serviceBody = page.locator('#services article > p');
   if (await serviceBody.count()) {
@@ -179,6 +209,7 @@ async function checkHomepageViewport(label, contextOptions) {
   page.on('pageerror', error => failures.push(`${label}: ${error.message}`));
   await visit(page, '', `${label}: homepage visual QA`);
   await checkConstructionLayout(page, label);
+  await checkServiceDiscovery(page, label);
   await checkConstructionUx(page, label, { touch: Boolean(contextOptions.isMobile || contextOptions.hasTouch) });
   const hero = page.locator('img[data-construction-hero]');
   await hero.evaluate((img) => img.decode());
