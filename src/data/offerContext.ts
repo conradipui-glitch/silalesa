@@ -1,4 +1,5 @@
 import demandFile from "./seasonal-demand.json";
+import offerContextsData from "./offer-contexts.json";
 
 const demand = demandFile as { verified: boolean; region: string; source: string | null; period: string | null; leaderByMonth: Record<string, string> };
 
@@ -7,22 +8,7 @@ const demand = demandFile as { verified: boolean; region: string; source: string
  * Parameters are editorial navigation hints, not organic-search keyword detection.
  * Changing an H1 here does not change the canonical URL or SEO metadata.
  */
-export const offerContexts = {
-  cottages: { title: "Коттеджи под ключ", subtitle: "Строительство частного дома: обсудим проект, объём, последовательность работ и исходные условия участка." },
-  monolith: { title: "Монолитные работы", subtitle: "Фундаменты, плиты, колонны, стены и перекрытия по проекту — отдельно или в составе строительного комплекса." },
-  masonry: { title: "Кладочные работы", subtitle: "Кирпич, блок и другие материалы. Определим объёмы кладки, условия площадки и требования по проекту." },
-  plaster: { title: "Механизированная штукатурка", subtitle: "Выравнивание стен на жилых и коммерческих объектах. Для расчёта важны площадь, основание, слой и доступ." },
-  screed: { title: "Полусухая стяжка", subtitle: "Механизированное устройство основания пола. Уточним площадь, конструкцию, этаж, подачу смеси и покрытие." },
-  "concrete-screed": { title: "Бетонная стяжка", subtitle: "Устройство бетонного основания с учётом предполагаемой нагрузки, толщины и условий эксплуатации." },
-  topping: { title: "Промышленные полы (топпинг)", subtitle: "Упрочнённые бетонные полы для складов, цехов и других объектов. Расчёт зависит от нагрузок и проекта." },
-  metalworks: { title: "Металлоконструкции", subtitle: "Металлические каркасы и элементы: обсудим изготовление, монтаж и требования проектной документации." },
-  hangars: { title: "Строительство ангаров", subtitle: "Каркас и ограждающие конструкции для складских и производственных зданий. Обсудим состав и этапы." },
-  multistory: { title: "Работы на многоэтажных объектах", subtitle: "Отдельные строительные этапы на многоэтажных объектах в рамках согласованного проекта и объёма." },
-  buildings: { title: "Жилое и нежилое строительство", subtitle: "Работы для жилых, коммерческих и производственных объектов — отдельные этапы или комплекс по задаче." },
-  demolition: { title: "Демонтажные работы", subtitle: "Разбор конструкций и подготовка площадки к ремонту, реконструкции или следующему этапу строительства." },
-  roofing: { title: "Кровельные работы", subtitle: "Монтаж и ремонт кровель, примыканий и водоотведения с учётом конструкции объекта." },
-  facades: { title: "Фасадные работы", subtitle: "Подготовка оснований, утепление и наружная отделка в соответствии с проектом и условиями площадки." },
-} as const;
+export const offerContexts = offerContextsData;
 
 export type OfferCode = keyof typeof offerContexts;
 export type OfferMode = "direct" | "verified-season" | "general";
