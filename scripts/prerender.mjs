@@ -171,6 +171,18 @@ function staticSnapshot(page) {
       : `<nav aria-label="Ещё полезные гайды"><h2>Другие полезные гайды</h2><ul>${pages.filter((guide) => guide.kind === "guide" && guide.slug !== page.slug && guide.slug !== REPAIR_GUIDE_SLUG && guide.slug !== SCREED_GUIDE_SLUG && guide.slug !== PLASTER_GUIDE_SLUG && guide.slug !== MATERIAL_GUIDE_SLUG).map((guide) => `<li><a href="${SITE_URL}${guide.slug}/">${escapeHtml(guide.h1)}</a></li>`).join("")}</ul></nav><p><a href="${SITE_URL}${guideTarget.path}/">${escapeHtml(guideTarget.label)}</a></p>`
     : "";
 
+  // The same short informational paths are visible to crawlers without JavaScript.
+  const repairGuideNeighbors = {
+    "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka": ["guides/remont/gipsovaya-ili-tsementnaya-shtukaturka", "guides/remont/shtukaturka-ili-styazhka-chto-snachala"],
+    "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka": ["guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka"],
+    "guides/remont/polusuhaya-ili-mokraya-styazhka": ["guides/remont/shtukaturka-ili-styazhka-chto-snachala"],
+    "guides/remont/shtukaturka-ili-styazhka-chto-snachala": ["guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka", "guides/remont/polusuhaya-ili-mokraya-styazhka"],
+  };
+  const neighborSlugs = repairGuideNeighbors[page.slug] ?? [];
+  const repairGuideLinks = neighborSlugs.length
+    ? `<nav aria-label="Материалы по теме"><h2>Читайте также</h2><ul>${neighborSlugs.map((slug) => { const item = pages.find((page) => page.slug === slug); if (!item) throw new Error(`Missing related SEO page: ${slug}`); return `<li><a href="${SITE_URL}${slug}/">${escapeHtml(item.h1)}</a></li>`; }).join("")}</ul></nav>`
+    : "";
+
   const printLink = isGuide && page.printChecklistPath && !operation.hasSteps
     ? `<p><a href="${SITE_URL}${page.printChecklistPath}/">Открыть чек-лист для печати</a></p>`
     : "";
@@ -221,7 +233,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
