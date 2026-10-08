@@ -33,7 +33,7 @@ assert(config.includes('Number.isInteger(s.lamps)') && config.includes('doorOpti
 if (constructionMode) assert(root.includes('<ConstructionHome />') && root.includes('<ConstructionServicesPage />'), 'Construction journeys are mounted');
 else assert(root.includes('<Configurator model=') && root.includes('<Quiz setModel='), 'Both interactive sauna journeys remain mounted');
 assert(home.includes('data-prerendered="true"') && home.includes('WhatsApp'), 'Published homepage still useful without JavaScript');
-if (constructionMode) assert(home.includes('Строительство под ключ') && home.includes('Монолитные работы'), 'Construction-first static homepage');
+if (constructionMode) assert(home.includes('Строительные работы в Омске') && home.includes('Монолитные работы'), 'Construction-first static homepage');
 else assert(home.includes('230'), 'Sauna entry price remains visible in static homepage');
 assert.equal((read('dist/sitemap.xml').match(/<loc>/g) ?? []).length, 22, 'No SEO URL regression');
 

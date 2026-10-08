@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "region": "Омская область",
+  "verified": false,
+  "source": null,
+  "period": null,
+  "computedAt": null,
+  "leaderByMonth": {},
+  "note": "Seasonal offer is disabled until verified regional monthly demand is imported with scripts/compile-seasonal-demand.mjs"
+}

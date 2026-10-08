@@ -22,7 +22,7 @@ function ConstructionLogo({ compact = false }: { compact?: boolean }) {
           СИЛА ЛЕСА
         </span>
         <span className="mt-1 block text-[10px] uppercase tracking-[0.16em] text-cream-300/80 sm:text-[11px]">
-          строительство под ключ · Омск
+          строительные работы · Омск
         </span>
       </span>
     </Link>
@@ -209,7 +209,7 @@ export function ConstructionFooter() {
         <div>
           <ConstructionLogo />
           <p className="mt-5 max-w-md text-base leading-relaxed text-cream-300/80">
-            {company.fullName}. Строительство жилых и нежилых объектов, коттеджей и ангаров, а также отдельные этапы — от монолита и кладки до фасадов, кровли и полов.
+            {company.fullName}. Строительные работы в Омске: монолит, кладка, отделка, полы, металл, кровля, фасады и демонтаж. Также можно обсудить комплексное строительство объекта.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <a href={company.vk} target="_blank" rel="noopener noreferrer" className="text-sm text-cedar-300 hover:text-cedar-200">

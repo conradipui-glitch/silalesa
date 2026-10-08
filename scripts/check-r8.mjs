@@ -46,7 +46,7 @@ assert(html.includes('<link rel="canonical" href="' + base + '"') && html.includ
 assert(html.includes('https://wa.me/' + phone + '?text=') && html.includes('tel:+79136884533'), 'No-JS contact paths');
 const homeBody = html.slice(html.indexOf('<div id="root" data-prerendered="true">'));
 if (constructionMode) {
-  assert(html.includes('<h1>Строительство под ключ в Омске — от коттеджа до многоэтажного объекта</h1>'), 'Construction-first no-JS H1');
+  assert(html.includes('<h1>Строительные работы в Омске</h1>'), 'Construction-first no-JS H1');
   assert(html.includes('Коттеджи под ключ') && html.includes('Монолитные работы') && html.includes('Промышленные полы (топпинг)'), 'Construction directions in no-JS home');
   assert(homeBody.indexOf('<h1>') < homeBody.indexOf('<h2>Основные направления') && homeBody.indexOf('Обсудить строительный объект в WhatsApp') < homeBody.indexOf('<h2>Основные направления'), 'Construction CTA precedes service list');
 } else {
@@ -74,7 +74,7 @@ for (const slug of rootLinkedRoutes) {
 assert(!html.includes('href="/product/'), 'No old numeric product links from home');
 const sitemap = read('dist/sitemap.xml');
 assert.equal((sitemap.match(/<loc>/g) ?? []).length, 22, 'All 22 canonical URLs retained');
-if (constructionMode) assert(read('index.html').includes('Сила Леса — строительство под ключ в Омске'), 'Construction social preview is primary');
+if (constructionMode) assert(read('index.html').includes('Сила Леса — строительные работы в Омске'), 'Construction social preview is primary');
 else assert(read('index.html').includes('Квадро 2×2 от 230 000 ₽; каркасная'), 'Social preview does not misattribute entry price');
 const assets = {k2:'kvadro-2x2-example.webp',k3:'kvadro-3x2-example.webp',k4:'kvadro-4x2-example.webp',f55:'karkasnaya-5-5-example.webp'};
 assert(homeFallback(models, assets, base, phone, '+79136884533', 'Омск, ул. Нефтезаводская, 49/1').includes('Квадро 2×2'), 'Fallback is derived from model registry');

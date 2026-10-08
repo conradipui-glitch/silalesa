@@ -2,6 +2,7 @@ import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon, SectionHead } from "../com
 import { company, whatsappUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
+import { getHomepageOffer } from "../data/offerContext";
 const heroConstruction = `${import.meta.env.BASE_URL}assets/construction-hero-mixed.webp`;
 const plasterPhotoBase = "https://images.unsplash.com/photo-1761986757577-140af8859587?auto=format&fit=crop&fm=webp&q=80";
 const screedPhotoBase = "https://images.unsplash.com/photo-1743130940796-7a8e6e8b998e?auto=format&fit=crop&fm=webp&q=80";
@@ -169,6 +170,12 @@ export function ConstructionServicesPage() {
 }
 
 export function ConstructionHome() {
+  const offer = getHomepageOffer(typeof window === "undefined" ? "" : window.location.search);
+  const serviceName = offer.title.replace(/ в Омске$/, "");
+  const ctaMessage = offer.code
+    ? `Здравствуйте! Интересует услуга «${serviceName}» в Омске. Хочу обсудить объём работ и предварительный расчёт.`
+    : "Здравствуйте! Нужны строительные работы в Омске. Хочу обсудить конкретные этапы и предварительный расчёт.";
+
   return (
     <>
       <section className="relative overflow-hidden bg-bark-900 pb-10 pt-24 sm:pb-12 sm:pt-28 lg:pt-32" aria-labelledby="construction-hero-title">
@@ -178,31 +185,37 @@ export function ConstructionHome() {
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-10 xl:grid-cols-[1.04fr_.96fr] xl:gap-12">
-            <div data-qa="hero-copy">
+            <div data-qa="hero-copy" data-offer-mode={offer.mode} data-offer-code={offer.code ?? "all"}>
               <p className="reveal flex items-center gap-3 text-xs uppercase tracking-[0.22em] text-cedar-300/90">
                 <span className="h-px w-8 bg-cedar-400" aria-hidden="true" />
-                Омск · строительные работы полного цикла
+                Омск · строительные работы · отдельные этапы и комплекс
               </p>
               <h1 id="construction-hero-title" className="reveal mt-6 text-balance font-display text-[36px] font-semibold leading-[1.03] tracking-tight text-cream-50 sm:text-5xl lg:text-[54px] xl:text-[62px]" style={{ ["--reveal-delay" as string]: "70ms" }}>
-                Строительство <span className="text-cedar-400">под ключ</span> — от коттеджа до многоэтажного объекта
+                <span data-qa="hero-offer-title">{serviceName}</span> <span className="text-cedar-400">в Омске</span>
               </h1>
               <p className="reveal mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg" style={{ ["--reveal-delay" as string]: "140ms" }}>
-                Строим жилые, коммерческие и производственные объекты: берём весь комплекс работ или подключаемся на нужном этапе — от монолита и кладки до фасада, кровли и чистого основания под отделку.
+                {offer.subtitle}
               </p>
 
               <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "210ms" }}>
                 <LinkButton
-                  to={whatsappUrl("Здравствуйте! Хочу обсудить строительный объект и получить предварительный расчёт.")}
+                  to={whatsappUrl(ctaMessage)}
                   external
                   size="lg"
-                  onClick={() => track("cta_click", { type: "whatsapp", where: "construction-hero" })}
+                  onClick={() => track("cta_click", { type: "whatsapp", where: "construction-hero", offerMode: offer.mode, service: offer.code ?? "all" })}
                 >
-                  Обсудить объект <ArrowIcon />
+                  {offer.code ? "Обсудить эту услугу" : "Запросить расчёт работ"} <ArrowIcon />
                 </LinkButton>
                 <LinkButton to="/#services" variant="ghost" size="lg" onClick={() => track("cta_click", { type: "services", where: "construction-hero" })}>
                   Все направления
                 </LinkButton>
               </div>
+
+              {offer.code && (
+                <p className="mt-5 max-w-xl text-sm leading-relaxed text-cream-300/80" data-qa="offer-context-note">
+                  Вы перешли по ссылке на конкретное направление. Другие строительные работы компании доступны в общем каталоге ниже.
+                </p>
+              )}
 
               <dl className="reveal mt-10 grid max-w-2xl grid-cols-3 gap-3 border-t border-cream-50/10 pt-6" style={{ ["--reveal-delay" as string]: "280ms" }}>
                 <div>
