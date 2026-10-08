@@ -429,6 +429,13 @@ async function run(label, contextOptions) {
   assert.ok(!/бан[ьяи]|квадро|саун/iu.test(screedCopy), `${label}: construction guide contains no sauna promotion`);
   await visit(page, 'guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/', `${label}: plaster comparison guide`);
   assert.ok((await page.locator('main').innerText()).includes('Для расчёта механизированной штукатурки в Омске пригодятся площадь и фото стен'), `${label}: plaster guide uses revised opening`);
+  // On mobile, innerWidth may grow to match an overflowing document: compare with clientWidth.
+  const guideFit = await page.evaluate(() => ({
+    document: document.documentElement.scrollWidth,
+    viewport: document.documentElement.clientWidth,
+    visual: window.visualViewport?.width,
+  }));
+  assert.ok(guideFit.document <= guideFit.viewport + 2, `${label}: long Russian plaster H1 must not widen the page: ${JSON.stringify(guideFit)}`);
   assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /SeoLandingPage-[\w-]+\.js/.test(name)), 'Construction landing component is fetched lazily');
   assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: screed article does not recommend archived saunas`);
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
