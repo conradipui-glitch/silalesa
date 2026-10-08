@@ -359,6 +359,18 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
 }
 
+// GitHub Pages serves missing paths using 404.html with a real 404 status.
+// Give expired sauna links a usable construction-only error page, not a false home.
+{
+  const notFoundMarkup = `<div id="root"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><h1>Такой страницы нет</h1><p>Адрес не найден. На этой версии сайта представлены только строительные работы.</p><p><a href="${SITE_URL}services/">Все строительные работы</a> · <a href="${SITE_URL}">На главную</a></p></main></div>`;
+  const notFoundHtml = template
+    .replace(/<title>[\\s\\S]*?<\\/title>/i, "<title>Страница не найдена — Сила Леса</title>")
+    .replace(/<meta name="robots" content="index, follow" \\/>/i, '<meta name="robots" content="noindex, follow" />')
+    .replace(/<link rel="canonical"[^>]*>/i, "")
+    .replace('<div id="root"></div>', notFoundMarkup);
+  await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
+}
+
 const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`)];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls
   .map((url) => `  <url><loc>${url}</loc></url>`)
