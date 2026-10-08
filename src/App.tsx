@@ -76,7 +76,8 @@ function ServicesScreen() {
 
 function ProductRoute({ id }: { id: string }) {
   const landing = landingByProductId[id];
-  return landing ? <SeoLandingPage key={landing.slug} slug={landing.slug} /> : <ProductPage key={id} id={id} />;
+  // Numeric service URLs still resolve; archived sauna product IDs do not.
+  return landing ? <SeoLandingPage key={landing.slug} slug={landing.slug} /> : <NotFound path={`/product/${id}`} />;
 }
 
 function Screen() {
