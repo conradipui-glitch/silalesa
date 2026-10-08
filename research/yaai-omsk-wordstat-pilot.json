@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "project": "Сила Леса",
+  "region": "Омская область",
+  "from": "2024-01-01",
+  "to": "2025-12-31",
+  "period": "PERIOD_MONTHLY",
+  "devices": [
+    "DEVICE_ALL"
+  ],
+  "researchStatus": "pilot-phrases-not-approved-for-auto-seasonality",
+  "notes": "One comparable seed phrase per service for a first-pass seasonal exploratory measurement. Counts are phrase-containing queries, not disjoint market demand; do not activate any seasonal offer without manual commercial-intent and overlap review.",
+  "services": [
+    {
+      "code": "cottages",
+      "phrase": "строительство коттеджей"
+    },
+    {
+      "code": "monolith",
+      "phrase": "монолитные работы"
+    },
+    {
+      "code": "masonry",
+      "phrase": "кладочные работы"
+    },
+    {
+      "code": "plaster",
+      "phrase": "механизированная штукатурка"
+    },
+    {
+      "code": "screed",
+      "phrase": "полусухая стяжка"
+    },
+    {
+      "code": "concrete-screed",
+      "phrase": "бетонная стяжка"
+    },
+    {
+      "code": "topping",
+      "phrase": "промышленные полы"
+    },
+    {
+      "code": "metalworks",
+      "phrase": "металлоконструкции на заказ"
+    },
+    {
+      "code": "hangars",
+      "phrase": "строительство ангаров"
+    },
+    {
+      "code": "multistory",
+      "phrase": "строительство многоэтажных зданий"
+    },
+    {
+      "code": "buildings",
+      "phrase": "строительство нежилых зданий"
+    },
+    {
+      "code": "demolition",
+      "phrase": "демонтажные работы"
+    },
+    {
+      "code": "roofing",
+      "phrase": "кровельные работы"
+    },
+    {
+      "code": "facades",
+      "phrase": "фасадные работы"
+    }
+  ]
+}
