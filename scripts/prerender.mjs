@@ -26,6 +26,7 @@ const basePages = [
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
+const constructionCatalog = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/construction-services.json"), "utf8"));
 const assets = await fs.readdir(path.join(DIST, "assets"));
 const modelAssets = Object.fromEntries([
   ["k2", "kvadro-2x2-"], ["k3", "kvadro-3x2-"], ["k4", "kvadro-4x2-"], ["f55", "karkasnaya-5-5-"],
@@ -62,22 +63,7 @@ const servicesHub = {
   description: "Строительные работы в Омске: коттеджи под ключ, монолит, кладка, ангары, металлоконструкции, штукатурка, стяжка, промышленные полы, кровля, фасады и демонтаж.",
   h1: "Строительные работы в Омске",
   lead: "Монолит, кладка, штукатурка, стяжка, промышленные полы и другие работы. Отдельные этапы — основной формат предложения; комплексное строительство тоже можно обсудить.",
-  directions: [
-    "Коттеджи под ключ",
-    "Жилое и нежилое строительство",
-    "Возведение многоэтажных сооружений и зданий",
-    "Строительство ангаров",
-    "Монолитные работы",
-    "Кладочные работы: блок, кирпич и другие материалы",
-    "Металлоконструкции",
-    "Механизированная штукатурка",
-    "Полусухая стяжка",
-    "Бетонная стяжка",
-    "Промышленные полы (топпинг)",
-    "Кровельные работы",
-    "Фасадные работы",
-    "Демонтажные работы",
-  ],
+  directions: constructionCatalog.map((service) => service.title),
 };
 
 function escapeHtml(value = "") {
@@ -242,7 +228,7 @@ function staticSnapshot(page) {
 
 function servicesSnapshot() {
   const canonical = `${SITE_URL}${servicesHub.slug}/`;
-  const directionItems = servicesHub.directions.map((name) => `<li>${escapeHtml(name)}</li>`).join("");
+  const directionItems = constructionCatalog.map((service) => `<li><strong>${escapeHtml(service.title)}</strong><p>${escapeHtml(service.text)}</p><p>Для первого расчёта: ${escapeHtml(service.requestHint)}.</p></li>`).join("");
   const items = servicePages
     .map(
       (page) => `<li><a href="${SITE_URL}${page.slug}/">${escapeHtml(page.h1)}</a><p>${escapeHtml(page.priceLabel ?? "")}</p><p>${escapeHtml(page.lead)}</p></li>`,
@@ -354,7 +340,7 @@ for (const page of pages.filter((entry) => entry.productId)) {
 
 // Give the construction-first home page a meaningful no-JS first answer.
 {
-  const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533");
+  const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533", constructionCatalog);
   if (!template.includes('<div id="root"></div>')) throw new Error('Home root placeholder missing');
   await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
 }
