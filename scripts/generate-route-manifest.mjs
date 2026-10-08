@@ -24,7 +24,10 @@ const originals = (await Promise.all(seoData.map(read))).flat();
 const overrides = (await Promise.all(overrideData.map(read))).flat();
 const overrideMap = new Map();
 for (const override of overrides) overrideMap.set(override.slug, {...overrideMap.get(override.slug), ...override});
-const pages = originals.map(page => ({...page, ...overrideMap.get(page.slug)}));
+// The construction branch publishes services and related guides only.
+const pages = originals
+  .filter(page => page.kind === 'service' || (page.kind === 'guide' && !page.slug.startsWith('guides/bani/')))
+  .map(page => ({...page, ...overrideMap.get(page.slug)}));
 const slugs = pages.map(page => page.slug);
 if (slugs.length !== new Set(slugs).size) throw new Error('Duplicate canonical SEO slugs');
 const landingByProductId = {};
