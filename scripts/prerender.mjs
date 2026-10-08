@@ -364,8 +364,8 @@ for (const page of pages.filter((entry) => entry.productId)) {
 {
   const notFoundMarkup = `<div id="root"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><h1>Такой страницы нет</h1><p>Адрес не найден. На этой версии сайта представлены только строительные работы.</p><p><a href="${SITE_URL}services/">Все строительные работы</a> · <a href="${SITE_URL}">На главную</a></p></main></div>`;
   const notFoundHtml = template
-    .replace(/<title>[\\s\\S]*?<\\/title>/i, "<title>Страница не найдена — Сила Леса</title>")
-    .replace(/<meta name="robots" content="index, follow" \\/>/i, '<meta name="robots" content="noindex, follow" />')
+    .replace(/<title>[\s\S]*?<\/title>/i, "<title>Страница не найдена — Сила Леса</title>")
+    .replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />')
     .replace(/<link rel="canonical"[^>]*>/i, "")
     .replace('<div id="root"></div>', notFoundMarkup);
   await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
