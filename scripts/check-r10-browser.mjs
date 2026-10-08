@@ -218,6 +218,50 @@ async function checkConstructionKeyboard() {
   await context.close();
 }
 
+async function checkSocialServiceBriefs() {
+  const context = await browser.newContext({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+  page.on("pageerror", (error) => failures.push(`social-brief: ${error.message}`));
+  await visit(page, "brief/roofing/", "social: roofing link");
+  assert.equal(await page.locator('[data-qa="social-brief"]').getAttribute("data-service-code"), "roofing");
+  assert.ok((await page.locator("main h1").innerText()).includes("Кровельные работы в Омске"), "Shareable service URL opens a focused micro page");
+  assert.equal(await page.locator("header").count(), 1, "Focused brief has compact own header, not the full company nav");
+  assert.equal(await page.locator("main").count(), 1, "Brief uses one main landmark");
+  assert.equal(await page.locator('meta[name="robots"]').getAttribute("content"), "noindex, follow", "Campaign microsite is not another SEO landing");
+
+  await page.locator("#brief-location").fill("Омск, Центральный округ");
+  await page.locator("#brief-volume").fill("135 м²");
+  await page.locator("#brief-timing").selectOption("В течение 1–3 месяцев");
+  await page.locator("#brief-details").fill("Есть проект и фото кровли");
+  const wa = page.locator('[data-qa="brief-whatsapp"]');
+  const url = new URL(await wa.getAttribute("href"));
+  const message = url.searchParams.get("text") || "";
+  for (const phrase of ["Кровельные работы", "Центральный округ", "135 м²", "1–3 месяцев", "Есть проект"]) {
+    assert.ok(message.includes(phrase), `WhatsApp prepared draft contains: ${phrase}`);
+  }
+  assert.ok((await page.locator('[data-qa="brief-message-preview"]').innerText()).includes("135 м²"), "Visitor can review the message locally");
+  assert.ok(url.host === "wa.me", "CTA only opens WhatsApp, no form transmission");
+
+  await page.locator("#brief-service").selectOption("monolith");
+  await page.waitForURL("**/brief/monolith/");
+  assert.ok((await page.locator("main h1").innerText()).includes("Монолитные работы"), "Changing service changes title and address");
+  assert.ok((await page.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).includes("monolith")===false, "WhatsApp uses Russian service text, not internal service code");
+  assert.ok((await page.locator("#brief-location").inputValue()).includes("Центральный"), "Switching service retains entered brief");
+  const fit = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
+  assert.ok(fit.scroll <= fit.width + 2, `No mobile overflow: ${JSON.stringify(fit)}`);
+  await context.close();
+
+  const desk = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const desktop = await desk.newPage();
+  await visit(desktop, "brief/", "social: general link");
+  assert.equal(await desktop.locator("#brief-service option").count(), 15, "General microsite exposes 14 services plus mixed task");
+  assert.ok((await desktop.locator("main h1").innerText()).includes("Строительные работы"), "General microsite is coherent on desktop");
+  const desktopFit = await desktop.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
+  assert.ok(desktopFit.scroll <= desktopFit.width + 2, "No desktop overflow");
+  console.log("CHROMIUM_SOCIAL_BRIEF_PASS: direct mobile and desktop URLs, own OG/noindex metadata, live service select, editable WhatsApp draft");
+  await desk.close();
+}
+
 async function checkReducedMotion() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
   const page = await context.newPage();
@@ -375,6 +419,7 @@ try {
   await run('mobile', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
   await checkConstructionKeyboard();
   await checkIntentAwareHomepage();
+  await checkSocialServiceBriefs();
   await checkReducedMotion();
   assert.deepEqual(failures, [], 'No uncaught browser JS errors');
   console.log('R10 BROWSER PASS: Chromium visual/UX checks at 375/390/768/844x390/1024/1440/1800, focus trap, reduced motion, touch targets, responsive images, lazy SEO and routes');
