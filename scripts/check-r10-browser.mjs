@@ -269,6 +269,21 @@ async function checkSocialServiceBriefs() {
 
   const desktopFit = await desktop.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   assert.ok(desktopFit.scroll <= desktopFit.width + 2, "No desktop overflow");
+  await visit(desktop, "brief/roofing/?utm_source=telegram&utm_medium=post&utm_campaign=roof_oct26", "social: tagged roofing");
+  const taggedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
+  assert.ok(taggedMessage.includes("Публикация: Telegram / roof_oct26."), "Published campaign label is included in visitor-reviewed WhatsApp draft");
+  await desktop.locator("#brief-service").selectOption("facades");
+  await desktop.waitForURL("**/brief/facades/?utm_source=telegram&utm_medium=post&utm_campaign=roof_oct26");
+  const switchedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
+  assert.ok(switchedMessage.includes("Фасадные работы") && switchedMessage.includes("Публикация: Telegram / roof_oct26."), "Campaign survives service selection, service remains accurate");
+  await visit(desktop, "brief/screed/?utm_source=unexpected&utm_campaign=hacker", "social: untrusted source");
+  const untrustedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
+  assert.ok(!untrustedMessage.includes("Публикация:"), "Unknown UTM source cannot inject attribution into WhatsApp");
+  await visit(desktop, "brief/roofing/?utm_source=vk&utm_campaign=%0Asecret", "social: rejected campaign");
+  const rejectedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
+  assert.ok(rejectedMessage.includes("Публикация: ВКонтакте.") && !rejectedMessage.includes("secret"), "Malicious or personal campaign values are rejected");
+  console.log("CHROMIUM_CAMPAIGN_TAG_PASS: Telegram/VK, service changes, missing/invalid labels, opt-in draft parity");
+
   console.log("CHROMIUM_SOCIAL_BRIEF_PASS: direct mobile and desktop URLs, own OG/noindex metadata, live service select, editable WhatsApp draft");
   await desk.close();
 }
