@@ -415,16 +415,15 @@ async function run(label, contextOptions) {
       console.log('CHROMIUM_CONSTRUCTION_HOME_PASS', fit);
     }
   }
-  await visit(page, 'mobilnaya-banya-omsk/', `${label}: catalogue`);
-  await visit(page, 'banya-kvadro-3x2-omsk/', `${label}: product`);
-  assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: sauna prices are explicitly flagged for reconfirmation`);
-  assert.equal(await page.locator('a[href$="/#quiz"]').count(), 0, `${label}: obsolete quiz link does not appear on sauna landing`);
-  await visit(page, 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/', `${label}: guide`);
-  assert.equal(await page.locator('aside[aria-label="О характере материала"]').count(), 1, `${label}: article has information-scope disclaimer`);
-  assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /seoPages-[\w-]+\.js/.test(name)), 'SEO registry is fetched on landing routes');
+  assert.equal(await page.locator('header a[href*="banya"], footer a[href*="banya"], nav a[href*="banya"]').count(), 0, `${label}: construction navigation does not promote archived saunas`);
+  await visit(page, 'guides/remont/polusuhaya-ili-mokraya-styazhka/', `${label}: screed guide`);
+  assert.equal(await page.locator('aside[aria-label="О характере материала"]').count(), 1, `${label}: guide has an information-scope note`);
+  assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /seoPages-[\w-]+\.js/.test(name)), 'SEO registry is fetched on construction landing routes');
+  assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: screed article does not recommend archived saunas`);
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
   assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: service prices are flagged for reconfirmation`);
   assert.ok((await page.locator('figure figcaption').allInnerTexts()).some(text => text.includes('Примеры процесса работ и результата')), `${label}: service comparison is labelled as examples without excessive disclaimer`);
+  assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: service page contains no sauna cross-promotion`);
   await visit(page, 'services/', `${label}: services hub`);
   assert.ok((await page.locator('a[href$="/#estimate"]').count()) >= 1, `${label}: services hub links to pricing transparency`);
   if (label === 'mobile') {
