@@ -141,6 +141,45 @@ async function checkConstructionUx(page, label, { touch = false } = {}) {
   }
 }
 
+async function checkIntentAwareHomepage() {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  const homeCanonical = "https://conradipui-glitch.github.io/silalesa/";
+
+  const cases = [
+    ["monolith", "Монолитные работы"],
+    ["roofing", "Кровельные работы"],
+    ["plaster", "Механизированная штукатурка"],
+    ["screed", "Полусухая стяжка"],
+    ["cottages", "Коттеджи под ключ"],
+    ["hangars", "Строительство ангаров"],
+    ["demolition", "Демонтажные работы"],
+  ];
+  for (const [code, title] of cases) {
+    const response = await page.goto(new URL(`?service=${code}`, base).href, { waitUntil: 'networkidle', timeout: 30_000 });
+    assert.equal(response?.status(), 200, `Focused ${code} uses the real home route`);
+    assert.equal(await page.locator('[data-qa="hero-copy"]').getAttribute("data-offer-mode"),"direct");
+    assert.equal(await page.locator('[data-qa="hero-copy"]').getAttribute("data-offer-code"),code);
+    const heading = (await page.locator("main h1").innerText()).trim();
+    assert.ok(heading.includes(title) && heading.includes("в Омске"), `Focused H1 names the requested service: ${heading}`);
+    const href = await page.locator('[data-qa="hero-copy"] a[href*="wa.me/"]').first().getAttribute("href");
+    assert.ok(new URL(href).searchParams.get("text")?.includes(title), `Focused WhatsApp prompt matches ${title}`);
+    assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),homeCanonical,"Explicit focus never generates SEO duplicate canonical");
+    assert.equal(await page.locator('[data-qa="offer-context-note"]').count(),1,"Explicit focus explains navigation context");
+  }
+
+  for (const query of ["", "?service=invalid-token", "?service=monolith%20roofing"]) {
+    const response = await page.goto(new URL(query,base).href,{waitUntil:"networkidle",timeout:30_000});
+    assert.equal(response?.status(),200);
+    assert.equal(await page.locator('[data-qa="hero-copy"]').getAttribute("data-offer-mode"),"general","Unknown/blank focus falls back to neutral");
+    assert.ok((await page.locator("main h1").innerText()).includes("Строительные работы"),"Neutral H1 focuses on construction services");
+    assert.equal(await page.locator('[data-qa="offer-context-note"]').count(),0,"No fake personalized context");
+    assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),homeCanonical);
+  }
+  console.log("CHROMIUM_INTENT_OFFER_PASS: seven explicit services, unknown and direct fallback, canonical/CTA parity");
+  await context.close();
+}
+
 async function checkConstructionKeyboard() {
   const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
   const page = await context.newPage();
@@ -335,6 +374,7 @@ try {
   await run('desktop', { viewport: { width: 1440, height: 900 } });
   await run('mobile', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
   await checkConstructionKeyboard();
+  await checkIntentAwareHomepage();
   await checkReducedMotion();
   assert.deepEqual(failures, [], 'No uncaught browser JS errors');
   console.log('R10 BROWSER PASS: Chromium visual/UX checks at 375/390/768/844x390/1024/1440/1800, focus trap, reduced motion, touch targets, responsive images, lazy SEO and routes');
