@@ -339,7 +339,10 @@ async function visit(page, path, label) {
   assert.ok(h1.length > 8, `${label}: meaningful H1`);
   assert.ok(!h1.includes('Загружаем страницу'), `${label}: lazy component resolved`);
   const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-  assert.equal(canonical, new URL(path, 'https://conradipui-glitch.github.io/silalesa/').href, `${label}: canonical`);
+  const expectedCanonical = new URL(path, 'https://conradipui-glitch.github.io/silalesa/');
+  expectedCanonical.search = '';
+  expectedCanonical.hash = '';
+  assert.equal(canonical, expectedCanonical.href, `${label}: canonical strips UTM and fragments`);
   console.log('CHROMIUM_ROUTE_PASS', label, response?.status(), h1.slice(0, 70));
 }
 
