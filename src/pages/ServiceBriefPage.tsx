@@ -7,6 +7,21 @@ import { track, useDocumentTitle } from "../lib/utils";
 
 const services = Object.entries(offerContexts) as [OfferCode, (typeof offerContexts)[OfferCode]][];
 
+const briefGuidance: Partial<Record<OfferCode, { note: string; placeholder: string }>> = {
+  roofing: {
+    note: "Новая кровля или ремонт? Полезно указать покрытие, примерную площадь и приложить фотографии проблемного участка.",
+    placeholder: "Монтаж или ремонт? Тип покрытия, состояние кровли, есть ли фото протечки...",
+  },
+  screed: {
+    note: "Для обсуждения стяжки пригодятся площадь, этаж, состояние основания, предполагаемая толщина и будущее покрытие.",
+    placeholder: "Площадь, этаж, основание, толщина, тёплый пол и будущее покрытие, если известны...",
+  },
+  facades: {
+    note: "Для фасадных работ уточните тип здания, материал стен, площадь, нужна ли теплоизоляция и как организован доступ.",
+    placeholder: "Тип здания, состояние стен, фасадная отделка или утепление, площадь и доступ...",
+  },
+};
+
 function limited(value: string, max = 600) {
   return value.trim().replace(/[\r\n]+/g, " ").slice(0, max);
 }
@@ -20,6 +35,7 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
 
   const service = code ? offerContexts[code] : null;
   const name = service?.title ?? "Строительные работы";
+  const guidance = code ? briefGuidance[code] : null;
   useDocumentTitle(`${name} в Омске — заявка на расчёт | Сила Леса`);
 
   const message = [
@@ -71,6 +87,11 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
             <section className="rounded-[28px] bg-cream-50 p-5 text-bark-950 shadow-card sm:p-7" aria-label="Данные для обращения">
               <h2 className="font-display text-xl font-semibold leading-tight sm:text-2xl">Расскажите о задаче</h2>
               <p className="mt-2 text-sm leading-relaxed text-bark-700">Заполните только то, что уже знаете. Обязательных полей нет.</p>
+              {guidance && (
+                <p data-qa="brief-service-guidance" className="mt-4 rounded-xl border border-cedar-600/20 bg-cedar-500/10 p-4 text-sm leading-relaxed text-bark-800">
+                  <strong className="font-semibold">Что поможет обсудить расчёт:</strong> {guidance.note}
+                </p>
+              )}
               <div className="mt-6 space-y-5">
                 <div>
                   <label htmlFor="brief-service" className="mb-2 block text-sm font-semibold text-bark-950">Вид работ</label>
@@ -100,7 +121,7 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
                 </div>
                 <div>
                   <label htmlFor="brief-details" className="mb-2 block text-sm font-semibold text-bark-950">Что ещё важно знать</label>
-                  <textarea id="brief-details" value={details} maxLength={600} rows={4} onChange={(event) => setDetails(event.target.value)} placeholder="Состояние площадки, проект, особые условия, что требуется сделать..." className="w-full resize-y rounded-xl border border-bark-950/20 bg-white px-4 py-3 text-base text-bark-950 placeholder:text-bark-600/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-500" />
+                  <textarea id="brief-details" value={details} maxLength={600} rows={4} onChange={(event) => setDetails(event.target.value)} placeholder={guidance?.placeholder ?? "Состояние площадки, проект, особые условия, что требуется сделать..."} className="w-full resize-y rounded-xl border border-bark-950/20 bg-white px-4 py-3 text-base text-bark-950 placeholder:text-bark-600/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-500" />
                 </div>
               </div>
 
