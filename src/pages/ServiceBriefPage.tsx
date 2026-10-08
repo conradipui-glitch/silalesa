@@ -7,6 +7,29 @@ import { track, useDocumentTitle } from "../lib/utils";
 
 const services = Object.entries(offerContexts) as [OfferCode, (typeof offerContexts)[OfferCode]][];
 
+/**
+ * Campaign attribution is a HUMAN-READABLE tag in an opt-in WhatsApp draft.
+ * Only allow published channel labels and short non-personal campaign slugs.
+ * No persistent identity, IP, referral URL, message body or phone stored.
+ */
+const supportedSources: Record<string, string> = {
+  telegram: "Telegram", tg: "Telegram", vk: "ВКонтакте", vkontakte: "ВКонтакте",
+  ok: "Одноклассники", yandex: "Яндекс", direct: "Яндекс Директ",
+  qr: "QR", partner: "Партнёрская публикация",
+};
+const supportedMediums = new Set(["social", "post", "story", "cpc", "paid_social", "organic_social", "referral", "qr"]);
+function campaignFromSearch(search: string) {
+  const params = new URLSearchParams(search);
+  const sourceCode = (params.get("utm_source") ?? "").toLowerCase();
+  const medium = (params.get("utm_medium") ?? "").toLowerCase();
+  const campaign = params.get("utm_campaign") ?? "";
+  if (!Object.prototype.hasOwnProperty.call(supportedSources, sourceCode)) return null;
+  const label = supportedSources[sourceCode];
+  const checkedMedium = supportedMediums.has(medium) ? medium : null;
+  const checkedCampaign = /^[a-zA-Z0-9_-]{1,48}$/.test(campaign) ? campaign : null;
+  return { source: sourceCode, label, medium: checkedMedium, campaign: checkedCampaign };
+}
+
 const briefGuidance: Partial<Record<OfferCode, { note: string; placeholder: string }>> = {
   roofing: {
     note: "Новая кровля или ремонт? Полезно указать покрытие, примерную площадь и приложить фотографии проблемного участка.",
@@ -35,6 +58,7 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
 
   const service = code ? offerContexts[code] : null;
   const name = service?.title ?? "Строительные работы";
+  const campaign = campaignFromSearch(typeof window === "undefined" ? "" : window.location.search);
   const guidance = code ? briefGuidance[code] : null;
   useDocumentTitle(`${name} в Омске — заявка на расчёт | Сила Леса`);
 
@@ -45,6 +69,7 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
     volume.trim() ? `Площадь / объём: ${limited(volume, 120)}.` : "",
     timing.trim() ? `Когда планируем: ${timing}.` : "",
     details.trim() ? `Описание задачи: ${limited(details)}.` : "",
+    campaign ? `Публикация: ${campaign.label}${campaign.campaign ? " / " + campaign.campaign : ""}.` : "",
     "Подскажите, какие данные нужны для предварительного расчёта и что будет входить в смету.",
   ].filter(Boolean).join("\n");
 
@@ -95,7 +120,17 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
               <div className="mt-6 space-y-5">
                 <div>
                   <label htmlFor="brief-service" className="mb-2 block text-sm font-semibold text-bark-950">Вид работ</label>
-                  <select id="brief-service" value={code ?? ""} onChange={(event) => navigate(event.target.value ? `/brief/${event.target.value}/` : "/brief/")} className="min-h-12 w-full cursor-pointer rounded-xl border border-bark-950/20 bg-white px-4 text-base text-bark-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-500">
+                  <select id="brief-service" value={code ?? ""} onChange={(event) => {
+                    const next = event.target.value ? `/brief/${event.target.value}/` : "/brief/";
+                    // Preserve only safe campaign tags across service switches.
+                    const tags = new URLSearchParams();
+                    if (campaign) {
+                      tags.set("utm_source", campaign.source);
+                      if (campaign.medium) tags.set("utm_medium", campaign.medium);
+                      if (campaign.campaign) tags.set("utm_campaign", campaign.campaign);
+                    }
+                    navigate(next + (tags.size ? "?" + tags.toString() : ""));
+                  }} className="min-h-12 w-full cursor-pointer rounded-xl border border-bark-950/20 bg-white px-4 text-base text-bark-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-500">
                     <option value="">Несколько работ / пока не определился</option>
                     {services.map(([serviceCode, entry]) => <option key={serviceCode} value={serviceCode}>{entry.title}</option>)}
                   </select>
@@ -130,13 +165,13 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
                 <p data-qa="brief-message-preview" className="mt-3 whitespace-pre-line break-words text-sm leading-relaxed text-bark-700">{message}</p>
               </details>
 
-              <a data-qa="brief-whatsapp" href={whatsappUrl(message)} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_click", { type: "whatsapp", where: "social-brief", service: code ?? "all" })} className="mt-6 inline-flex min-h-13 w-full touch-manipulation items-center justify-center gap-3 rounded-full bg-cedar-500 px-6 py-3 text-center text-base font-semibold text-bark-950 shadow-[0_10px_25px_-15px_rgba(90,46,6,.6)] transition-colors hover:bg-cedar-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bark-950">
+              <a data-qa="brief-whatsapp" href={whatsappUrl(message)} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_click", { type: "whatsapp", where: "social-brief", service: code ?? "all", campaignSource: campaign?.source ?? "unattributed", campaignMedium: campaign?.medium ?? undefined, campaignName: campaign?.campaign ?? undefined })} className="mt-6 inline-flex min-h-13 w-full touch-manipulation items-center justify-center gap-3 rounded-full bg-cedar-500 px-6 py-3 text-center text-base font-semibold text-bark-950 shadow-[0_10px_25px_-15px_rgba(90,46,6,.6)] transition-colors hover:bg-cedar-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bark-950">
                 Открыть сообщение в WhatsApp <ArrowIcon />
               </a>
               <p className="mt-3 text-center text-xs leading-relaxed text-bark-700">
                 Откроется WhatsApp с подготовленным текстом. Отправка — только после вашего подтверждения. Данные из полей не сохраняются на этом сайте.
               </p>
-              <a href={`tel:${company.phonePrimary.tel}`} onClick={() => track("cta_click", { type: "call", where: "social-brief", service: code ?? "all" })} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-bark-950/20 px-5 text-sm font-semibold text-bark-950 hover:bg-bark-950/[0.05]">
+              <a href={`tel:${company.phonePrimary.tel}`} onClick={() => track("cta_click", { type: "call", where: "social-brief", service: code ?? "all", campaignSource: campaign?.source ?? "unattributed", campaignMedium: campaign?.medium ?? undefined, campaignName: campaign?.campaign ?? undefined })} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-bark-950/20 px-5 text-sm font-semibold text-bark-950 hover:bg-bark-950/[0.05]">
                 <PhoneIcon /> Позвонить: {company.phonePrimary.display}
               </a>
             </section>
