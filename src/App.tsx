@@ -10,6 +10,7 @@ const ProductPage = lazy(() => import("./pages/ProductPage").then((m) => ({ defa
 const NotFound = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.NotFound })));
 const SeoLandingPage = lazy(() => import("./pages/SeoLandingPage").then((m) => ({ default: m.SeoLandingPage })));
 const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
+const ServiceBriefPage = lazy(() => import("./pages/ServiceBriefPage").then((m) => ({ default: m.ServiceBriefPage })));
 
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
@@ -88,6 +89,19 @@ function Screen() {
       id: route.name === "product" ? route.id : route.name === "landing" ? route.slug : undefined,
     });
   }, [route]);
+
+  if (route.name === "brief") {
+    return (
+      <>
+        <a href="#brief-title" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-cedar-500 focus:px-4 focus:py-2 focus:text-bark-950">
+          К содержимому
+        </a>
+        <Suspense fallback={<div role="status" className="min-h-dvh bg-bark-950 px-5 pt-24 text-cream-200">Загружаем форму для обращения…</div>}>
+          <ServiceBriefPage code={route.code} />
+        </Suspense>
+      </>
+    );
+  }
 
   return (
     <>
