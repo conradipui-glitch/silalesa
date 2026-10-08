@@ -124,11 +124,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const related = isMaterialGuide
     ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === PLASTER_GUIDE_SLUG)
     : isRepairGuide
-    ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === "polusuhaya-styazhka-omsk")
+    ? seoPages.filter((item) => item.slug === PLASTER_GUIDE_SLUG || item.slug === SCREED_GUIDE_SLUG || item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === "polusuhaya-styazhka-omsk")
     : isPlasterGuide
-      ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === MATERIAL_GUIDE_SLUG)
+      ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === MATERIAL_GUIDE_SLUG || item.slug === REPAIR_GUIDE_SLUG)
     : isScreedGuide
-      ? seoPages.filter((item) => item.slug === "polusuhaya-styazhka-omsk")
+      ? seoPages.filter((item) => item.slug === "polusuhaya-styazhka-omsk" || item.slug === REPAIR_GUIDE_SLUG)
     : isDrillingGuide
       ? seoPages.filter((item) => item.slug === "burenie-skvazhiny-omsk")
       : isGuide
