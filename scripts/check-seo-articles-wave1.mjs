@@ -44,4 +44,22 @@ for (const [slug, title] of Object.entries(expected)) {
     assert.ok(html.includes(`${BASE}${link}/`), `Missing related URL ${slug} -> ${link}`);
   }
 }
+// The R3 interactive layout must not silently shadow the approved screed introduction.
+const screedSlug = "guides/remont/polusuhaya-ili-mokraya-styazhka";
+const screedSource = sources.find((source) => source.slug === screedSlug);
+const screedOverride = overrideFiles.find((source) => source.slug === screedSlug);
+const screedEffective = effective.get(screedSlug);
+assert.ok(screedSource && screedOverride && screedEffective, "Screed guide source and effective data exist");
+assert.ok(!Object.hasOwn(screedOverride, "lead") && !Object.hasOwn(screedOverride, "description"), "Interactive R3 overrides must not mask the edited source screed lead and description");
+assert.equal(screedEffective.lead, screedSource.lead, "Screed lead matches the editor's source data");
+assert.equal(screedEffective.description, screedSource.description, "Screed description matches the editor's source data");
+const screedHtml = fs.readFileSync(path.join(root, "dist", screedSlug, "index.html"), "utf8");
+assert.ok(screedHtml.includes(screedEffective.lead), "Static screed first answer reflects current source text");
+assert.ok(screedHtml.includes(screedEffective.description), "Static screed description reflects current source text");
+const plasterSlug = "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka";
+const plaster = effective.get(plasterSlug);
+assert.ok(plaster && plaster.lead.includes("площадь и фото стен"), "Plaster guide explains what to send for an estimate");
+assert.ok(fs.readFileSync(path.join(root, "dist", plasterSlug, "index.html"), "utf8").includes(plaster.lead), "Static plaster first answer reflects current source text");
+console.log("CONSTRUCTION_COPY_PARITY_PASS: editorial source, effective SEO registry and no-JS HTML agree.");
+
 console.log("YANDEX_ARTICLE_WAVE1_PASS: 4 topics, metadata, schema, canonicals and internal links in no-JS HTML.");

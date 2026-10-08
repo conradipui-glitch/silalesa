@@ -14,25 +14,10 @@ export function homeFallback(models, assets, site, whatsapp, phone, showroom) {
 }
 
 
-export function constructionHomeFallback(site, whatsapp, phone) {
+export function constructionHomeFallback(site, whatsapp, phone, services) {
   if (!site || !whatsapp || !phone) throw new Error('Missing construction homepage contact data');
   const wa = `https://wa.me/${whatsapp}?text=${encodeURIComponent('Здравствуйте! Интересуют строительные работы и предварительный расчёт. Страница: ' + site)}`;
-  const services = [
-    'Коттеджи под ключ',
-    'Жилое и нежилое строительство',
-    'Возведение многоэтажных сооружений и зданий',
-    'Строительство ангаров',
-    'Монолитные работы',
-    'Кладочные работы: блок, кирпич и другие материалы',
-    'Металлоконструкции',
-    'Механизированная штукатурка',
-    'Полусухая стяжка',
-    'Бетонная стяжка',
-    'Промышленные полы (топпинг)',
-    'Кровельные работы',
-    'Фасадные работы',
-    'Демонтажные работы',
-  ];
-  const items = services.map((name) => `<li>${esc(name)}</li>`).join('');
-  return `<div id="root" data-prerendered="true"><main><article><header><p>Сила Леса · строительные работы · Омск</p><nav aria-label="Основные разделы"><a href="${site}services/">Все строительные работы</a> · <a href="${site}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка</a> · <a href="${site}polusuhaya-styazhka-omsk/">Полусухая стяжка</a> · <a href="${site}mobilnaya-banya-omsk/">Мобильные бани</a></nav></header><section><h1>Строительные работы в Омске</h1><p>«Сила Леса» предлагает монолитные, кладочные, кровельные, фасадные, отделочные и другие строительные работы. Можно заказать отдельный этап или обсудить объект под ключ.</p><p><a href="${wa}">Запросить расчёт строительных работ в WhatsApp</a> · <a href="tel:${phone}">Позвонить</a></p></section><section><h2>Основные направления</h2><ul>${items}</ul><p><a href="${site}services/">Открыть все строительные работы</a></p></section><section><h2>Под ключ или отдельный этап</h2><p>Комплексный формат объединяет конструктив, коробку и последующие работы в одну последовательность. Отдельно можно заказать монолит, кладку, штукатурку, стяжку, промышленные полы, металлоконструкции, кровлю, фасад или демонтаж.</p></section><section><h2>Что прислать для предварительного расчёта</h2><ol><li>Тип и назначение объекта.</li><li>Адрес и ориентировочную площадь.</li><li>Проект, план или фотографии, если они есть.</li><li>Перечень требуемых работ и желаемые сроки.</li></ol><p><a href="${wa}">Отправить данные объекта в WhatsApp</a></p></section><section><h2>Отдельные строительные услуги</h2><p><a href="${site}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка</a> · <a href="${site}polusuhaya-styazhka-omsk/">Полусухая стяжка</a></p></section><section id="contact"><h2>Контакты</h2><p>Омск. Стоимость и сроки рассчитываются после уточнения проекта, объёма и условий объекта.</p><p><a href="tel:${phone}">Телефон: ${esc(phone)}</a> · <a href="${wa}">WhatsApp: обсудить объект</a></p></section></article></main></div>`;
+  if (!Array.isArray(services) || services.length !== 14 || new Set(services.map((item) => item.title)).size !== 14) throw new Error('Construction catalogue must have fourteen unique directions');
+  const items = services.map((item) => `<li><strong>${esc(item.title)}</strong><p>${esc(item.text)}</p><p>Для первого расчёта: ${esc(item.requestHint)}.</p></li>`).join('');
+  return `<div id="root" data-prerendered="true"><main><article><header><p>Сила Леса · строительные работы · Омск</p><nav aria-label="Основные разделы"><a href="${site}services/">Все строительные работы</a> · <a href="${site}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка</a> · <a href="${site}polusuhaya-styazhka-omsk/">Полусухая стяжка</a></nav></header><section><h1>Строительные работы в Омске</h1><p>«Сила Леса» предлагает монолитные, кладочные, кровельные, фасадные, отделочные и другие строительные работы. Можно заказать отдельный этап или обсудить объект под ключ.</p><p><a href="${wa}">Запросить расчёт строительных работ в WhatsApp</a> · <a href="tel:${phone}">Позвонить</a></p></section><section><h2>Основные направления</h2><ul>${items}</ul><p><a href="${site}services/">Открыть все строительные работы</a></p></section><section><h2>Под ключ или отдельный этап</h2><p>Комплексный формат объединяет конструктив, коробку и последующие работы в одну последовательность. Отдельно можно заказать монолит, кладку, штукатурку, стяжку, промышленные полы, металлоконструкции, кровлю, фасад или демонтаж.</p></section><section><h2>Что прислать для предварительного расчёта</h2><ol><li>Тип и назначение объекта.</li><li>Адрес и ориентировочную площадь.</li><li>Проект, план или фотографии, если они есть.</li><li>Перечень требуемых работ и желаемые сроки.</li></ol><p><a href="${wa}">Отправить данные объекта в WhatsApp</a></p></section><section><h2>Отдельные строительные услуги</h2><p><a href="${site}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка</a> · <a href="${site}polusuhaya-styazhka-omsk/">Полусухая стяжка</a></p></section><section id="contact"><h2>Контакты</h2><p>Омск. Стоимость и сроки рассчитываются после уточнения проекта, объёма и условий объекта.</p><p><a href="tel:${phone}">Телефон: ${esc(phone)}</a> · <a href="${wa}">WhatsApp: обсудить объект</a></p></section></article></main></div>`;
 }

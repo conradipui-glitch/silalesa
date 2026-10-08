@@ -86,6 +86,22 @@ async function checkServiceDiscovery(page, label) {
   assert.equal(linkKinds.filter((entry) => entry.href.startsWith('https://wa.me/')).length, 12, `${label}: 12 directions open a service-specific consultation`);
   assert.equal(linkKinds.filter((entry) => /mehanizirovannaya-shtukaturka-omsk|polusuhaya-styazhka-omsk/.test(entry.href)).length, 2, `${label}: two detailed service pages remain linked`);
   assert.ok(linkKinds.every((entry) => entry.height >= 44 && entry.label.length > 15), `${label}: every service action has a readable, accessible 44px target`);
+  const hints = page.locator('#services [data-qa="service-request-hint"]');
+  assert.equal(await hints.count(), 14, `${label}: all construction directions show estimate preparation hints`);
+  const hintText = await hints.allInnerTexts();
+  assert.ok(hintText.every((item) => item.startsWith("Для первого расчёта:") && item.length > 40), `${label}: estimate hints are clear, nonempty text`);
+  for (const [serviceName, keywords] of Object.entries({
+    "Кровельные работы": ["монтаж или ремонт", "покрытие"],
+    "Фасадные работы": ["материал стен", "утепления"],
+    "Демонтажные работы": ["что нужно разобрать", "условия доступа"],
+  })) {
+    const card = page.locator('#services [data-qa="service-group"] article').filter({ hasText: serviceName });
+    assert.equal(await card.count(), 1, `${label}: distinct service card for ${serviceName}`);
+    const href = await card.locator('a[href^="https://wa.me/"]').getAttribute('href');
+    const message = new URL(href).searchParams.get('text') ?? '';
+    assert.ok(message.includes(serviceName), `${label}: consultation prefills chosen service`);
+    assert.ok(keywords.every((word) => message.includes(word)), `${label}: consultation prefills relevant estimation context for ${serviceName}`);
+  }
   assert.equal(await page.locator('#process ol > li').count(), 6, `${label}: five process steps plus clear contact action`);
   console.log('CHROMIUM_SERVICE_DISCOVERY_PASS', label, distribution);
 }
@@ -415,18 +431,45 @@ async function run(label, contextOptions) {
       console.log('CHROMIUM_CONSTRUCTION_HOME_PASS', fit);
     }
   }
-  await visit(page, 'mobilnaya-banya-omsk/', `${label}: catalogue`);
-  await visit(page, 'banya-kvadro-3x2-omsk/', `${label}: product`);
-  assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: sauna prices are explicitly flagged for reconfirmation`);
-  assert.equal(await page.locator('a[href$="/#quiz"]').count(), 0, `${label}: obsolete quiz link does not appear on sauna landing`);
-  await visit(page, 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/', `${label}: guide`);
-  assert.equal(await page.locator('aside[aria-label="О характере материала"]').count(), 1, `${label}: article has information-scope disclaimer`);
-  assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /seoPages-[\w-]+\.js/.test(name)), 'SEO registry is fetched on landing routes');
+  assert.equal(await page.locator('header a[href*="banya"], footer a[href*="banya"], nav a[href*="banya"]').count(), 0, `${label}: construction navigation does not promote archived saunas`);
+  await visit(page, 'guides/remont/polusuhaya-ili-mokraya-styazhka/', `${label}: screed guide`);
+  const screedCopy = await page.locator('main').innerText();
+  assert.ok(screedCopy.includes('Полусухая смесь содержит меньше воды и требует уплотнения'), `${label}: screed first answer uses approved source rather than stale R3 override`);
+  const screedAction = page.getByRole('link', { name: 'Запросить расчёт стяжки' }).first();
+  assert.equal(await screedAction.count(), 1, `${label}: screed guide offers a named estimate action`);
+  const screedContact = new URL(await screedAction.getAttribute('href'));
+  assert.ok(screedContact.searchParams.get('text')?.includes('Нужен расчёт полусухой стяжки'), `${label}: estimate message reflects screed service`);
+  const screedNote = page.locator('aside[aria-label="О характере материала"]');
+  assert.equal(await screedNote.count(), 1, `${label}: guide has a brief technical-scope note`);
+  assert.ok((await screedNote.innerText()).length < 180, `${label}: no overly wordy disclaimer`);
+  assert.ok(!/бан[ьяи]|квадро|саун/iu.test(screedCopy), `${label}: construction guide contains no sauna promotion`);
+  await visit(page, 'guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/', `${label}: plaster comparison guide`);
+  assert.ok((await page.locator('main').innerText()).includes('Для расчёта механизированной штукатурки в Омске пригодятся площадь и фото стен'), `${label}: plaster guide uses revised opening`);
+  // On mobile, innerWidth may grow to match an overflowing document: compare with clientWidth.
+  const guideFit = await page.evaluate(() => ({
+    document: document.documentElement.scrollWidth,
+    viewport: document.documentElement.clientWidth,
+    visual: window.visualViewport?.width,
+  }));
+  assert.ok(guideFit.document <= guideFit.viewport + 2, `${label}: long Russian plaster H1 must not widen the page: ${JSON.stringify(guideFit)}`);
+  assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /SeoLandingPage-[\w-]+\.js/.test(name)), 'Construction landing component is fetched lazily');
+  assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: screed article does not recommend archived saunas`);
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
   assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: service prices are flagged for reconfirmation`);
   assert.ok((await page.locator('figure figcaption').allInnerTexts()).some(text => text.includes('Примеры процесса работ и результата')), `${label}: service comparison is labelled as examples without excessive disclaimer`);
+  assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: service page contains no sauna cross-promotion`);
   await visit(page, 'services/', `${label}: services hub`);
   assert.ok((await page.locator('a[href$="/#estimate"]').count()) >= 1, `${label}: services hub links to pricing transparency`);
+  // Retired sauna routes must show a truthful 404, not silently render home.
+  await page.evaluate((url) => {
+    history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, new URL('mobilnaya-banya-omsk/', base).pathname);
+  await page.locator('main h1').filter({ hasText: 'Такой страницы нет' }).waitFor({ state: 'visible', timeout: 10_000 });
+  assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, follow', `${label}: retired route is noindex`);
+  assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: 404 only offers construction routes`);
+  await visit(page, 'services/', `${label}: return from retired route`);
+  assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'index, follow', `${label}: indexability is restored after 404`);
   if (label === 'mobile') {
     const wa = page.locator('a[href*="wa.me/"]').first();
     const href = await wa.getAttribute('href');

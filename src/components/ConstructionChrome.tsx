@@ -106,9 +106,6 @@ export function ConstructionHeader() {
               {item.label}
             </Link>
           ))}
-          <Link to="/mobilnaya-banya-omsk/" className="rounded-full px-3 py-2 text-[13.5px] text-cream-300/80 transition-colors hover:bg-cream-50/6 hover:text-cream-50">
-            Бани
-          </Link>
         </nav>
         <div data-qa="header-actions" className="flex items-center gap-2">
           <a
@@ -158,10 +155,6 @@ export function ConstructionHeader() {
                 <ArrowIcon className="text-cedar-400" />
               </Link>
             ))}
-            <Link to="/mobilnaya-banya-omsk/" className="flex items-center justify-between border-b border-cream-50/8 py-4 font-display text-xl font-medium text-cream-300" onClick={() => setOpen(false)}>
-              Мобильные бани
-              <ArrowIcon className="text-cedar-400" />
-            </Link>
           </nav>
           <div className="space-y-3 px-6 pb-10">
             <a href={`tel:${company.phonePrimary.tel}`} className="flex min-h-11 items-center gap-3 text-lg text-cream-50">
@@ -211,17 +204,6 @@ export function ConstructionFooter() {
           <p className="mt-5 max-w-md text-base leading-relaxed text-cream-300/80">
             {company.fullName}. Строительные работы в Омске: монолит, кладка, отделка, полы, металл, кровля, фасады и демонтаж. Также можно обсудить комплексное строительство объекта.
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <a href={company.vk} target="_blank" rel="noopener noreferrer" className="text-sm text-cedar-300 hover:text-cedar-200">
-              VK
-            </a>
-            <a href={company.site} target="_blank" rel="noopener noreferrer" className="text-sm text-cedar-300 hover:text-cedar-200">
-              silalesa55.ru
-            </a>
-            <Link to="/mobilnaya-banya-omsk/" className="text-sm text-cream-300/80 hover:text-cream-50">
-              Мобильные бани
-            </Link>
-          </div>
         </div>
 
         <div>

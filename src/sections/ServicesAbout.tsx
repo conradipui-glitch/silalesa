@@ -1,11 +1,10 @@
 import { ArrowIcon, LinkButton, LogoMark, PhoneIcon, SectionHead } from "../components/Brand";
 import { company, formatPrice, mapsUrl, services, whatsappUrl } from "../data/products";
 import { landingByProductId } from "../data/routeManifest";
+import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 
-// Service thumbnails intentionally stay on the original product images.
-// Before/after media is only used inside the dedicated service landing pages.
 const serviceLandingByProductId = landingByProductId;
 
 export function Services() {
@@ -25,6 +24,9 @@ export function Services() {
           {services.map((s, i) => {
             const landing = serviceLandingByProductId[s.id]?.kind === "service" ? serviceLandingByProductId[s.id] : undefined;
             const target = landing ? `/${landing.slug}/` : `/product/${s.id}`;
+            const comparison = landing ? serviceComparisonBySlug[landing.slug] : undefined;
+            const thumbnail = comparison?.after ?? s.image;
+            const thumbnailAlt = comparison?.afterAlt ?? s.imageAlt;
             return (
               <li key={s.id} className="reveal" style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}>
                 <Link
@@ -33,7 +35,7 @@ export function Services() {
                   onClick={() => track("product_view", { id: s.id, from: "services" })}
                 >
                   <div className="h-20 w-full sm:w-[120px] overflow-hidden rounded-2xl bg-bark-800">
-                    <img src={s.image} alt={s.imageAlt} loading="lazy" decoding="async" width={1200} height={627} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={thumbnail} alt={thumbnailAlt} loading="lazy" decoding="async" width={1200} height={627} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   </div>
                   <div>
                     <p className="text-[11px] uppercase tracking-[0.18em] text-cedar-300/80">{s.category}</p>

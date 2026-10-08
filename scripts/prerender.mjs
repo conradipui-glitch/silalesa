@@ -26,6 +26,7 @@ const basePages = [
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
+const constructionCatalog = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/construction-services.json"), "utf8"));
 const assets = await fs.readdir(path.join(DIST, "assets"));
 const modelAssets = Object.fromEntries([
   ["k2", "kvadro-2x2-"], ["k3", "kvadro-3x2-"], ["k4", "kvadro-4x2-"], ["f55", "karkasnaya-5-5-"],
@@ -37,6 +38,7 @@ const modelAssets = Object.fromEntries([
 const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-next.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r3.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r4.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r5.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r6.json"), "utf8")),
@@ -46,7 +48,10 @@ const overrideBySlug = new Map();
 for (const override of pageOverrides) {
   overrideBySlug.set(override.slug, { ...(overrideBySlug.get(override.slug) ?? {}), ...override });
 }
-const pages = basePages.map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
+// Only construction service URLs and their supporting articles are published here.
+const pages = basePages
+  .filter((page) => page.kind === "service" || (page.kind === "guide" && !page.slug.startsWith("guides/bani/")))
+  .map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
 const servicePages = pages.filter((page) => page.kind === "service");
 const whatsappMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8")).match(/whatsapp:\s*"(\d+)"/);
 if (!whatsappMatch) throw new Error("Canonical WhatsApp contact missing");
@@ -58,22 +63,7 @@ const servicesHub = {
   description: "Строительные работы в Омске: коттеджи под ключ, монолит, кладка, ангары, металлоконструкции, штукатурка, стяжка, промышленные полы, кровля, фасады и демонтаж.",
   h1: "Строительные работы в Омске",
   lead: "Монолит, кладка, штукатурка, стяжка, промышленные полы и другие работы. Отдельные этапы — основной формат предложения; комплексное строительство тоже можно обсудить.",
-  directions: [
-    "Коттеджи под ключ",
-    "Жилое и нежилое строительство",
-    "Возведение многоэтажных сооружений и зданий",
-    "Строительство ангаров",
-    "Монолитные работы",
-    "Кладочные работы: блок, кирпич и другие материалы",
-    "Металлоконструкции",
-    "Механизированная штукатурка",
-    "Полусухая стяжка",
-    "Бетонная стяжка",
-    "Промышленные полы (топпинг)",
-    "Кровельные работы",
-    "Фасадные работы",
-    "Демонтажные работы",
-  ],
+  directions: constructionCatalog.map((service) => service.title),
 };
 
 function escapeHtml(value = "") {
@@ -238,7 +228,7 @@ function staticSnapshot(page) {
 
 function servicesSnapshot() {
   const canonical = `${SITE_URL}${servicesHub.slug}/`;
-  const directionItems = servicesHub.directions.map((name) => `<li>${escapeHtml(name)}</li>`).join("");
+  const directionItems = constructionCatalog.map((service) => `<li><strong>${escapeHtml(service.title)}</strong><p>${escapeHtml(service.text)}</p><p>Для первого расчёта: ${escapeHtml(service.requestHint)}.</p></li>`).join("");
   const items = servicePages
     .map(
       (page) => `<li><a href="${SITE_URL}${page.slug}/">${escapeHtml(page.h1)}</a><p>${escapeHtml(page.priceLabel ?? "")}</p><p>${escapeHtml(page.lead)}</p></li>`,
@@ -350,9 +340,21 @@ for (const page of pages.filter((entry) => entry.productId)) {
 
 // Give the construction-first home page a meaningful no-JS first answer.
 {
-  const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533");
+  const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533", constructionCatalog);
   if (!template.includes('<div id="root"></div>')) throw new Error('Home root placeholder missing');
   await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
+}
+
+// GitHub Pages serves missing paths using 404.html with a real 404 status.
+// Give expired sauna links a usable construction-only error page, not a false home.
+{
+  const notFoundMarkup = `<div id="root"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><h1>Такой страницы нет</h1><p>Адрес не найден. На этой версии сайта представлены только строительные работы.</p><p><a href="${SITE_URL}services/">Все строительные работы</a> · <a href="${SITE_URL}">На главную</a></p></main></div>`;
+  const notFoundHtml = template
+    .replace(/<title>[\s\S]*?<\/title>/i, "<title>Страница не найдена — Сила Леса</title>")
+    .replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />')
+    .replace(/<link rel="canonical"[^>]*>/i, "")
+    .replace('<div id="root"></div>', notFoundMarkup);
+  await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
 }
 
 const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`)];
@@ -366,8 +368,31 @@ await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
 const pageList = pages
   .map((page) => `- [${page.h1}](${SITE_URL}${page.slug}/): ${page.description}`)
   .join("\n");
-const llms = `# Сила Леса\n\n> Строительная компания в Омске: строительство под ключ, общестроительные работы, отделка и отдельные специализированные этапы. Отдельное направление — мобильные бани.\n\n## Основные факты\n\n- Регион: Омск и Омская область.\n- Выставочная площадка: Омск, ул. Нефтезаводская, 49/1.\n- Осмотр образцов — по предварительной договорённости, время уточните по телефону.\n- Основной телефон: +7 (913) 688-45-33.\n- Дополнительный телефон / WhatsApp: +7 (999) 456-33-64.\n- Основные строительные направления: коттеджи, монолит, кладка, ангары, металлоконструкции, штукатурка, стяжка, промышленные полы, кровля, фасады и демонтаж.
-- Отдельное направление — мобильные бани: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
+const llms = `# Сила Леса
+
+> Строительные работы в Омске и Омской области: отдельные этапы и комплексное строительство объектов.
+
+## Строительные направления
+
+- Коттеджи и жилое/нежилое строительство, монолитные и кладочные работы, ангары, металлоконструкции.
+- Механизированная штукатурка, полусухая стяжка, промышленные полы, кровля, фасады и демонтаж.
+- Регион: Омск и Омская область.
+- Контакт для уточнения строительных работ: +7 (913) 688-45-33.
+- Действующие условия, объём и сроки подтверждаются при обращении.
+
+## Канонический сайт
+
+- [Главная](${SITE_URL})
+- [Все строительные услуги](${SITE_URL}${servicesHub.slug}/)
+- [Карта сайта](${SITE_URL}sitemap.xml)
+
+## Страницы услуг и материалов
+
+${pageList}
+
+## О расчёте
+
+Цены услуг — стартовые ориентиры, итоговая стоимость зависит от объёма и условий объекта. Информационные статьи не заменяют проект и техническую документацию конкретной конструкции.`;
 await fs.writeFile(path.join(DIST, "llms.txt"), llms, "utf8");
 
 console.log(`Prerendered home + ${pages.length} SEO pages + services hub + 15 non-indexed social briefs and generated sitemap.xml + llms.txt.`);

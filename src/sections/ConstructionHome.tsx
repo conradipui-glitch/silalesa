@@ -5,6 +5,7 @@ import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 import { getHomepageOffer } from "../data/offerContext";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
+import rawConstructionServices from "../data/construction-services.json";
 const heroConstruction = `${import.meta.env.BASE_URL}assets/construction-hero-mixed.webp`;
 const plasterComparison = serviceComparisonBySlug["mehanizirovannaya-shtukaturka-omsk"];
 const screedComparison = serviceComparisonBySlug["polusuhaya-styazhka-omsk"];
@@ -16,24 +17,14 @@ type ConstructionService = {
   group: ServiceGroup;
   text: string;
   accent?: string;
+  requestHint: string;
 };
 
-export const constructionServices: ConstructionService[] = [
-  { title: "Коттеджи под ключ", group: "Генподряд", text: "Организация полного цикла строительства частного дома — от подготовительных работ до внешнего контура и отделочных этапов.", accent: "Под ключ" },
-  { title: "Жилое и нежилое строительство", group: "Генподряд", text: "Частные, коммерческие и производственные объекты с возможностью вести весь комплекс работ или отдельный этап." },
-  { title: "Возведение многоэтажных сооружений и зданий", group: "Генподряд", text: "Комплекс общестроительных работ для многоэтажных объектов в составе согласованного проекта и графика." },
-  { title: "Строительство ангаров", group: "Генподряд", text: "Каркас, ограждающие конструкции и сопутствующие работы для складских и производственных зданий." },
-  { title: "Монолитные работы", group: "Конструктив", text: "Фундаменты, плиты, стены, колонны, перекрытия и другие железобетонные конструкции по проекту." },
-  { title: "Кладочные работы", group: "Конструктив", text: "Кладка из блока, кирпича и других стеновых материалов с привязкой к проектной геометрии объекта." },
-  { title: "Металлоконструкции", group: "Конструктив", text: "Изготовление и монтаж металлических элементов и каркасов для строительных и производственных задач." },
-  { title: "Механизированная штукатурка", group: "Отделка и полы", text: "Машинное нанесение штукатурных составов для выравнивания стен на жилых и коммерческих объектах.", accent: "Ровные стены" },
-  { title: "Полусухая стяжка", group: "Отделка и полы", text: "Устройство ровного основания пола механизированным способом с подготовкой под последующие покрытия.", accent: "Ровное основание" },
-  { title: "Бетонная стяжка", group: "Отделка и полы", text: "Устройство цементно-бетонного основания с подбором решения под нагрузку и дальнейшую эксплуатацию." },
-  { title: "Промышленные полы (топпинг)", group: "Отделка и полы", text: "Упрочнённые бетонные полы для складов, цехов, паркингов и других помещений с повышенной нагрузкой." },
-  { title: "Кровельные работы", group: "Спецработы", text: "Монтаж и ремонт кровельных систем, узлов примыкания и водоотведения в составе общего комплекса." },
-  { title: "Фасадные работы", group: "Спецработы", text: "Устройство и обновление фасадов: подготовка основания, утепление и финишные решения по проекту." },
-  { title: "Демонтажные работы", group: "Спецработы", text: "Разбор конструкций и подготовка площадки к следующему этапу строительства или реконструкции." },
-];
+// One source powers the visual catalogue and static SEO/JS-disabled pages.
+export const constructionServices: ConstructionService[] = rawConstructionServices.map((service) => ({
+  ...service,
+  group: service.group as ServiceGroup,
+}));
 
 const serviceGroups: { title: ServiceGroup; id: string; intro: string }[] = [
   { title: "Генподряд", id: "services-general", intro: "Весь объект, новое здание или строительство по этапам." },
@@ -107,6 +98,9 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                     </div>
                     <h4 className="mt-4 font-display text-lg font-medium leading-snug text-cream-50 sm:text-xl">{service.title}</h4>
                     <p className="mt-3 flex-1 text-base leading-relaxed text-cream-300/80">{service.text}</p>
+                    <p data-qa="service-request-hint" className="mt-4 border-t border-cream-50/10 pt-4 text-base leading-relaxed text-cream-300/85">
+                      <span className="font-medium text-cream-50">Для первого расчёта:</span> {service.requestHint}.
+                    </p>
                     <div className="mt-6 border-t border-cream-50/10 pt-2">
                       {detailPath ? (
                         <Link
@@ -119,7 +113,7 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                         </Link>
                       ) : (
                         <a
-                          href={whatsappUrl(`Здравствуйте! Интересует направление «${service.title}». Хочу обсудить объём работ и предварительный расчёт.`)}
+                          href={whatsappUrl(`Здравствуйте! Интересует направление «${service.title}». Хочу обсудить объём работ и предварительный расчёт. Для начала могу уточнить: ${service.requestHint}. Подскажите, какие данные ещё пригодятся.`)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-md text-sm font-medium text-cedar-300 transition-colors hover:text-cedar-200"
@@ -233,7 +227,7 @@ export function ConstructionHome() {
 
             <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
               <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
-                <img data-construction-hero src={heroConstruction} alt="Иллюстрация строительного процесса: монолит, кладка и рабочие на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
+                <img data-construction-hero src={heroConstruction} alt="Строительная площадка: монолитные конструкции, кладка и рабочие" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
                 <div className="absolute inset-0 bg-gradient-to-t from-bark-950/75 via-bark-950/5 to-transparent" aria-hidden="true" />
                 <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
                   <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/88 p-4 backdrop-blur-sm">

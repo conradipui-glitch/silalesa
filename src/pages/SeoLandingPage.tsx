@@ -112,9 +112,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       ? `${page.choicePrompt} Страница: ${SITE_BASE}${page.slug}/`
       : isGuide && page.operationPrompt
       ? `${page.operationPrompt} Страница: ${SITE_BASE}${page.slug}/`
+      : isScreedGuide
+      ? `Здравствуйте! Нужен расчёт полусухой стяжки. Площадь, этаж и фото основания пришлю в чат. Страница: ${SITE_BASE}${page.slug}/`
       : isGuide
-      ? `Здравствуйте! Хочу уточнить информацию по гайду «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
-      : `Здравствуйте! Хочу подобрать мобильную баню в Омске. Страница: ${SITE_BASE}${page.slug}/`;
+      ? `Здравствуйте! Хочу уточнить информацию по статье «${page.h1}». Страница: ${SITE_BASE}${page.slug}/`
+      : `Здравствуйте! Хочу обсудить строительные работы. Страница: ${SITE_BASE}${page.slug}/`;
 
   const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_BASE}${page.slug}/`;
 
@@ -192,13 +194,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         <div className="mt-8 grid items-center gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-14">
           <div className="reveal">
             <p className="text-xs uppercase tracking-[0.22em] text-cedar-300">{page.eyebrow}</p>
-            <h1 className="mt-4 max-w-3xl font-display text-[34px] font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[58px]">{page.h1}</h1>
+            <h1 className={`mt-4 max-w-3xl font-display font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] ${isPlasterGuide ? "text-[clamp(25px,7vw,34px)] sm:text-[44px] lg:text-[clamp(34px,3.4vw,46px)]" : "text-[34px] sm:text-5xl lg:text-[58px]"}`}>{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
 
             {isPlasterGuide && (
               <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
-                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">от 550 ₽/м²</strong>. Это стартовая цена, не окончательная смета.</p>
-                <p className="mt-2 text-sm text-cream-200">Для расчёта достаточно начать с площади и фотографий стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Подробнее об услуге и условиях</Link>.</p>
+                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">от 550 ₽/м²</strong>. Стоимость уточним по площади и условиям работ.</p>
+                <p className="mt-2 text-sm text-cream-200">Пришлите площадь и фото стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Состав услуги и условия</Link>.</p>
               </div>
             )}
             {isSaunaChoiceGuide && firstChoice && lastChoice && (
@@ -219,12 +221,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 {product?.dims && <span className="text-sm text-cream-300/70">{product.dims}</span>}
               </div>
             )}
-            {isService && page.priceNote && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85">{page.priceNote}</p>}
-             {!isGuide && (
-               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-200/85" data-qa="price-verification-note">
-                 Указанные цены взяты из ранее опубликованных предложений. Перед заказом уточните действующую ставку, состав работ или комплектацию, доставку и другие условия. Это не индивидуальная смета.
-               </p>
-             )}
+            {isService && page.priceNote && (
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85" data-qa="price-verification-note">
+                {page.priceNote}
+              </p>
+            )}
 
             <div className="mt-8 flex flex-wrap gap-3">
               {isService ? (
@@ -274,8 +275,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                   {isCategory ? <a href="#models" className="inline-flex min-h-11 items-center rounded-full border border-cedar-300/60 px-5 py-3 font-semibold text-cedar-300 hover:bg-bark-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Сравнить четыре модели ↓</a> : <LinkButton to="/mobilnaya-banya-omsk/" size="lg" variant="ghost">Сравнить модели <ArrowIcon /></LinkButton>}
                 </>
               ) : isGuide ? (
-                <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" onClick={() => track("cta_click", { type: isDrillingGuide ? "guide_to_drilling" : "guide_to_catalog", where: "seo-landing", slug })}>
-                  {isDrillingGuide ? "Узнать об услуге бурения" : "Смотреть готовые бани"} <ArrowIcon />
+                <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/services/"} size="lg" onClick={() => track("cta_click", { type: isDrillingGuide ? "guide_to_drilling" : "guide_to_services", where: "seo-landing", slug })}>
+                  {isDrillingGuide ? "Узнать об услуге бурения" : "Все строительные работы"} <ArrowIcon />
                 </LinkButton>
               ) : (
                 <LinkButton to="/#configurator" size="lg" onClick={() => track("cta_click", { type: "configurator", where: "seo-landing", slug })}>
@@ -491,11 +492,10 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </div>
       )}
       {isGuide && (
-         <aside className="bg-cream-50 px-4 pb-12 text-bark-700 sm:px-6" aria-label="О характере материала">
-           <div className="mx-auto max-w-5xl rounded-2xl border border-bark-950/10 bg-white p-5 text-sm leading-relaxed sm:p-6">
-             <strong className="font-semibold text-bark-950">О материале.</strong>{" "}
-             Это информационный разбор для предварительного выбора. Он не заменяет проект, осмотр объекта, техническую документацию производителя и согласование работ. Указанные цены и комплектации могут измениться — проверяйте актуальные условия перед заказом.
-           </div>
+         <aside className="bg-cream-50 px-4 pb-10 text-bark-700 sm:px-6" aria-label="О характере материала">
+           <p className="mx-auto max-w-5xl border-l-2 border-cedar-500/50 pl-4 text-sm leading-relaxed">
+             Для конкретного объекта учитывайте проект, состояние основания и требования выбранных материалов.
+           </p>
          </aside>
        )}
        {otherGuides.length > 0 && (
@@ -532,7 +532,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       {related.length > 0 && (
         <section className="bg-cream-50 py-14 text-bark-950">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="font-display text-xl">{isGuide ? "Связанные страницы" : isService ? "Другие услуги" : "Другие страницы по баням"}</h2>
+            <h2 className="font-display text-xl">{isGuide ? "Связанные страницы" : isService ? "Другие услуги" : "Другие направления"}</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {related.map((item) => (
                 <Link key={item.slug} to={`/${item.slug}/`} className="group rounded-2xl border border-bark-950/10 p-4 transition-colors hover:border-cedar-600/40 hover:bg-white">
@@ -548,16 +548,16 @@ export function SeoLandingPage({ slug }: { slug: string }) {
       <section className="bg-bark-950 py-14 text-center">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
-          <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Хотите рассчитать механизированную штукатурку?" : isScreedGuide ? "Нужно подобрать технологию стяжки?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Нужно уточнить детали по вашей бане?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : isService ? "Пришлите параметры объекта и фотографии, которые есть под рукой. Уточним остальные данные и состав работ перед итоговой сметой." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
+          <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Хотите рассчитать механизированную штукатурку?" : isScreedGuide ? "Нужен расчёт полусухой стяжки для вашего объекта?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Остались вопросы по строительным работам?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
+          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : isScreedGuide ? "Пришлите площадь, этаж и фото основания — уточним состав работ и стоимость." : isService ? "Пришлите параметры объекта и фотографии, которые есть под рукой. Уточним остальные данные и состав работ перед итоговой сметой." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : isService ? "Отправить данные для расчёта" : "Написать в WhatsApp"}</LinkButton>
+            <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : isScreedGuide ? "Запросить расчёт стяжки" : isService ? "Отправить данные для расчёта" : "Написать в WhatsApp"}</LinkButton>
             {isRepairGuide ? (
               <>
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Штукатурка</LinkButton>
                 <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Стяжка</LinkButton>
               </>
-            ) : isPlasterGuide || isMaterialGuide ? <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Механизированная штукатурка</LinkButton> : isScreedGuide ? <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Полусухая стяжка</LinkButton> : isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/mobilnaya-banya-omsk/" variant="ghost">Сравнить модели бань</LinkButton>}
+            ) : isPlasterGuide || isMaterialGuide ? <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Механизированная штукатурка</LinkButton> : isScreedGuide ? <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Полусухая стяжка</LinkButton> : isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/services/" variant="ghost">Все строительные работы</LinkButton>}
           </div>
         </div>
       </section>

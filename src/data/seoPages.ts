@@ -70,10 +70,13 @@ for (const override of [...rawOverrides, ...rawNextOverrides, ...rawR3Overrides,
 
 const rawAllPages = [...rawPages, ...rawGuides, ...rawRepairGuides, ...rawScreedGuides, ...rawPlasterGuides, ...rawMaterialGuides] as SeoPage[];
 
-export const seoPages = rawAllPages.map((page) => ({
-  ...page,
-  ...(overrideBySlug.get(page.slug) ?? {}),
-})) as SeoPage[];
+// Current construction release: bath pages live only in the preserved legacy branch.
+export const seoPages = rawAllPages
+  .filter((page) => page.kind === "service" || (page.kind === "guide" && !page.slug.startsWith("guides/bani/")))
+  .map((page) => ({
+    ...page,
+    ...(overrideBySlug.get(page.slug) ?? {}),
+  })) as SeoPage[];
 
 export const seoSlugs = seoPages.map((page) => page.slug);
 

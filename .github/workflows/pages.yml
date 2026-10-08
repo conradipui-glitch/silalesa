@@ -33,11 +33,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build for GitHub Pages
+        env:
+          GITHUB_PAGES: 'true'
         run: npm run build
 
-      - name: SPA fallback
-        run: cp dist/index.html dist/404.html
+      # The pre-render creates its own noindex 404.html for retired URLs.
+      # Do not overwrite it with the homepage.
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

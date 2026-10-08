@@ -20,7 +20,9 @@ const overrides = new Map();
 for (const file of overrideFiles) for (const page of JSON.parse(read(`src/data/${file}`))) {
   overrides.set(page.slug, { ...(overrides.get(page.slug) ?? {}), ...page });
 }
-const effective = pages.map((page) => ({ ...page, ...(overrides.get(page.slug) ?? {}) }));
+const effective = pages
+  .filter((page) => page.kind === 'service' || (page.kind === 'guide' && !page.slug.startsWith('guides/bani/')))
+  .map((page) => ({ ...page, ...(overrides.get(page.slug) ?? {}) }));
 const errors = [];
 const warnings = [];
 const verify = (condition, message) => { if (!condition) errors.push(message); };
@@ -28,14 +30,29 @@ const warn = (condition, message) => { if (!condition) warnings.push(message); }
 const escape = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 const routes = [site, `${site}services/`, ...effective.map((page) => `${site}${page.slug}/`)];
 const sitemap = [...read('dist/sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-verify(effective.length === 20, `SEO registry: expected 20, found ${effective.length}`);
+verify(effective.length === 8, `Construction SEO registry: expected 8, found ${effective.length}`);
 verify(new Set(effective.map((p) => p.slug)).size === effective.length, 'Duplicate SEO slugs');
-verify(sitemap.length === 22 && new Set(sitemap).size === 22, `Sitemap: expected 22 distinct URLs, found ${sitemap.length}`);
+verify(sitemap.length === 10 && new Set(sitemap).size === 10, `Construction sitemap: expected 10 distinct URLs, found ${sitemap.length}`);
 verify(JSON.stringify(sitemap) === JSON.stringify(routes), 'Sitemap differs from actual source registry/order');
-verify([...overrides.keys()].every((slug) => effective.some((p) => p.slug === slug)), 'Orphan override slug');
+verify([...overrides.keys()].filter((slug) => !/banya|mobilnaya-banya|karkasnaya-banya|guides\/bani/.test(slug)).every((slug) => effective.some((p) => p.slug === slug)), 'Orphan construction override slug');
 verify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');
 verify(read('dist/robots.txt').includes(`Sitemap: ${site}sitemap.xml`), 'robots.txt sitemap differs from production');
-verify(read('dist/llms.txt').includes('Нефтезаводская, 49/1'), 'Public showroom not reflected in llms.txt');
+verify(!/бан[ьяиею]|квадро|саун/iu.test(read('dist/llms.txt')), 'Construction llms.txt must not promote archived sauna business');
+
+const catalogue = JSON.parse(read('src/data/construction-services.json'));
+verify(catalogue.length === 14, 'Construction catalogue must have 14 directions');
+verify(new Set(catalogue.map((service) => service.title)).size === 14, 'Construction titles must be unique');
+verify(JSON.stringify(['Генподряд','Конструктив','Отделка и полы','Спецработы'].map((group) => catalogue.filter((service) => service.group === group).length)) === JSON.stringify([4,3,4,3]), 'Construction catalogue groups must retain 4/3/4/3 directions');
+const staticCatalogues = [read('dist/index.html'), read('dist/services/index.html')];
+for (const service of catalogue) {
+  verify(service.title.length > 4 && service.text.length > 35 && service.requestHint.length > 25, `Construction catalogue fields incomplete: ${service.title}`);
+  verify(!/бан[ьяиею]|саун|квадро/iu.test(JSON.stringify(service)), `Sauna offer appeared in construction catalogue: ${service.title}`);
+  for (const html of staticCatalogues) {
+    verify(html.includes(service.title), `No-JS construction catalogue missing title: ${service.title}`);
+    verify(html.includes(service.requestHint), `No-JS construction catalogue missing estimate hint: ${service.title}`);
+  }
+}
+
 const products = read('src/data/products.ts');
 const waNumber = products.match(/whatsapp:\s*"(\d+)"/)?.[1];
 verify(Boolean(waNumber), 'No actual WhatsApp destination in product registry');
@@ -115,7 +132,7 @@ for (const url of routes) {
 }
 
 const legacy = effective.filter((p) => p.productId);
-verify(legacy.length === 7, `Expected 7 legacy numeric aliases, got ${legacy.length}`);
+verify(legacy.length === 3, `Expected 3 construction service aliases, got ${legacy.length}`);
 for (const page of legacy) {
   const file = `dist/product/${page.productId}/index.html`;
   verify(fs.existsSync(file), `Missing legacy static alias: ${page.productId}`);
@@ -126,8 +143,16 @@ for (const page of legacy) {
   verify(html.includes(`http-equiv="refresh" content="0;url=${destination}"`) && html.includes(`<a href="${destination}">`), `Legacy browser/no-JS destination missing: ${page.productId}`);
   verify(!sitemap.includes(`${site}product/${page.productId}/`), `Legacy URL appears in sitemap: ${page.productId}`);
 }
+for (const retired of [
+  'mobilnaya-banya-omsk', 'banya-kvadro-2x2-omsk', 'banya-kvadro-3x2-omsk',
+  'banya-kvadro-4x2-omsk', 'karkasnaya-banya-omsk', 'guides/bani/fundament-dlya-mobilnoy-bani',
+]) {
+  verify(!fs.existsSync(`dist/${retired}/index.html`), `Archived sauna page leaked into construction: ${retired}`);
+  verify(!sitemap.includes(`${site}${retired}/`), `Archived sauna URL in sitemap: ${retired}`);
+}
+verify(!/mobilnaya-banya|guides\/bani|karkasnaya-banya|banya-kvadro/iu.test(read('dist/index.html')), 'Construction home no-JS fallback includes sauna link');
 const printPages = effective.filter((page) => page.printChecklistPath);
-verify(printPages.length > 0, 'No printable checklist in source');
+verify(printPages.length === 0, 'Sauna printable checklists must not ship in construction build');
 for (const page of printPages) {
   const file = `dist/${page.printChecklistPath}/index.html`;
   verify(fs.existsSync(file), `Printable page missing: ${file}`);
@@ -142,4 +167,4 @@ warn(imageLinks.length > 0, 'No actual bundled photography checked');
 const outcome = { checked: { canonical: routeRows.length, aliases: legacy.length, printable: printPages.length, internalLinks: links.length, localImages: imageLinks.length }, errors, warnings, routes: routeRows };
 console.log('R10 ACCEPTANCE AUDIT:', JSON.stringify(outcome, null, 2));
 assert.equal(errors.length, 0, `${errors.length} acceptance failures; see R10 ACCEPTANCE AUDIT above`);
-console.log('R10 PASS: 22 canonical static pages, 7 aliases, printed parity, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
+console.log('R10 PASS: 10 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
