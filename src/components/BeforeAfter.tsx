@@ -59,9 +59,9 @@ export function BeforeAfter({ before, after, beforeAlt, afterAlt, compact = fals
       onPointerCancel={onPointerEnd}
       onKeyDown={onKeyDown}
     >
-      <img src={after} alt={afterAlt} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" draggable={false} />
+      <img src={after} alt={afterAlt} className="absolute inset-0 h-full w-full object-cover" loading={compact ? "lazy" : "eager"} fetchPriority={compact ? "auto" : "high"} decoding="async" draggable={false} />
       <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
-        <img src={before} alt={beforeAlt} className="h-full w-full object-cover" loading="lazy" decoding="async" draggable={false} />
+        <img src={before} alt={beforeAlt} className="h-full w-full object-cover" loading={compact ? "lazy" : "eager"} decoding="async" draggable={false} />
       </div>
 
       <span className="absolute left-4 top-4 rounded-full bg-bark-950/75 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-cream-50 backdrop-blur">В процессе</span>
@@ -72,7 +72,6 @@ export function BeforeAfter({ before, after, beforeAlt, afterAlt, compact = fals
       </div>
       <span className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-bark-950/60 px-3 py-1 text-[10px] text-cream-100/80 backdrop-blur">Потяните разделитель</span>
       </div>
-      {!compact && <figcaption className="mt-3 text-sm text-cream-300/75">Примеры процесса работ и результата.</figcaption>}
     </figure>
   );
 }
