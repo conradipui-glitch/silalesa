@@ -239,6 +239,7 @@ async function checkSocialServiceBriefs() {
   for (const phrase of ["Кровельные работы", "Центральный округ", "135 м²", "1–3 месяцев", "Есть проект"]) {
     assert.ok(message.includes(phrase), `WhatsApp prepared draft contains: ${phrase}`);
   }
+  await page.locator("details > summary").click();
   assert.ok((await page.locator('[data-qa="brief-message-preview"]').innerText()).includes("135 м²"), "Visitor can review the message locally");
   assert.ok(url.host === "wa.me", "CTA only opens WhatsApp, no form transmission");
 
