@@ -5,9 +5,10 @@ type BeforeAfterProps = {
   after: string;
   beforeAlt: string;
   afterAlt: string;
+  compact?: boolean;
 };
 
-export function BeforeAfter({ before, after, beforeAlt, afterAlt }: BeforeAfterProps) {
+export function BeforeAfter({ before, after, beforeAlt, afterAlt, compact = false }: BeforeAfterProps) {
   const [position, setPosition] = useState(50);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -44,23 +45,23 @@ export function BeforeAfter({ before, after, beforeAlt, afterAlt }: BeforeAfterP
     <figure>
       <div
       ref={rootRef}
-      className="relative aspect-[16/10] cursor-ew-resize touch-none select-none overflow-hidden rounded-3xl bg-bark-800 shadow-card"
+      className={`relative aspect-[16/10] cursor-ew-resize touch-none select-none overflow-hidden bg-bark-800 ${compact ? "rounded-t-3xl" : "rounded-3xl shadow-card"}`}
       role="slider"
       tabIndex={0}
-      aria-label="Иллюстративное сравнение этапа работ и готовой поверхности"
+      aria-label="Сравнение процесса работ и примера результата"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(position)}
-      aria-valuetext={`${Math.round(position)}% иллюстрации этапа работ`}
+      aria-valuetext={`${Math.round(position)}% изображения процесса работ`}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
       onKeyDown={onKeyDown}
     >
-      <img src={after} alt={afterAlt} className="absolute inset-0 h-full w-full object-cover" draggable={false} />
+      <img src={after} alt={afterAlt} className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" draggable={false} />
       <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
-        <img src={before} alt={beforeAlt} className="h-full w-full object-cover" draggable={false} />
+        <img src={before} alt={beforeAlt} className="h-full w-full object-cover" loading="lazy" decoding="async" draggable={false} />
       </div>
 
       <span className="absolute left-4 top-4 rounded-full bg-bark-950/75 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-cream-50 backdrop-blur">В процессе</span>
@@ -71,9 +72,7 @@ export function BeforeAfter({ before, after, beforeAlt, afterAlt }: BeforeAfterP
       </div>
       <span className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-bark-950/60 px-3 py-1 text-[10px] text-cream-100/80 backdrop-blur">Потяните разделитель</span>
       </div>
-      <figcaption className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-200/90">
-        Иллюстративное сравнение технологии и результата. Изображения не являются подтверждённым фотоотчётом одного объекта или доказательством работ «Силы Леса».
-      </figcaption>
+      {!compact && <figcaption className="mt-3 text-sm text-cream-300/75">Примеры процесса работ и результата.</figcaption>}
     </figure>
   );
 }

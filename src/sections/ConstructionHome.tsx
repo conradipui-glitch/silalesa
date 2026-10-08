@@ -1,15 +1,13 @@
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon, SectionHead } from "../components/Brand";
+import { BeforeAfter } from "../components/BeforeAfter";
 import { company, whatsappUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 import { getHomepageOffer } from "../data/offerContext";
+import { serviceComparisonBySlug } from "../data/serviceMedia";
 const heroConstruction = `${import.meta.env.BASE_URL}assets/construction-hero-mixed.webp`;
-const plasterPhotoBase = "https://images.unsplash.com/photo-1761986757577-140af8859587?auto=format&fit=crop&fm=webp&q=80";
-const screedPhotoBase = "https://images.unsplash.com/photo-1743130940796-7a8e6e8b998e?auto=format&fit=crop&fm=webp&q=80";
-const plasterPhoto = `${plasterPhotoBase}&w=1400`;
-const screedPhoto = `${screedPhotoBase}&w=1400`;
-const plasterPhotoSrcSet = [640, 960, 1400].map((width) => `${plasterPhotoBase}&w=${width} ${width}w`).join(", ");
-const screedPhotoSrcSet = [640, 960, 1400].map((width) => `${screedPhotoBase}&w=${width} ${width}w`).join(", ");
+const plasterComparison = serviceComparisonBySlug["mehanizirovannaya-shtukaturka-omsk"];
+const screedComparison = serviceComparisonBySlug["polusuhaya-styazhka-omsk"];
 
 type ServiceGroup = "Генподряд" | "Конструктив" | "Отделка и полы" | "Спецработы";
 
@@ -236,7 +234,6 @@ export function ConstructionHome() {
             <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
               <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
                 <img data-construction-hero src={heroConstruction} alt="Иллюстрация строительного процесса: монолит, кладка и рабочие на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
-                <p className="absolute left-5 top-5 rounded-full border border-cream-50/20 bg-bark-950/75 px-3 py-1.5 text-xs font-medium text-cream-50 backdrop-blur-sm" data-qa="hero-image-disclaimer">Визуализация · не фото объекта</p>
                 <div className="absolute inset-0 bg-gradient-to-t from-bark-950/75 via-bark-950/5 to-transparent" aria-hidden="true" />
                 <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
                   <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/88 p-4 backdrop-blur-sm">
@@ -410,35 +407,31 @@ export function ConstructionHome() {
           </div>
 
           <div className="mt-12 grid gap-5 lg:grid-cols-2">
-            <Link to="/mehanizirovannaya-shtukaturka-omsk/" data-qa="specialty-card" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900">
-              <div className="aspect-[16/9] overflow-hidden bg-bark-800">
-                <img src={plasterPhoto} srcSet={plasterPhotoSrcSet} sizes="(min-width: 1024px) 50vw, 100vw" alt="Мастер наносит штукатурку на стену" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" width={1200} height={675} />
-              </div>
-              <div className="p-6 sm:p-7">
-                <p className="text-xs text-cream-300/80">Иллюстрация технологии, не фотоотчёт компании</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.18em] text-cedar-300">Отделка стен</p>
+            <article data-qa="specialty-card" className="reveal overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900">
+              <BeforeAfter {...plasterComparison} compact />
+              <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="group block p-6 transition-colors hover:bg-cream-50/[0.03] sm:p-7">
+                <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Отделка стен</p>
                 <div className="mt-2 flex items-center justify-between gap-4">
-                  <h3 className="font-display text-2xl text-cream-50">Механизированная штукатурка</h3>
+                  <h3 className="font-display text-2xl text-cream-50 transition-colors group-hover:text-cedar-300">Механизированная штукатурка</h3>
                   <ArrowIcon className="shrink-0 text-cedar-300" />
                 </div>
                 <p className="mt-3 text-base leading-relaxed text-cream-300/80">Машинное нанесение и выравнивание стен с расчётом по площади, состоянию основания и условиям объекта.</p>
-              </div>
-            </Link>
+                <span className="mt-5 inline-flex min-h-11 items-center text-sm font-medium text-cedar-300 group-hover:text-cedar-200">Подробнее и расчёт <ArrowIcon className="ml-2" /></span>
+              </Link>
+            </article>
 
-            <Link to="/polusuhaya-styazhka-omsk/" data-qa="specialty-card" className="reveal group overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900" style={{ ["--reveal-delay" as string]: "80ms" }}>
-              <div className="aspect-[16/9] overflow-hidden bg-bark-800">
-                <img src={screedPhoto} srcSet={screedPhotoSrcSet} sizes="(min-width: 1024px) 50vw, 100vw" alt="Строители выравнивают бетонное основание пола" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" width={1200} height={675} />
-              </div>
-              <div className="p-6 sm:p-7">
-                <p className="text-xs text-cream-300/80">Иллюстрация технологии, не фотоотчёт компании</p>
-                <p className="mt-3 text-xs uppercase tracking-[0.18em] text-cedar-300">Подготовка пола</p>
+            <article data-qa="specialty-card" className="reveal overflow-hidden rounded-3xl border border-cream-50/10 bg-bark-900" style={{ ["--reveal-delay" as string]: "80ms" }}>
+              <BeforeAfter {...screedComparison} compact />
+              <Link to="/polusuhaya-styazhka-omsk/" className="group block p-6 transition-colors hover:bg-cream-50/[0.03] sm:p-7">
+                <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Подготовка пола</p>
                 <div className="mt-2 flex items-center justify-between gap-4">
-                  <h3 className="font-display text-2xl text-cream-50">Полусухая стяжка</h3>
+                  <h3 className="font-display text-2xl text-cream-50 transition-colors group-hover:text-cedar-300">Полусухая стяжка</h3>
                   <ArrowIcon className="shrink-0 text-cedar-300" />
                 </div>
                 <p className="mt-3 text-base leading-relaxed text-cream-300/80">Ровное основание под напольные покрытия с механизированной подачей смеси и выравниванием по отметкам.</p>
-              </div>
-            </Link>
+                <span className="mt-5 inline-flex min-h-11 items-center text-sm font-medium text-cedar-300 group-hover:text-cedar-200">Подробнее и расчёт <ArrowIcon className="ml-2" /></span>
+              </Link>
+            </article>
           </div>
         </div>
       </section>

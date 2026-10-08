@@ -124,21 +124,24 @@ async function checkConstructionUx(page, label, { touch = false } = {}) {
     assert.deepEqual(small, [], `${label}: visible touch targets stay at least 44x44px`);
   }
 
-  const specialtyImages = page.locator('[data-qa="specialty-card"] img');
-  if (await specialtyImages.count()) {
-    const attrs = await specialtyImages.evaluateAll((imgs) => imgs.map((img) => ({
-      srcset: img.getAttribute('srcset'),
-      sizes: img.getAttribute('sizes'),
-      loading: img.getAttribute('loading'),
-      decoding: img.getAttribute('decoding'),
-    })));
-    for (const image of attrs) {
-      assert.ok(image.srcset?.includes('640w') && image.srcset.includes('960w') && image.srcset.includes('1400w'), `${label}: specialty image has responsive srcset`);
-      assert.ok(image.sizes, `${label}: specialty image declares sizes`);
-      assert.equal(image.loading, 'lazy', `${label}: below-fold specialty image is lazy loaded`);
-      assert.equal(image.decoding, 'async', `${label}: below-fold specialty image decodes asynchronously`);
-    }
+  const specialtyCards = page.locator('[data-qa="specialty-card"]');
+  assert.equal(await specialtyCards.count(), 2, `${label}: plaster and screed cards exist`);
+  assert.equal(await specialtyCards.locator('[role="slider"]').count(), 2, `${label}: original before/after comparisons are available on homepage`);
+  const images = await specialtyCards.locator('img').evaluateAll((imgs) => imgs.map((img) => ({
+    src: img.getAttribute('src') || '',
+    loading: img.getAttribute('loading'),
+    decoding: img.getAttribute('decoding'),
+  })));
+  assert.equal(images.length, 4, `${label}: four local comparison images are shown`);
+  for (const name of ['plaster-before', 'plaster-after', 'screed-before', 'screed-after']) {
+    assert.ok(images.some((item) => item.src.includes(name)), `${label}: local comparison asset ${name} is used`);
   }
+  for (const image of images) {
+    assert.ok(!image.src.includes('unsplash'), `${label}: no unrelated stock photo in service showcase`);
+    assert.equal(image.loading, 'lazy', `${label}: comparison image is lazy-loaded`);
+    assert.equal(image.decoding, 'async', `${label}: comparison image uses async decoding`);
+  }
+  assert.equal(await specialtyCards.locator('a[href$="-omsk/"]').count(), 2, `${label}: both services retain detail links`);
 }
 
 async function checkIntentAwareHomepage() {
@@ -295,7 +298,7 @@ async function checkHomepageViewport(label, contextOptions) {
   await checkConstructionLayout(page, label);
   await checkServiceDiscovery(page, label);
   assert.equal(await page.locator('#estimate [data-qa="estimate-checklist"] article').count(), 3, `${label}: transparent calculation conditions are visible`);
-  assert.equal(await page.locator('[data-qa="hero-image-disclaimer"]').count(), 1, `${label}: generated hero clearly discloses it is not a company project photo`);
+  assert.equal(await page.locator('[data-qa="hero-image-disclaimer"]').count(), 0, `${label}: hero has no intrusive disclosure badge`);
   const estimateText = await page.locator('#estimate').innerText();
   assert.ok(estimateText.includes('срок действия цены') && estimateText.includes('гарантийные условия') && estimateText.includes('порядок оплаты'), `${label}: estimate checklist covers contract questions`);
   await checkConstructionUx(page, label, { touch: Boolean(contextOptions.isMobile || contextOptions.hasTouch) });
@@ -396,7 +399,7 @@ async function run(label, contextOptions) {
   assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /seoPages-[\w-]+\.js/.test(name)), 'SEO registry is fetched on landing routes');
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
   assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: service prices are flagged for reconfirmation`);
-  assert.ok((await page.locator('figure figcaption').allInnerTexts()).some(text => text.includes('не являются подтверждённым фотоотчётом')), `${label}: before/after visual is not passed off as verified portfolio`);
+  assert.ok((await page.locator('figure figcaption').allInnerTexts()).some(text => text.includes('Примеры процесса работ и результата')), `${label}: service comparison is labelled as examples without excessive disclaimer`);
   await visit(page, 'services/', `${label}: services hub`);
   assert.ok((await page.locator('a[href$="/#estimate"]').count()) >= 1, `${label}: services hub links to pricing transparency`);
   if (label === 'mobile') {
