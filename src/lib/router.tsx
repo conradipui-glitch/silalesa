@@ -23,39 +23,12 @@ export type Route =
   | { name: "notfound"; path: string };
 
 /**
- * Базовый путь приложения. Вычисляется один раз из стартового URL:
- *  /                                  → /
- *  /product/10645551                  → /
- *  /banya-kvadro-3x2-omsk/           → /
- *  /preview/x/banya-kvadro-3x2-omsk/ → /preview/x/
- * Это сохраняет нормальные адреса и позволяет работать из подпапки GitHub Pages.
+ * The Vite base is known at build time ("/" locally and "/silalesa/" on Pages).
+ * Never infer an app base from an unknown legacy URL: doing so can mistakenly
+ * render the homepage instead of the correct 404 for archived sauna routes.
  */
 function computeBase(): string {
-  let p = window.location.pathname;
-  const normalized = p.replace(/\/+$/, "");
-
-  const productMatch = normalized.match(/^(.*?)\/product\/[^/]+$/);
-  if (productMatch) return `${productMatch[1]}/` || "/";
-
-  const briefMatch = normalized.match(/^(.*?)\/brief(?:\/[^/]+)?$/);
-  if (briefMatch) return `${briefMatch[1]}/` || "/";
-
-  if (normalized.endsWith("/services")) {
-    const base = normalized.slice(0, -"services".length);
-    return base || "/";
-  }
-
-  for (const slug of seoSlugs) {
-    const suffix = `/${slug}`;
-    if (normalized.endsWith(suffix)) {
-      const base = normalized.slice(0, -slug.length);
-      return base || "/";
-    }
-  }
-
-  if (p.endsWith("index.html")) p = p.slice(0, -"index.html".length);
-  if (!p.endsWith("/")) p += "/";
-  return p;
+  return import.meta.env.BASE_URL;
 }
 
 function parseRoute(base: string): Route {
