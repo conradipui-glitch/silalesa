@@ -51,7 +51,7 @@ const detailedServicePages: Partial<Record<string, string>> = {
 const processSteps = [
   { n: "01", title: "Задача и исходные данные", text: "Получаем проект, объёмы, адрес объекта и желаемые сроки. Если проект ещё формируется — фиксируем, что нужно уточнить до сметы." },
   { n: "02", title: "Осмотр и объёмы", text: "Проверяем условия площадки, доступ техники, фактические размеры и ограничения, которые влияют на технологию и стоимость." },
-  { n: "03", title: "Смета и этапность", text: "Разбиваем работы на понятные этапы: конструктив, коробка, инженерно-подготовительные и отделочные работы." },
+  { n: "03", title: "Смета и этапность", text: "Определяем перечень работ, единицы измерения и последовательность этапов, чтобы можно было сравнить полные предложения." },
   { n: "04", title: "Производство работ", text: "Организуем людей, материалы и последовательность операций в рамках согласованного объёма." },
   { n: "05", title: "Приёмка этапа", text: "Сверяем выполненный объём с согласованной задачей и переходим к следующему этапу либо закрываем работы." },
 ];
@@ -218,7 +218,7 @@ export function ConstructionHome() {
             <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
               <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
                 <img data-construction-hero src={heroConstruction} alt="Иллюстрация строительного процесса: монолит, кладка и рабочие на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
-                <p className="absolute left-5 top-5 rounded-full border border-cream-50/20 bg-bark-950/75 px-3 py-1.5 text-xs font-medium text-cream-50 backdrop-blur-sm">Иллюстрация</p>
+                <p className="absolute left-5 top-5 rounded-full border border-cream-50/20 bg-bark-950/75 px-3 py-1.5 text-xs font-medium text-cream-50 backdrop-blur-sm">Концептуальная иллюстрация · не фото объекта компании</p>
                 <div className="absolute inset-0 bg-gradient-to-t from-bark-950/75 via-bark-950/5 to-transparent" aria-hidden="true" />
                 <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
                   <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/88 p-4 backdrop-blur-sm">
@@ -254,7 +254,7 @@ export function ConstructionHome() {
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Под ключ</p>
               <h3 className="mt-4 font-display text-2xl font-medium">Комплексное строительство</h3>
               <ul className="mt-6 space-y-4 text-base leading-relaxed text-bark-700">
-                {["Комплектуем этапы в одну последовательность работ", "Сводим конструктив, коробку и отделочные этапы", "Согласуем объём и точки приёмки до начала работ"].map((item) => (
+                {["Комплектуем этапы в одну последовательность работ", "Сводим конструктив, коробку и отделочные этапы", "Обсуждаем состав и проверку результата до начала работ"].map((item) => (
                   <li key={item} className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-moss-600" />{item}</li>
                 ))}
               </ul>
@@ -285,10 +285,68 @@ export function ConstructionHome() {
         </div>
       </section>
 
+      <section id="estimate" className="scroll-mt-20 bg-bark-950 py-20 sm:py-24" aria-labelledby="estimate-title">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[.95fr_1.05fr] lg:items-end">
+            <SectionHead
+              index="03 — Стоимость"
+              title={<span id="estimate-title">Как получить понятный расчёт строительных работ</span>}
+              lead="Предварительная оценка помогает определить порядок затрат. Для сравнения предложений важно видеть не одну цифру, а перечень работ и условия, которые на неё влияют."
+            />
+            <p className="max-w-xl text-base leading-relaxed text-cream-300/80 lg:justify-self-end">
+              До согласования объёмов и условий площадки цифра за квадратный метр не равна итоговой стоимости объекта. Попросите указать, что включено, а что предстоит рассчитать отдельно.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3" data-qa="estimate-checklist">
+            {[
+              {
+                n: "01",
+                title: "Объём и основание",
+                text: "Тип объекта, чертежи или фотографии, ориентировочная площадь, состояние конструкций и нужный результат.",
+              },
+              {
+                n: "02",
+                title: "Состав стоимости",
+                text: "Работы и единицы измерения; материалы, доставка, подъём, техника и подготовка — с отметкой, какие позиции включены.",
+              },
+              {
+                n: "03",
+                title: "Условия и изменения",
+                text: "Доступ на объект, сезон, ограничения площадки, возможные дополнительные работы и порядок их согласования.",
+              },
+            ].map((item) => (
+              <article key={item.n} className="rounded-3xl border border-cream-50/10 bg-bark-900 p-6 sm:p-7">
+                <span className="font-display text-sm text-cedar-300">{item.n}</span>
+                <h3 className="mt-4 font-display text-xl text-cream-50">{item.title}</h3>
+                <p className="mt-3 text-base leading-relaxed text-cream-300/80">{item.text}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 flex flex-col gap-5 rounded-3xl border border-cedar-400/25 bg-cedar-500/[0.08] p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <h3 className="font-display text-xl text-cream-50">Что уточнить до принятия решения</h3>
+              <p className="mt-2 text-base leading-relaxed text-cream-300/80">
+                Попросите зафиксировать состав сметы, срок действия цены, этапы, порядок оплаты, приёмки и гарантийные условия в предложении и договоре. Их нельзя считать согласованными по одному описанию на сайте.
+              </p>
+            </div>
+            <LinkButton
+              to={whatsappUrl("Здравствуйте! Хочу предварительный расчёт. Подскажите, какие работы и расходы войдут в смету, что оплачивается отдельно и какие данные объекта вам нужны.")}
+              external
+              className="shrink-0"
+              onClick={() => track("cta_click", { type: "whatsapp", where: "construction-estimate" })}
+            >
+              Обсудить состав сметы <ArrowIcon />
+            </LinkButton>
+          </div>
+        </div>
+      </section>
+
       <section id="process" className="scroll-mt-20 bg-bark-900 py-20 sm:py-28" aria-labelledby="process-title">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHead
-            index="03 — От задачи к работам"
+            index="04 — От задачи к работам"
             title={<span id="process-title">Как задача становится планом работ</span>}
             lead="От первого обращения до приёмки этапа: что обсуждаем и на что опираемся при расчёте."
           />
@@ -324,7 +382,7 @@ export function ConstructionHome() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[.78fr_1.22fr] lg:items-end">
             <SectionHead
-              index="04 — Отделка и полы"
+              index="05 — Отделка и полы"
               title={<span id="specialties-title">Штукатурка и стяжка — отдельно или в составе комплекса</span>}
               lead="Выполняем механизированную штукатурку и полусухую стяжку как самостоятельные работы для квартир, домов и коммерческих объектов."
             />
@@ -339,7 +397,8 @@ export function ConstructionHome() {
                 <img src={plasterPhoto} srcSet={plasterPhotoSrcSet} sizes="(min-width: 1024px) 50vw, 100vw" alt="Мастер наносит штукатурку на стену" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" width={1200} height={675} />
               </div>
               <div className="p-6 sm:p-7">
-                <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Отделка стен</p>
+                <p className="text-xs text-cream-300/80">Иллюстрация технологии, не фотоотчёт компании</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.18em] text-cedar-300">Отделка стен</p>
                 <div className="mt-2 flex items-center justify-between gap-4">
                   <h3 className="font-display text-2xl text-cream-50">Механизированная штукатурка</h3>
                   <ArrowIcon className="shrink-0 text-cedar-300" />
@@ -353,7 +412,8 @@ export function ConstructionHome() {
                 <img src={screedPhoto} srcSet={screedPhotoSrcSet} sizes="(min-width: 1024px) 50vw, 100vw" alt="Строители выравнивают бетонное основание пола" referrerPolicy="no-referrer" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="lazy" decoding="async" width={1200} height={675} />
               </div>
               <div className="p-6 sm:p-7">
-                <p className="text-xs uppercase tracking-[0.18em] text-cedar-300">Подготовка пола</p>
+                <p className="text-xs text-cream-300/80">Иллюстрация технологии, не фотоотчёт компании</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.18em] text-cedar-300">Подготовка пола</p>
                 <div className="mt-2 flex items-center justify-between gap-4">
                   <h3 className="font-display text-2xl text-cream-50">Полусухая стяжка</h3>
                   <ArrowIcon className="shrink-0 text-cedar-300" />
