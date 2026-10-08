@@ -1,13 +1,12 @@
 import { lazy, Suspense, useEffect } from "react";
 import { ConstructionFooter, ConstructionHeader, ConstructionMobileBar } from "./components/ConstructionChrome";
+import { NotFound } from "./pages/ConstructionNotFound";
 import { landingByProductId } from "./data/routeManifest";
 import { RouterProvider, useRouter } from "./lib/router";
 import { track, useDocumentTitle, useRevealRoot } from "./lib/utils";
 import { useSeasonalTheme } from "./seasonal/calendar";
 import { ConstructionHome, ConstructionServicesPage } from "./sections/ConstructionHome";
 
-const ProductPage = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.ProductPage })));
-const NotFound = lazy(() => import("./pages/ProductPage").then((m) => ({ default: m.NotFound })));
 const SeoLandingPage = lazy(() => import("./pages/SeoLandingPage").then((m) => ({ default: m.SeoLandingPage })));
 const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
 const ServiceBriefPage = lazy(() => import("./pages/ServiceBriefPage").then((m) => ({ default: m.ServiceBriefPage })));
