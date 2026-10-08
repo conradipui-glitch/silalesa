@@ -194,13 +194,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         <div className="mt-8 grid items-center gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-14">
           <div className="reveal">
             <p className="text-xs uppercase tracking-[0.22em] text-cedar-300">{page.eyebrow}</p>
-            <h1 className="mt-4 max-w-3xl font-display text-[34px] font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] sm:text-5xl lg:text-[58px]">{page.h1}</h1>
+            <h1 className={`mt-4 max-w-3xl font-display font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] ${isPlasterGuide ? "text-[clamp(25px,7vw,34px)] sm:text-[44px] lg:text-[clamp(34px,3.4vw,46px)]" : "text-[34px] sm:text-5xl lg:text-[58px]"}`}>{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
 
             {isPlasterGuide && (
               <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
-                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">от 550 ₽/м²</strong>. Это стартовая цена, не окончательная смета.</p>
-                <p className="mt-2 text-sm text-cream-200">Для расчёта достаточно начать с площади и фотографий стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Подробнее об услуге и условиях</Link>.</p>
+                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">от 550 ₽/м²</strong>. Стоимость уточним по площади и условиям работ.</p>
+                <p className="mt-2 text-sm text-cream-200">Пришлите площадь и фото стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Состав услуги и условия</Link>.</p>
               </div>
             )}
             {isSaunaChoiceGuide && firstChoice && lastChoice && (
@@ -550,7 +550,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <CheckIcon className="mx-auto h-6 w-6 text-moss-400" />
           <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Хотите рассчитать механизированную штукатурку?" : isScreedGuide ? "Нужен расчёт полусухой стяжки для вашего объекта?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Остались вопросы по строительным работам?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
-          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : isService ? "Пришлите параметры объекта и фотографии, которые есть под рукой. Уточним остальные данные и состав работ перед итоговой сметой." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
+          <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : isScreedGuide ? "Пришлите площадь, этаж и фото основания — уточним состав работ и стоимость." : isService ? "Пришлите параметры объекта и фотографии, которые есть под рукой. Уточним остальные данные и состав работ перед итоговой сметой." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : isScreedGuide ? "Запросить расчёт стяжки" : isService ? "Отправить данные для расчёта" : "Написать в WhatsApp"}</LinkButton>
             {isRepairGuide ? (
