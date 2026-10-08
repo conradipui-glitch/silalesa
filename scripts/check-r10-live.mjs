@@ -6,13 +6,14 @@ import fs from 'node:fs';
 // not a server-side 301 (GitHub Pages does not support one).
 const site = 'https://conradipui-glitch.github.io/silalesa/';
 const sources = ['seo-pages.json','seo-page-guides.json','seo-page-guides-remont.json','seo-page-guides-screed.json','seo-page-guides-plaster.json','seo-page-guides-materials.json'];
-const pages = sources.flatMap((file) => JSON.parse(fs.readFileSync(`src/data/${file}`, 'utf8')));
+const pages = sources.flatMap((file) => JSON.parse(fs.readFileSync(`src/data/${file}`, 'utf8')))
+  .filter((page) => page.kind === 'service' || (page.kind === 'guide' && !page.slug.startsWith('guides/bani/')));
 const routes = [site, `${site}services/`, ...pages.map((page) => `${site}${page.slug}/`)];
 const aliases = pages.filter((page) => page.productId);
 const printable = pages.filter((page) => page.printChecklistPath);
-assert.equal(routes.length, 22, 'Public sitemap must cover 22 canonical routes');
-assert.equal(aliases.length, 7, 'Seven numeric product/service URLs');
-assert.equal(printable.length, 1, 'Exactly one printable acceptance checklist');
+assert.equal(routes.length, 10, 'Construction sitemap must cover 10 canonical routes');
+assert.equal(aliases.length, 3, 'Three numeric service URLs');
+assert.equal(printable.length, 0, 'Sauna printable checklist must not be on construction website');
 
 async function request(url, attempts = 3) {
   let error;
@@ -60,17 +61,23 @@ const sitemapUrl = `${site}sitemap.xml`;
 const sitemap = await request(sitemapUrl);
 checked++;
 const actual = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-check(sitemap.status === 200 && JSON.stringify(actual) === JSON.stringify(routes), 'Live sitemap does not match source registry (22 URLs)');
+check(sitemap.status === 200 && JSON.stringify(actual) === JSON.stringify(routes), 'Live sitemap does not match construction registry (10 URLs)');
 const robots = await request(`${site}robots.txt`);
 checked++;
 check(robots.status === 200 && robots.body.includes(`Sitemap: ${sitemapUrl}`), 'Live robots.txt wrong or unavailable');
 const llms = await request(`${site}llms.txt`);
 checked++;
-check(llms.status === 200 && llms.body.includes('Нефтезаводская, 49/1') && !/Заоз[её]рн/iu.test(llms.body), 'Live AI index has old or missing showroom');
+check(llms.status === 200 && llms.body.includes('Строительные работы в Омске') && !/бан[ьяиею]|квадро|саун|Нефтезаводская/iu.test(llms.body), 'Live AI index is not construction-only');
+for (const retired of ['mobilnaya-banya-omsk/', 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/']) {
+  const retiredResponse = await request(`${site}${retired}`);
+  checked++;
+  check(retiredResponse.status === 404, `Archived sauna URL should return HTTP 404: ${retired} (${retiredResponse.status})`);
+  check(retiredResponse.body.includes('noindex, follow') && retiredResponse.body.includes('Такой страницы нет'), `Archived sauna URL must serve a truthful noindex construction-only 404: ${retired}`);
+}
 const unknown = await request(`${site}__r10-test-unknown-route__/`);
 checked++;
 check(unknown.status === 404, `Unknown route should remain HTTP 404, got ${unknown.status}`);
 
 console.log('R10 LIVE HTTP SUMMARY:', JSON.stringify({ checked, canonical: routes.length, legacy: aliases.length, printable: printable.length, sitemap: 1, robots: 1, llms: 1, unknown404: unknown.status === 404, errors }, null, 2));
 assert.equal(errors.length, 0, 'Live acceptance failed; see R10 LIVE HTTP SUMMARY');
-console.log('R10 LIVE PASS: public routes return HTTP 200 and readable HTML; aliases are static 200 with canonical/noindex/refresh, print works, sitemap/robots/llms agree, unknown URL returns 404. Interactive browser clicks and actual WhatsApp sending remain manual.');
+console.log('CONSTRUCTION LIVE PASS: 10 canonical HTML pages, 3 service aliases, 2 retired sauna 404s, sitemap/robots/llms parity, unknown URL 404. No WhatsApp messages sent.');
