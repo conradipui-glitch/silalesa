@@ -261,12 +261,12 @@ async function checkSocialServiceBriefs() {
   const desktop = await desk.newPage();
   await visit(desktop, "brief/", "social: general link");
   assert.equal(await desktop.locator("#brief-service option").count(), 15, "General microsite exposes 14 services plus mixed task");
+  assert.ok((await desktop.locator("main h1").innerText()).includes("Строительные работы"), "General microsite is coherent on desktop");
   await visit(desktop, "brief/screed/", "social: screed guidance");
   assert.ok((await desktop.locator('[data-qa="brief-service-guidance"]').innerText()).includes("толщина"), "Screed checklist mentions thickness and covering");
   await visit(desktop, "brief/facades/", "social: facade guidance");
   assert.ok((await desktop.locator('[data-qa="brief-service-guidance"]').innerText()).includes("материал стен"), "Facades checklist covers substrate and access");
 
-  assert.ok((await desktop.locator("main h1").innerText()).includes("Строительные работы"), "General microsite is coherent on desktop");
   const desktopFit = await desktop.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   assert.ok(desktopFit.scroll <= desktopFit.width + 2, "No desktop overflow");
   console.log("CHROMIUM_SOCIAL_BRIEF_PASS: direct mobile and desktop URLs, own OG/noindex metadata, live service select, editable WhatsApp draft");
