@@ -86,6 +86,22 @@ async function checkServiceDiscovery(page, label) {
   assert.equal(linkKinds.filter((entry) => entry.href.startsWith('https://wa.me/')).length, 12, `${label}: 12 directions open a service-specific consultation`);
   assert.equal(linkKinds.filter((entry) => /mehanizirovannaya-shtukaturka-omsk|polusuhaya-styazhka-omsk/.test(entry.href)).length, 2, `${label}: two detailed service pages remain linked`);
   assert.ok(linkKinds.every((entry) => entry.height >= 44 && entry.label.length > 15), `${label}: every service action has a readable, accessible 44px target`);
+  const hints = page.locator('#services [data-qa="service-request-hint"]');
+  assert.equal(await hints.count(), 14, `${label}: all construction directions show estimate preparation hints`);
+  const hintText = await hints.allInnerTexts();
+  assert.ok(hintText.every((item) => item.startsWith("Для первого расчёта:") && item.length > 40), `${label}: estimate hints are clear, nonempty text`);
+  for (const [serviceName, keywords] of Object.entries({
+    "Кровельные работы": ["монтаж или ремонт", "покрытие"],
+    "Фасадные работы": ["материал стен", "утепления"],
+    "Демонтажные работы": ["что нужно разобрать", "условия доступа"],
+  })) {
+    const card = page.locator('#services [data-qa="service-group"] article').filter({ hasText: serviceName });
+    assert.equal(await card.count(), 1, `${label}: distinct service card for ${serviceName}`);
+    const href = await card.locator('a[href^="https://wa.me/"]').getAttribute('href');
+    const message = new URL(href).searchParams.get('text') ?? '';
+    assert.ok(message.includes(serviceName), `${label}: consultation prefills chosen service`);
+    assert.ok(keywords.every((word) => message.includes(word)), `${label}: consultation prefills relevant estimation context for ${serviceName}`);
+  }
   assert.equal(await page.locator('#process ol > li').count(), 6, `${label}: five process steps plus clear contact action`);
   console.log('CHROMIUM_SERVICE_DISCOVERY_PASS', label, distribution);
 }
