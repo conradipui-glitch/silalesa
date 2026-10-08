@@ -38,6 +38,21 @@ verify([...overrides.keys()].filter((slug) => !/banya|mobilnaya-banya|karkasnaya
 verify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');
 verify(read('dist/robots.txt').includes(`Sitemap: ${site}sitemap.xml`), 'robots.txt sitemap differs from production');
 verify(!/бан[ьяиею]|квадро|саун/iu.test(read('dist/llms.txt')), 'Construction llms.txt must not promote archived sauna business');
+
+const catalogue = JSON.parse(read('src/data/construction-services.json'));
+verify(catalogue.length === 14, 'Construction catalogue must have 14 directions');
+verify(new Set(catalogue.map((service) => service.title)).size === 14, 'Construction titles must be unique');
+verify(JSON.stringify(['Генподряд','Конструктив','Отделка и полы','Спецработы'].map((group) => catalogue.filter((service) => service.group === group).length)) === JSON.stringify([4,3,4,3]), 'Construction catalogue groups must retain 4/3/4/3 directions');
+const staticCatalogues = [read('dist/index.html'), read('dist/services/index.html')];
+for (const service of catalogue) {
+  verify(service.title.length > 4 && service.text.length > 35 && service.requestHint.length > 25, `Construction catalogue fields incomplete: ${service.title}`);
+  verify(!/бан[ьяиею]|саун|квадро/iu.test(JSON.stringify(service)), `Sauna offer appeared in construction catalogue: ${service.title}`);
+  for (const html of staticCatalogues) {
+    verify(html.includes(service.title), `No-JS construction catalogue missing title: ${service.title}`);
+    verify(html.includes(service.requestHint), `No-JS construction catalogue missing estimate hint: ${service.title}`);
+  }
+}
+
 const products = read('src/data/products.ts');
 const waNumber = products.match(/whatsapp:\s*"(\d+)"/)?.[1];
 verify(Boolean(waNumber), 'No actual WhatsApp destination in product registry');
