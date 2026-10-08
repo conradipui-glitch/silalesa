@@ -13,7 +13,7 @@ const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
 
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
-const SERVICES_TITLE = "Строительные работы под ключ в Омске — Сила Леса";
+const SERVICES_TITLE = "Строительные работы в Омске — Сила Леса";
 const SERVICES_DESCRIPTION =
   "Строительные работы в Омске: коттеджи под ключ, монолит, кладка, штукатурка, стяжка, промышленные полы, металлоконструкции, ангары, кровля, фасады и демонтаж.";
 
@@ -53,7 +53,7 @@ function useServicesMeta() {
 }
 
 function Home() {
-  useDocumentTitle("Сила Леса — строительство под ключ в Омске");
+  useDocumentTitle("Сила Леса — строительные работы в Омске");
   const root = useRevealRoot<HTMLDivElement>([]);
   return (
     <div ref={root}>
@@ -67,7 +67,7 @@ function ServicesScreen() {
   const root = useRevealRoot<HTMLDivElement>([]);
   return (
     <div ref={root}>
-      <h1 className="sr-only">Строительные работы под ключ в Омске</h1>
+      <h1 className="sr-only">Строительные работы в Омске</h1>
       <ConstructionServicesPage />
     </div>
   );
