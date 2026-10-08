@@ -210,6 +210,10 @@ async function checkHomepageViewport(label, contextOptions) {
   await visit(page, '', `${label}: homepage visual QA`);
   await checkConstructionLayout(page, label);
   await checkServiceDiscovery(page, label);
+  assert.equal(await page.locator('#estimate [data-qa="estimate-checklist"] article').count(), 3, `${label}: transparent calculation conditions are visible`);
+  assert.equal(await page.locator('[data-qa="hero-image-disclaimer"]').count(), 1, `${label}: generated hero clearly discloses it is not a company project photo`);
+  const estimateText = await page.locator('#estimate').innerText();
+  assert.ok(estimateText.includes('срок действия цены') && estimateText.includes('гарантийные условия') && estimateText.includes('порядок оплаты'), `${label}: estimate checklist covers contract questions`);
   await checkConstructionUx(page, label, { touch: Boolean(contextOptions.isMobile || contextOptions.hasTouch) });
   const hero = page.locator('img[data-construction-hero]');
   await hero.evaluate((img) => img.decode());
@@ -301,10 +305,16 @@ async function run(label, contextOptions) {
   }
   await visit(page, 'mobilnaya-banya-omsk/', `${label}: catalogue`);
   await visit(page, 'banya-kvadro-3x2-omsk/', `${label}: product`);
+  assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: sauna prices are explicitly flagged for reconfirmation`);
+  assert.equal(await page.locator('a[href$="/#quiz"]').count(), 0, `${label}: obsolete quiz link does not appear on sauna landing`);
   await visit(page, 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/', `${label}: guide`);
+  assert.equal(await page.locator('aside[aria-label="О характере материала"]').count(), 1, `${label}: article has information-scope disclaimer`);
   assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /seoPages-[\w-]+\.js/.test(name)), 'SEO registry is fetched on landing routes');
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
+  assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: service prices are flagged for reconfirmation`);
+  assert.ok((await page.locator('figure figcaption').allInnerTexts()).some(text => text.includes('не являются подтверждённым фотоотчётом')), `${label}: before/after visual is not passed off as verified portfolio`);
   await visit(page, 'services/', `${label}: services hub`);
+  assert.ok((await page.locator('a[href$="/#estimate"]').count()) >= 1, `${label}: services hub links to pricing transparency`);
   if (label === 'mobile') {
     const wa = page.locator('a[href*="wa.me/"]').first();
     const href = await wa.getAttribute('href');
