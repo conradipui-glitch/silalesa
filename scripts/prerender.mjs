@@ -25,6 +25,7 @@ const basePages = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-materials.json"), "utf8")),
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
+const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
 const assets = await fs.readdir(path.join(DIST, "assets"));
 const modelAssets = Object.fromEntries([
   ["k2", "kvadro-2x2-"], ["k3", "kvadro-3x2-"], ["k4", "kvadro-4x2-"], ["f55", "karkasnaya-5-5-"],
@@ -313,6 +314,28 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(dir, "index.html"), html, "utf8");
 }
 
+// Compact direct-link microsites for VK, Telegram and campaign messages.
+// The static first answer and OG meta are available without client JS.
+{
+  const briefs = [["", { title: "Строительные работы", subtitle: "Выберите нужный вид работ и отправьте исходные данные для предварительного расчёта." }], ...Object.entries(briefServices)];
+  for (const [code, offer] of briefs) {
+    const slug = code ? `brief/${code}` : "brief";
+    const canonical = `${SITE_URL}${slug}/`;
+    const title = `${offer.title} в Омске — отправить задачу | Сила Леса`;
+    const description = code
+      ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем откройте готовое обращение в WhatsApp.`
+      : "Выберите строительные работы, укажите данные объекта и откройте готовое обращение в WhatsApp. Без регистрации и отправки данных в фоне.";
+    let html = applyPageMeta(template, { title, description, canonical });
+    html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
+    const wa = `https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(`Здравствуйте! Интересуют работы «${offer.title}» в Омске. Подскажите, какие данные нужны для предварительного расчёта.`)}`;
+    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${wa}">Обсудить работы в WhatsApp</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
+    html = html.replace(/<div id="root"><\/div>/i, snapshot);
+    const targetDir = path.join(DIST, slug);
+    await fs.mkdir(targetDir, { recursive: true });
+    await fs.writeFile(path.join(targetDir, "index.html"), html, "utf8");
+  }
+}
+
 // Give the construction-first home page a meaningful no-JS first answer.
 {
   const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533");
@@ -335,4 +358,4 @@ const llms = `# Сила Леса\n\n> Строительная компания
 - Отдельное направление — мобильные бани: Квадро 2×2, Квадро 3×2, Квадро 4×2, каркасная 5,5×2,2.\n- Для моделей Квадро на сайте указана доставка по Омску и установка на блоки в стандартной комплектации.\n- Если готовую баню нельзя завезти манипулятором, способ сборки на участке согласуется отдельно.\n\n## Канонический сайт\n\n- [Главная](${SITE_URL})\n- [Строительные услуги](${SITE_URL}${servicesHub.slug}/)\n- [Карта сайта](${SITE_URL}sitemap.xml)\n- [VK](https://vk.com/silalesa55)\n\n## Страницы продуктов, услуг и гайдов\n\n${pageList}\n\n## Как интерпретировать данные\n\nЦены и комплектации на отдельных страницах относятся к указанным моделям и предложениям. Для строительных услуг стартовая цена не равна итоговой смете: точный расчёт зависит от объёма и условий объекта. Для доставки и установки бань условия подъезда и место установки проверяются отдельно. Гайды не заменяют проверку конкретного участка и не содержат универсальных инженерных норм, если они не подтверждены данными компании.\n`;
 await fs.writeFile(path.join(DIST, "llms.txt"), llms, "utf8");
 
-console.log(`Prerendered home + ${pages.length} SEO pages + services hub and generated sitemap.xml + llms.txt.`);
+console.log(`Prerendered home + ${pages.length} SEO pages + services hub + 15 non-indexed social briefs and generated sitemap.xml + llms.txt.`);
