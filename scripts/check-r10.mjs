@@ -152,4 +152,4 @@ warn(imageLinks.length > 0, 'No actual bundled photography checked');
 const outcome = { checked: { canonical: routeRows.length, aliases: legacy.length, printable: printPages.length, internalLinks: links.length, localImages: imageLinks.length }, errors, warnings, routes: routeRows };
 console.log('R10 ACCEPTANCE AUDIT:', JSON.stringify(outcome, null, 2));
 assert.equal(errors.length, 0, `${errors.length} acceptance failures; see R10 ACCEPTANCE AUDIT above`);
-console.log('R10 PASS: 22 canonical static pages, 7 aliases, printed parity, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
+console.log('R10 PASS: 10 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
