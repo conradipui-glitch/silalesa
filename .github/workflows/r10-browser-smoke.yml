@@ -40,3 +40,4 @@ jobs:
             sleep 1
           done
           node scripts/check-r10-browser.mjs
+          node scripts/check-construction-final-browser.mjs
