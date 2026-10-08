@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "../lib/router";
 
 const serviceLinks = [
@@ -8,6 +9,17 @@ const serviceLinks = [
 ];
 
 export function NotFound({ path }: { path: string }) {
+  useEffect(() => {
+    const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    const previousRobots = robots?.content;
+    const previousTitle = document.title;
+    if (robots) robots.content = "noindex, follow";
+    document.title = "Страница не найдена — Сила Леса";
+    return () => {
+      if (robots && previousRobots !== undefined) robots.content = previousRobots;
+      document.title = previousTitle;
+    };
+  }, [path]);
   return (
     <section className="min-h-[70vh] bg-bark-900 pb-24 pt-32">
       <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
