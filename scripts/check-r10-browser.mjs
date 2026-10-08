@@ -426,6 +426,16 @@ async function run(label, contextOptions) {
   assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: service page contains no sauna cross-promotion`);
   await visit(page, 'services/', `${label}: services hub`);
   assert.ok((await page.locator('a[href$="/#estimate"]').count()) >= 1, `${label}: services hub links to pricing transparency`);
+  // Retired sauna routes must show a truthful 404, not silently render home.
+  await page.evaluate((url) => {
+    history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, new URL('mobilnaya-banya-omsk/', base).pathname);
+  await page.locator('main h1').filter({ hasText: 'Такой страницы нет' }).waitFor({ state: 'visible', timeout: 10_000 });
+  assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex, follow', `${label}: retired route is noindex`);
+  assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: 404 only offers construction routes`);
+  await visit(page, 'services/', `${label}: return from retired route`);
+  assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'index, follow', `${label}: indexability is restored after 404`);
   if (label === 'mobile') {
     const wa = page.locator('a[href*="wa.me/"]').first();
     const href = await wa.getAttribute('href');
