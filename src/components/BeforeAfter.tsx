@@ -72,6 +72,7 @@ export function BeforeAfter({ before, after, beforeAlt, afterAlt, compact = fals
       </div>
       <span className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-bark-950/60 px-3 py-1 text-[10px] text-cream-100/80 backdrop-blur">Потяните разделитель</span>
       </div>
+      {!compact && <figcaption className="mt-3 text-sm text-cream-300/75">Примеры процесса работ и результата.</figcaption>}
     </figure>
   );
 }
