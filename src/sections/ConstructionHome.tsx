@@ -138,6 +138,11 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
           </div>
         ))}
 
+        {standalone && (
+          <p className="mt-9 text-base leading-relaxed text-cream-300/80">
+            Одна ставка за м² не показывает всю стоимость объекта. <Link to="/#estimate" className="font-medium text-cedar-300 underline underline-offset-4 hover:text-cedar-200">Что сверить в смете перед заказом</Link>.
+          </p>
+        )}
         <div className="reveal mt-12 flex flex-col gap-4 rounded-3xl border border-cedar-400/25 bg-cedar-500/[0.07] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
           <div>
             <h3 className="font-display text-lg text-cream-50">Несколько видов работ на одном объекте?</h3>
@@ -218,7 +223,7 @@ export function ConstructionHome() {
             <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
               <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
                 <img data-construction-hero src={heroConstruction} alt="Иллюстрация строительного процесса: монолит, кладка и рабочие на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
-                <p className="absolute left-5 top-5 rounded-full border border-cream-50/20 bg-bark-950/75 px-3 py-1.5 text-xs font-medium text-cream-50 backdrop-blur-sm">Концептуальная иллюстрация · не фото объекта компании</p>
+                <p className="absolute left-5 top-5 rounded-full border border-cream-50/20 bg-bark-950/75 px-3 py-1.5 text-xs font-medium text-cream-50 backdrop-blur-sm" data-qa="hero-image-disclaimer">Визуализация · не фото объекта</p>
                 <div className="absolute inset-0 bg-gradient-to-t from-bark-950/75 via-bark-950/5 to-transparent" aria-hidden="true" />
                 <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
                   <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/88 p-4 backdrop-blur-sm">
