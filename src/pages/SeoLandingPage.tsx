@@ -222,7 +222,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             {isService && page.priceNote && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85">{page.priceNote}</p>}
              {!isGuide && (
                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-200/85" data-qa="price-verification-note">
-                 Указанные цены взяты из ранее опубликованных предложений. Перед заказом уточните действующую ставку, состав работ или комплектацию, доставку и другие условия. Это не индивидуальная смета.
+                 Цены на сайте — ориентир. Для вашего объекта уточним стоимость, состав работ и условия до заказа.
                </p>
              )}
 
