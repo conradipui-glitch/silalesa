@@ -418,7 +418,7 @@ async function run(label, contextOptions) {
   assert.equal(await page.locator('header a[href*="banya"], footer a[href*="banya"], nav a[href*="banya"]').count(), 0, `${label}: construction navigation does not promote archived saunas`);
   await visit(page, 'guides/remont/polusuhaya-ili-mokraya-styazhka/', `${label}: screed guide`);
   assert.equal(await page.locator('aside[aria-label="О характере материала"]').count(), 1, `${label}: guide has an information-scope note`);
-  assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /seoPages-[\w-]+\.js/.test(name)), 'SEO registry is fetched on construction landing routes');
+  assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /SeoLandingPage-[\w-]+\.js/.test(name)), 'Construction landing component is fetched lazily');
   assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: screed article does not recommend archived saunas`);
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
   assert.equal(await page.locator('[data-qa="price-verification-note"]').count(), 1, `${label}: service prices are flagged for reconfirmation`);
