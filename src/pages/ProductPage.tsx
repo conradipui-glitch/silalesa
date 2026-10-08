@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { PlanDiagram } from "../components/PlanDiagram";
 import { byId, company, formatPrice, products, saunas, services, standardIncluded, whatsappUrl } from "../data/products";
+import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track, useRevealRoot } from "../lib/utils";
@@ -73,6 +74,7 @@ export function ProductPage({ id }: { id: string }) {
   if (!p) return <NotFound path={`/product/${id}`} />;
 
   const isSauna = p.kind === "sauna";
+  const comparison = !isSauna && seoPage ? serviceComparisonBySlug[seoPage.slug] : undefined;
   const others = isSauna ? saunas.filter((s) => s.id !== p.id) : services.filter((s) => s.id !== p.id);
   const jsonLd = isSauna
     ? {
@@ -127,7 +129,7 @@ export function ProductPage({ id }: { id: string }) {
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 items-start">
           <div className="reveal">
             <div className={isSauna ? "kvadro-mask overflow-hidden aspect-[4/3] bg-bark-800 shadow-card" : "overflow-hidden rounded-3xl aspect-[16/10] bg-bark-800 shadow-card"}>
-              <img src={p.image} alt={p.imageAlt} width={1536} height={1024} className="h-full w-full object-cover" fetchPriority="high" />
+              <img src={comparison?.after ?? p.image} alt={comparison?.afterAlt ?? p.imageAlt} width={1536} height={1024} className="h-full w-full object-cover" fetchPriority="high" />
             </div>
           </div>
 
