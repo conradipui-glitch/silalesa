@@ -11,12 +11,14 @@ import {
   type Ref,
 } from "react";
 import { seoSlugs } from "../data/routeManifest";
+import { offerContexts, type OfferCode } from "../data/offerContext";
 import { track } from "./utils";
 
 export type Route =
   | { name: "home"; anchor?: string }
   | { name: "product"; id: string }
   | { name: "services" }
+  | { name: "brief"; code: OfferCode | null }
   | { name: "landing"; slug: string }
   | { name: "notfound"; path: string };
 
@@ -34,6 +36,9 @@ function computeBase(): string {
 
   const productMatch = normalized.match(/^(.*?)\/product\/[^/]+$/);
   if (productMatch) return `${productMatch[1]}/` || "/";
+
+  const briefMatch = normalized.match(/^(.*?)\/brief(?:\/[^/]+)?$/);
+  if (briefMatch) return `${briefMatch[1]}/` || "/";
 
   if (normalized.endsWith("/services")) {
     const base = normalized.slice(0, -"services".length);
@@ -62,6 +67,11 @@ function parseRoute(base: string): Route {
   const pathProduct = cleanRel.match(/^product\/([^/?#]+)$/);
   if (pathProduct) return { name: "product", id: decodeURIComponent(pathProduct[1]) };
   if (hashProduct) return { name: "product", id: decodeURIComponent(hashProduct[1]) };
+  if (cleanRel === "brief") return { name: "brief", code: null };
+  if (cleanRel.startsWith("brief/")) {
+    const code = cleanRel.slice("brief/".length);
+    if (Object.prototype.hasOwnProperty.call(offerContexts, code)) return { name: "brief", code: code as OfferCode };
+  }
   if (cleanRel === "services") return { name: "services" };
   if (seoSlugs.includes(cleanRel)) return { name: "landing", slug: cleanRel };
   if (cleanRel === "" || cleanRel === "index.html") {
