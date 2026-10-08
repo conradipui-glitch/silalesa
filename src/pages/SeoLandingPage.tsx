@@ -221,12 +221,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 {product?.dims && <span className="text-sm text-cream-300/70">{product.dims}</span>}
               </div>
             )}
-            {isService && page.priceNote && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85">{page.priceNote}</p>}
-             {!isGuide && (
-               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-200/85" data-qa="price-verification-note">
-                 Цены на сайте — ориентир. Для вашего объекта уточним стоимость, состав работ и условия до заказа.
-               </p>
-             )}
+            {isService && page.priceNote && (
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85" data-qa="price-verification-note">
+                {page.priceNote}
+              </p>
+            )}
 
             <div className="mt-8 flex flex-wrap gap-3">
               {isService ? (
