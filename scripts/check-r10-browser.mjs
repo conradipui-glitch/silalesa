@@ -417,7 +417,18 @@ async function run(label, contextOptions) {
   }
   assert.equal(await page.locator('header a[href*="banya"], footer a[href*="banya"], nav a[href*="banya"]').count(), 0, `${label}: construction navigation does not promote archived saunas`);
   await visit(page, 'guides/remont/polusuhaya-ili-mokraya-styazhka/', `${label}: screed guide`);
-  assert.equal(await page.locator('aside[aria-label="О характере материала"]').count(), 1, `${label}: guide has an information-scope note`);
+  const screedCopy = await page.locator('main').innerText();
+  assert.ok(screedCopy.includes('Полусухая смесь содержит меньше воды и требует уплотнения'), `${label}: screed first answer uses approved source rather than stale R3 override`);
+  const screedAction = page.getByRole('link', { name: 'Запросить расчёт стяжки' }).first();
+  assert.equal(await screedAction.count(), 1, `${label}: screed guide offers a named estimate action`);
+  const screedContact = new URL(await screedAction.getAttribute('href'));
+  assert.ok(screedContact.searchParams.get('text')?.includes('Нужен расчёт полусухой стяжки'), `${label}: estimate message reflects screed service`);
+  const screedNote = page.locator('aside[aria-label="О характере материала"]');
+  assert.equal(await screedNote.count(), 1, `${label}: guide has a brief technical-scope note`);
+  assert.ok((await screedNote.innerText()).length < 180, `${label}: no overly wordy disclaimer`);
+  assert.ok(!/бан[ьяи]|квадро|саун/iu.test(screedCopy), `${label}: construction guide contains no sauna promotion`);
+  await visit(page, 'guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/', `${label}: plaster comparison guide`);
+  assert.ok((await page.locator('main').innerText()).includes('Для расчёта механизированной штукатурки в Омске пригодятся площадь и фото стен'), `${label}: plaster guide uses revised opening`);
   assert.ok((await page.evaluate(() => performance.getEntriesByType('resource').map(x => x.name))).some(name => /SeoLandingPage-[\w-]+\.js/.test(name)), 'Construction landing component is fetched lazily');
   assert.equal(await page.locator('a[href*="banya"], a[href*="/guides/bani/"]').count(), 0, `${label}: screed article does not recommend archived saunas`);
   await visit(page, 'mehanizirovannaya-shtukaturka-omsk/', `${label}: service`);
