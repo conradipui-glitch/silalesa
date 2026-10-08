@@ -227,6 +227,7 @@ async function checkSocialServiceBriefs() {
   page.on("pageerror", (error) => failures.push(`social-brief: ${error.message}`));
   await visit(page, "brief/roofing/", "social: roofing link");
   assert.equal(await page.locator('[data-qa="social-brief"]').getAttribute("data-service-code"), "roofing");
+  assert.ok((await page.locator('[data-qa="brief-service-guidance"]').innerText()).includes("покрытие"), "Roofing brief offers practical photo and material checklist");
   assert.ok((await page.locator("main h1").innerText()).includes("Кровельные работы в Омске"), "Shareable service URL opens a focused micro page");
   assert.equal(await page.locator("header").count(), 1, "Focused brief has compact own header, not the full company nav");
   assert.equal(await page.locator("main").count(), 1, "Brief uses one main landmark");
@@ -251,6 +252,7 @@ async function checkSocialServiceBriefs() {
   assert.ok((await page.locator("main h1").innerText()).includes("Монолитные работы"), "Changing service changes title and address");
   assert.ok((await page.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).includes("monolith")===false, "WhatsApp uses Russian service text, not internal service code");
   assert.ok((await page.locator("#brief-location").inputValue()).includes("Центральный"), "Switching service retains entered brief");
+  assert.equal(await page.locator('[data-qa="brief-service-guidance"]').count(), 0, "Generic directions do not inherit another service’s checklist");
   const fit = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   assert.ok(fit.scroll <= fit.width + 2, `No mobile overflow: ${JSON.stringify(fit)}`);
   await context.close();
@@ -259,6 +261,11 @@ async function checkSocialServiceBriefs() {
   const desktop = await desk.newPage();
   await visit(desktop, "brief/", "social: general link");
   assert.equal(await desktop.locator("#brief-service option").count(), 15, "General microsite exposes 14 services plus mixed task");
+  await visit(desktop, "brief/screed/", "social: screed guidance");
+  assert.ok((await desktop.locator('[data-qa="brief-service-guidance"]').innerText()).includes("толщина"), "Screed checklist mentions thickness and covering");
+  await visit(desktop, "brief/facades/", "social: facade guidance");
+  assert.ok((await desktop.locator('[data-qa="brief-service-guidance"]').innerText()).includes("материал стен"), "Facades checklist covers substrate and access");
+
   assert.ok((await desktop.locator("main h1").innerText()).includes("Строительные работы"), "General microsite is coherent on desktop");
   const desktopFit = await desktop.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   assert.ok(desktopFit.scroll <= desktopFit.width + 2, "No desktop overflow");
