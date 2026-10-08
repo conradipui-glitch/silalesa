@@ -220,6 +220,11 @@ export function SeoLandingPage({ slug }: { slug: string }) {
               </div>
             )}
             {isService && page.priceNote && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-300/85">{page.priceNote}</p>}
+             {!isGuide && (
+               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-cream-200/85" data-qa="price-verification-note">
+                 Указанные цены взяты из ранее опубликованных предложений. Перед заказом уточните действующую ставку, состав работ или комплектацию, доставку и другие условия. Это не индивидуальная смета.
+               </p>
+             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
               {isService ? (
@@ -353,7 +358,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Результат и условия</p>
-              <h2 className="mt-3 font-display text-3xl sm:text-4xl">Что входит в обсуждение заказа</h2>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl">Что уточнить перед заказом</h2>
               <ul className="mt-6 space-y-4 text-base leading-relaxed text-cream-100">
                 {page.serviceResults.map((result) => <li key={result} className="flex gap-3"><CheckIcon className="mt-1 h-4 w-4 shrink-0 text-cedar-300" /><span>{result}</span></li>)}
               </ul>
@@ -485,7 +490,15 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           </a>
         </div>
       )}
-      {otherGuides.length > 0 && (
+      {isGuide && (
+         <aside className="bg-cream-50 px-4 pb-12 text-bark-700 sm:px-6" aria-label="О характере материала">
+           <div className="mx-auto max-w-5xl rounded-2xl border border-bark-950/10 bg-white p-5 text-sm leading-relaxed sm:p-6">
+             <strong className="font-semibold text-bark-950">О материале.</strong>{" "}
+             Это информационный разбор для предварительного выбора. Он не заменяет проект, осмотр объекта, техническую документацию производителя и согласование работ. Указанные цены и комплектации могут измениться — проверяйте актуальные условия перед заказом.
+           </div>
+         </aside>
+       )}
+       {otherGuides.length > 0 && (
         <nav aria-label="Ещё полезные гайды" className="bg-bark-900 px-4 py-10 text-cream-50 sm:px-6">
           <div className="mx-auto max-w-5xl">
             <h2 className="font-display text-xl">Другие полезные гайды</h2>
@@ -544,7 +557,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Штукатурка</LinkButton>
                 <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Стяжка</LinkButton>
               </>
-            ) : isPlasterGuide || isMaterialGuide ? <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Механизированная штукатурка</LinkButton> : isScreedGuide ? <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Полусухая стяжка</LinkButton> : isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/#quiz" variant="ghost">Подобрать модель</LinkButton>}
+            ) : isPlasterGuide || isMaterialGuide ? <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Механизированная штукатурка</LinkButton> : isScreedGuide ? <LinkButton to="/polusuhaya-styazhka-omsk/" variant="ghost">Полусухая стяжка</LinkButton> : isDrillingGuide ? <LinkButton to="/burenie-skvazhiny-omsk/" variant="ghost">Об услуге бурения</LinkButton> : !isService && <LinkButton to="/mobilnaya-banya-omsk/" variant="ghost">Сравнить модели бань</LinkButton>}
           </div>
         </div>
       </section>

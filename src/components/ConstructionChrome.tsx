@@ -9,7 +9,7 @@ const NAV = [
   { id: "services", label: "Услуги" },
   { id: "format", label: "Формат работы" },
   { id: "process", label: "Этапы" },
-  { id: "specialties", label: "Компетенции" },
+  { id: "estimate", label: "Расчёт" },
   { id: "contact", label: "Контакты" },
 ];
 
