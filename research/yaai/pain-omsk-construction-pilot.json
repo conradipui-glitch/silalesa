@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "project": "Сила Леса",
+  "purpose": "Research observable customer concerns and commercial intent for three Omsk construction work categories. No conclusions before actual evidence is saved.",
+  "region": {
+    "name": "Омская область",
+    "candidateId": 11318,
+    "verifyVia": "Yandex Wordstat getRegionsTree"
+  },
+  "monthBaseline": "2024–2025",
+  "sourceBaseline": "research/yaai-wordstat-omsk-2024-2025-report.md",
+  "collection": {
+    "executeOnlyWithExplicitReview": true,
+    "perDirection": {
+      "wordstatMaxSeeds": 2,
+      "topPhrasesPerSeed": 35,
+      "serpMaxQueries": 4,
+      "serpGroups": 5,
+      "jevDecisionsMax": 10
+    },
+    "doNotInfer": [
+      "unique_buyers",
+      "leads",
+      "purchase_intent_from_frequency_alone",
+      "sentiment_of_Omsk_residents"
+    ]
+  },
+  "directions": [
+    {
+      "code": "roofing",
+      "name": "Кровельные работы",
+      "wordstatSeeds": [
+        "кровельные работы",
+        "ремонт кровли"
+      ],
+      "verificationAngles": [
+        "цена и состав сметы",
+        "протечки и ремонт",
+        "сроки и сезон",
+        "объём и материалы"
+      ],
+      "socialUrl": "/brief/roofing/"
+    },
+    {
+      "code": "screed",
+      "name": "Полусухая стяжка",
+      "wordstatSeeds": [
+        "полусухая стяжка",
+        "полусухая стяжка цена"
+      ],
+      "verificationAngles": [
+        "слой и стоимость",
+        "трещины",
+        "сушка и готовность под покрытие",
+        "подача смеси и подъём"
+      ],
+      "socialUrl": "/brief/screed/"
+    },
+    {
+      "code": "facades",
+      "name": "Фасадные работы",
+      "wordstatSeeds": [
+        "фасадные работы",
+        "утепление фасада"
+      ],
+      "verificationAngles": [
+        "стоимость утепления и отделки",
+        "материалы",
+        "подготовка основания",
+        "сезонные условия"
+      ],
+      "socialUrl": "/brief/facades/"
+    }
+  ],
+  "evidenceState": "pending",
+  "decisionRule": "Only substantiate copy/FAQ changes with clear source evidence or verified customer cases; Jev outputs are unverified hypotheses until independent review."
+}
