@@ -114,7 +114,7 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                           to={detailPath}
                           className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-md text-sm font-medium text-cedar-300 transition-colors hover:text-cedar-200"
                           aria-label={`Подробнее об услуге «${service.title}»`}
-                          onClick={() => track("service_detail_click", { service: service.title, where: standalone ? "services-page" : "services-grid" })}
+                          onClick={() => track("nav", { to: detailPath, service: service.title, from: standalone ? "services-page" : "services-grid" })}
                         >
                           Подробнее и расчёт <ArrowIcon />
                         </Link>
@@ -166,7 +166,7 @@ export function ConstructionServicesPage() {
 export function ConstructionHome() {
   return (
     <>
-      <section className="relative overflow-hidden bg-bark-900 pt-24 sm:pt-28 lg:pt-32" aria-labelledby="construction-hero-title">
+      <section className="relative overflow-hidden bg-bark-900 pb-10 pt-24 sm:pb-12 sm:pt-28 lg:pt-32" aria-labelledby="construction-hero-title">
         <div className="absolute inset-0 grid-paper opacity-55 [mask-image:radial-gradient(75%_70%_at_28%_20%,#000,transparent)]" aria-hidden="true" />
         <div className="absolute -left-24 top-24 h-96 w-96 rounded-full bg-moss-500/10 blur-3xl" aria-hidden="true" />
         <div className="absolute -right-20 top-0 h-[440px] w-[440px] rounded-full bg-cedar-500/10 blur-3xl" aria-hidden="true" />
@@ -217,7 +217,8 @@ export function ConstructionHome() {
 
             <div data-qa="hero-media" className="reveal relative" style={{ ["--reveal-delay" as string]: "170ms" }}>
               <div className="relative aspect-[16/10] overflow-hidden rounded-[2rem] border border-cream-50/10 bg-bark-800 shadow-card">
-                <img data-construction-hero src={heroConstruction} alt="Строительство современного объекта: монолит, кладка и бригада на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
+                <img data-construction-hero src={heroConstruction} alt="Иллюстрация строительного процесса: монолит, кладка и рабочие на площадке" className="h-full w-full object-cover" width={1280} height={801} fetchPriority="high" />
+                <p className="absolute left-5 top-5 rounded-full border border-cream-50/20 bg-bark-950/75 px-3 py-1.5 text-xs font-medium text-cream-50 backdrop-blur-sm">Иллюстрация</p>
                 <div className="absolute inset-0 bg-gradient-to-t from-bark-950/75 via-bark-950/5 to-transparent" aria-hidden="true" />
                 <div data-qa="hero-overlay-cards" className="absolute inset-x-5 bottom-5 hidden gap-3 sm:grid sm:grid-cols-2">
                   <div data-qa="hero-card-private" className="rounded-2xl border border-cream-50/10 bg-bark-950/88 p-4 backdrop-blur-sm">
@@ -234,15 +235,6 @@ export function ConstructionHome() {
           </div>
         </div>
 
-        <div className="relative mt-14 border-y border-cream-50/10 bg-bark-950/60 py-4">
-          <div className="mx-auto flex max-w-7xl flex-wrap gap-x-8 gap-y-2 px-4 text-sm text-cream-200/85 sm:px-6 lg:px-8">
-            <span>Коттеджи и дома</span>
-            <span>Монолит и кладка</span>
-            <span>Ангары и металлоконструкции</span>
-            <span>Штукатурка, стяжка и промышленные полы</span>
-            <span>Кровля, фасад и демонтаж</span>
-          </div>
-        </div>
       </section>
 
       <ServiceGrid />
@@ -253,14 +245,14 @@ export function ConstructionHome() {
             <SectionHead
               light
               index="02 — Формат работы"
-              title={<span id="format-title">Можно отдать весь объект или один сложный этап</span>}
-              lead="Можно передать нам весь комплекс работ или привлечь команду только на нужный этап — с заранее согласованным объёмом, сроками и точками приёмки."
+              title={<span id="format-title">Весь объект или конкретный этап</span>}
+              lead="Выбирайте удобный формат: комплексное строительство или отдельные работы с понятными границами задачи."
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <article className="reveal rounded-3xl border border-bark-950/10 bg-white p-6 sm:p-7">
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-700">Под ключ</p>
-              <h3 className="mt-4 font-display text-2xl font-medium">Один подрядчик на весь контур</h3>
+              <h3 className="mt-4 font-display text-2xl font-medium">Комплексное строительство</h3>
               <ul className="mt-6 space-y-4 text-base leading-relaxed text-bark-700">
                 {["Комплектуем этапы в одну последовательность работ", "Сводим конструктив, коробку и отделочные этапы", "Согласуем объём и точки приёмки до начала работ"].map((item) => (
                   <li key={item} className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-moss-600" />{item}</li>
@@ -269,7 +261,7 @@ export function ConstructionHome() {
             </article>
             <article className="reveal rounded-3xl border border-bark-950/10 bg-bark-900 p-6 text-cream-50 sm:p-7" style={{ ["--reveal-delay" as string]: "80ms" }}>
               <p className="text-xs uppercase tracking-[0.2em] text-cedar-300">Отдельный этап</p>
-              <h3 className="mt-4 font-display text-2xl font-medium">Подключаемся там, где нужны руки и технология</h3>
+              <h3 className="mt-4 font-display text-2xl font-medium">Выполняем отдельные работы</h3>
               <ul className="mt-6 space-y-4 text-base leading-relaxed text-cream-200/85">
                 {["Монолит и кладка", "Штукатурка, стяжка и промышленные полы", "Металл, кровля, фасад или демонтаж"].map((item) => (
                   <li key={item} className="flex gap-3"><CheckIcon className="mt-0.5 shrink-0 text-cedar-300" />{item}</li>
@@ -278,16 +270,29 @@ export function ConstructionHome() {
             </article>
           </div>
         </div>
+        <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-5 rounded-3xl border border-bark-950/10 bg-white/85 px-6 py-6 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h3 className="font-display text-base font-medium text-bark-950">Что подготовить для расчёта</h3>
+              <p className="mt-2 max-w-lg text-base leading-relaxed text-bark-700">Подойдёт проект, план или обычное описание — не обязательно собирать всё заранее.</p>
+            </div>
+            <ul className="flex flex-wrap gap-2" aria-label="Исходные данные об объекте">
+              {["Тип объекта", "Площадь или объёмы", "Адрес", "Нужные работы и сроки"].map((item) => (
+                <li key={item} className="rounded-full border border-bark-950/10 bg-cream-50 px-4 py-2 text-sm font-medium text-bark-700">{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section id="process" className="scroll-mt-20 bg-bark-900 py-20 sm:py-28" aria-labelledby="process-title">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHead
             index="03 — От задачи к работам"
-            title={<span id="process-title">Понятная последовательность до выхода на объект</span>}
-            lead="Главная цель — быстро понять объём, границы ответственности и состав работ, прежде чем обсуждать итоговую стоимость."
+            title={<span id="process-title">Как задача становится планом работ</span>}
+            lead="От первого обращения до приёмки этапа: что обсуждаем и на что опираемся при расчёте."
           />
-          <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-cream-50/8 bg-cream-50/8 lg:grid-cols-5">
+          <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-cream-50/8 bg-cream-50/8 md:grid-cols-2 xl:grid-cols-3">
             {processSteps.map((step, index) => (
               <li key={step.n} className="reveal bg-bark-900 p-6" style={{ ["--reveal-delay" as string]: `${index * 70}ms` }}>
                 <span className="font-display text-sm text-cedar-300">{step.n}</span>
@@ -295,6 +300,22 @@ export function ConstructionHome() {
                 <p className="mt-3 text-base leading-relaxed text-cream-300/80">{step.text}</p>
               </li>
             ))}
+            <li className="flex flex-col justify-between bg-cedar-500 p-6 text-bark-950">
+              <div>
+                <span className="font-display text-sm font-semibold">Начнём с вашего объекта</span>
+                <h3 className="mt-6 font-display text-lg font-medium leading-tight">Уже есть план или описание?</h3>
+                <p className="mt-3 text-base leading-relaxed">Отправьте данные в WhatsApp. Обсудим объём и что нужно уточнить для расчёта.</p>
+              </div>
+              <a
+                href={whatsappUrl("Здравствуйте! Хочу прислать план или описание объекта, чтобы обсудить состав и предварительный расчёт строительных работ.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex min-h-11 items-center justify-between gap-3 rounded-md border-b border-bark-950/25 text-sm font-semibold transition-colors hover:border-bark-950"
+                onClick={() => track("cta_click", { type: "whatsapp", where: "construction-process" })}
+              >
+                Передать данные <ArrowIcon />
+              </a>
+            </li>
           </ol>
         </div>
       </section>
@@ -308,7 +329,7 @@ export function ConstructionHome() {
               lead="Выполняем механизированную штукатурку и полусухую стяжку как самостоятельные работы для квартир, домов и коммерческих объектов."
             />
             <p className="reveal max-w-xl text-base leading-relaxed text-cream-300/80 lg:justify-self-end">
-              Для крупных объектов эти работы можно включать в общий комплекс. Для частного заказчика — заказывать отдельно, без строительства всего здания.
+              Для оценки объёма работ пригодятся площадь, фотографии поверхностей и условия доступа на объект.
             </p>
           </div>
 
