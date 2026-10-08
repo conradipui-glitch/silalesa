@@ -34,9 +34,18 @@
     "operationPrompt": "Здравствуйте! Подготавливаю основание для бани Квадро. Хочу согласовать место, установку на блоки и отвод воды; пришлю модель, фото площадки и подъезда.",
     "operationCtaLabel": "Согласовать место и основание",
     "operationLinks": [
-      {"slug": "guides/bani/podgotovka-uchastka-dostavka-manipulyator", "label": "Как подготовить подъезд и разгрузку"},
-      {"slug": "guides/bani/chek-list-priemki-gotovoy-bani", "label": "Что проверить при приёмке бани"},
-      {"slug": "mobilnaya-banya-omsk", "label": "Выбрать размер и модель Квадро"}
+      {
+        "slug": "guides/bani/podgotovka-uchastka-dostavka-manipulyator",
+        "label": "Как подготовить подъезд и разгрузку"
+      },
+      {
+        "slug": "guides/bani/chek-list-priemki-gotovoy-bani",
+        "label": "Что проверить при приёмке бани"
+      },
+      {
+        "slug": "mobilnaya-banya-omsk",
+        "label": "Выбрать размер и модель Квадро"
+      }
     ]
   },
   {
@@ -74,9 +83,18 @@
     "operationPrompt": "Здравствуйте! Нужно согласовать доставку Квадро и разгрузку манипулятором. Пришлю модель, адрес, фото въезда, маршрута и площадки.",
     "operationCtaLabel": "Проверить возможность доставки",
     "operationLinks": [
-      {"slug": "guides/bani/fundament-dlya-mobilnoy-bani", "label": "Подготовить место и основание"},
-      {"slug": "guides/bani/chek-list-priemki-gotovoy-bani", "label": "Подготовиться к приёмке"},
-      {"slug": "mobilnaya-banya-omsk", "label": "Посмотреть модели и размеры"}
+      {
+        "slug": "guides/bani/fundament-dlya-mobilnoy-bani",
+        "label": "Подготовить место и основание"
+      },
+      {
+        "slug": "guides/bani/chek-list-priemki-gotovoy-bani",
+        "label": "Подготовиться к приёмке"
+      },
+      {
+        "slug": "mobilnaya-banya-omsk",
+        "label": "Посмотреть модели и размеры"
+      }
     ]
   },
   {
@@ -114,9 +132,18 @@
     "operationPrompt": "Здравствуйте! Готовлюсь к приёмке бани Квадро. Хочу уточнить комплект документов, порядок осмотра и фиксации замечаний; укажу модель и номер заказа при необходимости.",
     "operationCtaLabel": "Уточнить порядок приёмки",
     "operationLinks": [
-      {"slug": "guides/bani/chto-vhodit-v-tsenu", "label": "Сверить стандартную комплектацию"},
-      {"slug": "guides/bani/fundament-dlya-mobilnoy-bani", "label": "Что проверить у основания"},
-      {"slug": "guides/bani/podgotovka-uchastka-dostavka-manipulyator", "label": "Как проходит подготовка к доставке"}
+      {
+        "slug": "guides/bani/chto-vhodit-v-tsenu",
+        "label": "Сверить стандартную комплектацию"
+      },
+      {
+        "slug": "guides/bani/fundament-dlya-mobilnoy-bani",
+        "label": "Что проверить у основания"
+      },
+      {
+        "slug": "guides/bani/podgotovka-uchastka-dostavka-manipulyator",
+        "label": "Как проходит подготовка к доставке"
+      }
     ]
   },
   {
@@ -154,8 +181,10 @@
     "operationPrompt": "Здравствуйте! Хочу выбрать время и получить расчёт бурения скважины. Пришлю адрес, стадию строительства, план и фото подъезда; уточню назначение воды.",
     "operationCtaLabel": "Обсудить дату и расчёт бурения",
     "operationLinks": [
-      {"slug": "burenie-skvazhiny-omsk", "label": "Бурение скважины: цена и состав услуги"},
-      {"slug": "guides/bani/fundament-dlya-mobilnoy-bani", "label": "Если планируете баню — подготовка её основания"}
+      {
+        "slug": "burenie-skvazhiny-omsk",
+        "label": "Бурение скважины: цена и состав услуги"
+      }
     ]
   }
 ]
