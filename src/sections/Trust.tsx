@@ -1,5 +1,5 @@
 import { ArrowIcon, LinkButton, SectionHead } from "../components/Brand";
-import { company, mapsUrl, whatsappUrl } from "../data/products";
+import { company, mapsUrl, contactDraftUrl } from "../data/products";
 import { track } from "../lib/utils";
 import { Link } from "../lib/router";
 
@@ -98,8 +98,8 @@ export function Faq() {
             <p className="font-display text-xl">Остался вопрос по вашему участку?</p>
             <p className="mt-2 text-sm text-cream-300/75">Пришлите модель, адрес и фото въезда, если они уже есть. Остальное уточним в чате.</p>
           </div>
-          <LinkButton to={whatsappUrl("Здравствуйте! Есть вопрос по бане и условиям установки. Страница: https://conradipui-glitch.github.io/silalesa/")} external className="shrink-0" onClick={() => track("cta_click", { type: "whatsapp", where: "faq" })}>
-            Спросить в WhatsApp
+          <LinkButton to={contactDraftUrl("Здравствуйте! Есть вопрос по бане и условиям установки. Страница: https://conradipui-glitch.github.io/silalesa/")} external className="shrink-0" onClick={() => track("cta_click", { type: "contact_choice", where: "faq" })}>
+            Спросить в MAX
           </LinkButton>
         </div>
       </div>
