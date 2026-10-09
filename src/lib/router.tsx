@@ -18,6 +18,7 @@ export type Route =
   | { name: "home"; anchor?: string }
   | { name: "product"; id: string }
   | { name: "services" }
+  | { name: "calculator" }
   | { name: "brief"; code: OfferCode | null }
   | { name: "landing"; slug: string }
   | { name: "notfound"; path: string };
@@ -46,6 +47,7 @@ function parseRoute(base: string): Route {
     if (Object.prototype.hasOwnProperty.call(offerContexts, code)) return { name: "brief", code: code as OfferCode };
   }
   if (cleanRel === "services") return { name: "services" };
+  if (cleanRel === "kalkulyator-styazhki-pola") return { name: "calculator" };
   if (seoSlugs.includes(cleanRel)) return { name: "landing", slug: cleanRel };
   if (cleanRel === "" || cleanRel === "index.html") {
     const anchor = hash.replace(/^#\/?/, "");

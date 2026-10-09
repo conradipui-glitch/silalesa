@@ -57,6 +57,12 @@ const whatsappMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts")
 if (!whatsappMatch) throw new Error("Canonical WhatsApp contact missing");
 const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 
+const calculatorPage = {
+  slug: "kalkulyator-styazhki-pola",
+  title: "Калькулятор стяжки пола онлайн: площадь, объём, цена — Сила Леса",
+  description: "Рассчитайте площадь, толщину и объём стяжки по нескольким помещениям. Ориентир стоимости в Омске, четыре точки замера, запас и результат без регистрации.",
+  h1: "Калькулятор стяжки пола",
+};
 const servicesHub = {
   slug: "services",
   title: "Строительные работы в Омске — Сила Леса",
@@ -146,6 +152,9 @@ function staticSnapshot(page) {
   const screedServiceLink = page.slug === "polusuhaya-styazhka-omsk"
     ? `<p><a href="${SITE_URL}${SCREED_GUIDE_SLUG}/">Полусухая или мокрая стяжка: в чём разница?</a></p>`
     : "";
+  const calculatorLink = ["polusuhaya-styazhka-omsk", "guides/remont/polusuhaya-ili-mokraya-styazhka"].includes(page.slug)
+    ? `<section aria-label="Бесплатный расчёт стяжки"><h2>Калькулятор стяжки пола</h2><p>Рассчитайте несколько помещений, среднюю толщину и объём стяжки без регистрации.</p><p><a href="${SITE_URL}${calculatorPage.slug}/">Открыть калькулятор стяжки пола</a></p></section>`
+    : "";
   const serviceGuideLink = page.slug === "burenie-skvazhiny-omsk"
     ? `<p><a href="${SITE_URL}guides/uchastok/kogda-burit-skvazhinu/">Когда лучше бурить скважину: до стройки или зимой?</a></p>`
     : page.slug === "mehanizirovannaya-shtukaturka-omsk" || page.slug === "polusuhaya-styazhka-omsk"
@@ -223,7 +232,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${calculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
@@ -316,6 +325,34 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(dir, "index.html"), html, "utf8");
 }
 
+// A standalone indexable, useful calculator answer is available even before JS loads.
+{
+  const canonical = `${SITE_URL}${calculatorPage.slug}/`;
+  const sampleVolume = 20 * 50 / 1000;
+  const htmlOverview = `<div id="root" data-prerendered="true"><main><article>
+    <nav aria-label="Хлебные крошки"><a href="${SITE_URL}">Главная</a> / Калькулятор стяжки</nav>
+    <h1>${escapeHtml(calculatorPage.h1)}</h1>
+    <p>Рассчитайте площадь, толщину, объём стяжки по нескольким помещениям и стартовый бюджет без регистрации. Добавьте комнаты и толщину будущего слоя в интерактивном калькуляторе.</p>
+    <section aria-label="Пример расчёта"><h2>Как рассчитать объём стяжки пола</h2>
+      <p>Площадь прямоугольной комнаты равна длине, умноженной на ширину. Объём слоя в м³ = площадь в м² × средняя толщина в мм ÷ 1000.</p>
+      <p>Например, комната 5 × 4 м = 20 м²; толщина 50 мм; объём ${sampleVolume} м³; с ориентировочным запасом 5% — 1,05 м³.</p>
+      <p>По опубликованной стартовой цене от 600 ₽/м² получается ориентир от 12 000 ₽. Это не итоговая смета: её определяют после уточнения состава работ, основания, толщины и условий объекта.</p>
+      <p>Расход цемента, песка и сухих смесей без рецептуры или паспортного расхода не определяется. Четыре угла дают лишь приблизительное среднее значение слоя.</p>
+    </section>
+    <section><h2>Что можно узнать</h2><ul><li>Площадь пола в квадратных метрах</li><li>Объём будущего слоя в кубических метрах</li><li>Объём с ориентировочным запасом</li><li>Стартовый ценовой ориентир</li></ul></section>
+    <section><h2>Полезные материалы</h2><p><a href="${SITE_URL}polusuhaya-styazhka-omsk/">Полусухая стяжка: услуга в Омске</a></p><p><a href="${SITE_URL}guides/remont/polusuhaya-ili-mokraya-styazhka/">Полусухая или мокрая: сравнение технологий</a></p></section>
+  </article></main></div>`;
+  const structured = { "@context": "https://schema.org", "@type": "WebApplication", name: calculatorPage.h1,
+    url: canonical, description: calculatorPage.description, inLanguage: "ru", applicationCategory: "CalculatorApplication",
+    operatingSystem: "Any", offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" } };
+  let html = applyPageMeta(template, { title: calculatorPage.title, description: calculatorPage.description, canonical });
+  html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(structured)}</script>\n</head>`);
+  html = html.replace('<div id="root"></div>', htmlOverview);
+  const directory = path.join(DIST, calculatorPage.slug);
+  await fs.mkdir(directory, { recursive: true });
+  await fs.writeFile(path.join(directory, "index.html"), html, "utf8");
+}
+
 // Compact direct-link microsites for VK, Telegram and campaign messages.
 // The static first answer and OG meta are available without client JS.
 {
@@ -357,7 +394,7 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
 }
 
-const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`)];
+const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls
   .map((url) => `  <url><loc>${url}</loc></url>`)
   .join("\n")}\n</urlset>\n`;
@@ -384,6 +421,7 @@ const llms = `# Сила Леса
 
 - [Главная](${SITE_URL})
 - [Все строительные услуги](${SITE_URL}${servicesHub.slug}/)
+- [Калькулятор стяжки пола](${SITE_URL}${calculatorPage.slug}/) — площадь, толщина, объём и ориентир бюджета без регистрации.
 - [Карта сайта](${SITE_URL}sitemap.xml)
 
 ## Страницы услуг и материалов

@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-route-manifest.mjs && tsc --noEmit && vite build && node scripts/prerender.mjs && node scripts/check-r10.mjs && node scripts/check-r10-performance.mjs && node scripts/check-offer-demand.mjs && node scripts/check-social-briefs.mjs && node scripts/check-seo-articles-wave1.mjs",
+    "build": "node scripts/generate-route-manifest.mjs && tsc --noEmit && vite build && node scripts/prerender.mjs && node scripts/check-screed-calculator.mjs && node scripts/check-r10.mjs && node scripts/check-r10-performance.mjs && node scripts/check-offer-demand.mjs && node scripts/check-social-briefs.mjs && node scripts/check-seo-articles-wave1.mjs",
     "preview": "vite preview",
-    "test:construction": "node scripts/check-r10.mjs && node scripts/check-r10-performance.mjs && node scripts/check-offer-demand.mjs && node scripts/check-social-briefs.mjs && node scripts/check-seo-articles-wave1.mjs"
+    "test:construction": "node scripts/check-screed-calculator.mjs && node scripts/check-r10.mjs && node scripts/check-r10-performance.mjs && node scripts/check-offer-demand.mjs && node scripts/check-social-briefs.mjs && node scripts/check-seo-articles-wave1.mjs"
   },
   "dependencies": {
     "clsx": "2.1.1",

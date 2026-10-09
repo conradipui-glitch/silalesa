@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { BeforeAfter } from "../components/BeforeAfter";
 import { PlasterMaterialGuide } from "../components/PlasterMaterialGuide";
@@ -20,6 +20,7 @@ const REPAIR_GUIDE_SLUG = "guides/remont/shtukaturka-ili-styazhka-chto-snachala"
 const SCREED_GUIDE_SLUG = "guides/remont/polusuhaya-ili-mokraya-styazhka";
 const PLASTER_GUIDE_SLUG = "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka";
 const MATERIAL_GUIDE_SLUG = "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka";
+const ScreedCalculator = lazy(() => import("../components/ScreedCalculator").then((module) => ({ default: module.ScreedCalculator })));
 
 function useLandingMeta(slug: string, title: string, description: string) {
   useEffect(() => {
@@ -490,6 +491,23 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             Открыть чек-лист для печати ↗
           </a>
         </div>
+      )}
+      {(isScreedGuide || page.slug === "polusuhaya-styazhka-omsk") && (
+        <section className="bg-bark-950 py-14 sm:py-20" aria-label="Калькулятор стяжки пола">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cedar-300">Бесплатный инструмент</p>
+                <h2 className="mt-3 font-display text-2xl text-cream-50 sm:text-3xl">Расчёт стяжки по вашим помещениям</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-cream-200">Площадь, толщина, объём и ориентир бюджета — посчитайте сами до обращения к мастеру.</p>
+              </div>
+              <Link to="/kalkulyator-styazhki-pola/" className="inline-flex min-h-11 items-center font-semibold text-cedar-300 underline underline-offset-4 hover:text-cream-50">Открыть отдельной страницей ↗</Link>
+            </div>
+            <Suspense fallback={<p role="status" className="rounded-2xl border border-cream-50/10 p-6 text-cream-200">Загружаем калькулятор…</p>}>
+              <ScreedCalculator compact/>
+            </Suspense>
+          </div>
+        </section>
       )}
       {isGuide && (
          <aside className="bg-cream-50 px-4 pb-10 text-bark-700 sm:px-6" aria-label="О характере материала">
