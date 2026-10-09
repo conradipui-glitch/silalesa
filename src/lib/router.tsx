@@ -19,6 +19,7 @@ export type Route =
   | { name: "product"; id: string }
   | { name: "services" }
   | { name: "calculator" }
+  | { name: "plaster-calculator" }
   | { name: "brief"; code: OfferCode | null }
   | { name: "landing"; slug: string }
   | { name: "notfound"; path: string };
@@ -48,6 +49,7 @@ function parseRoute(base: string): Route {
   }
   if (cleanRel === "services") return { name: "services" };
   if (cleanRel === "kalkulyator-styazhki-pola") return { name: "calculator" };
+  if (cleanRel === "kalkulyator-shtukaturki-sten") return { name: "plaster-calculator" };
   if (seoSlugs.includes(cleanRel)) return { name: "landing", slug: cleanRel };
   if (cleanRel === "" || cleanRel === "index.html") {
     const anchor = hash.replace(/^#\/?/, "");
