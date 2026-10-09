@@ -9,7 +9,7 @@ import { SaunaChoiceGuide } from "../components/SaunaChoiceGuide";
 import { OperationalGuide } from "../components/OperationalGuide";
 import { SaunaOffer } from "../components/SaunaOffer";
 import saunaChoiceModels from "../data/sauna-choice-models.json";
-import { byId, company, formatPrice, images, saunas, whatsappUrl } from "../data/products";
+import { byId, company, formatPrice, images, saunas, contactDraftUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPageBySlug, seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
@@ -247,12 +247,12 @@ export function SeoLandingPage({ slug }: { slug: string }) {
 
             <div className="mt-8 flex flex-wrap gap-3">
               {isService ? (
-                <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing", slug })}>
+                <LinkButton to={contactDraftUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "seo-landing", slug })}>
                   Отправить данные для расчёта <ArrowIcon />
                 </LinkButton>
               ) : isPlasterGuide ? (
                 <>
-                  <LinkButton to={whatsappUrl(plasterWaText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "p01-hero", slug })}>
+                  <LinkButton to={contactDraftUrl(plasterWaText)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "p01-hero", slug })}>
                     Пришлите площадь и фото стен <ArrowIcon />
                   </LinkButton>
                   <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" size="lg" variant="ghost" onClick={() => track("cta_click", { type: "guide_to_plaster", where: "seo-landing", slug })}>
@@ -278,25 +278,25 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 </>
               ) : isWave3Guide ? (
                 <>
-                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "wave3_guide_estimate", slug })}>
+                  <LinkButton to={contactDraftUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "wave3_guide_estimate", slug })}>
                     Обсудить объём работ <ArrowIcon />
                   </LinkButton>
                   <LinkButton to="/services/" size="lg" variant="ghost">Все строительные направления <ArrowIcon /></LinkButton>
                 </>
               ) : isSaunaChoiceGuide ? (
                 <>
-                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r5-guide-hero", slug })}>{page.choiceCtaLabel ?? "Помогите выбрать баню"} <ArrowIcon /></LinkButton>
+                  <LinkButton to={contactDraftUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "r5-guide-hero", slug })}>{page.choiceCtaLabel ?? "Помогите выбрать баню"} <ArrowIcon /></LinkButton>
                   <LinkButton to="/mobilnaya-banya-omsk/" size="lg" variant="ghost">Каталог моделей <ArrowIcon /></LinkButton>
                 </>
               ) : isOperationalGuide ? (
                 <>
-                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r6-guide-hero", slug })}>{page.operationCtaLabel ?? "Уточнить следующий шаг"} <ArrowIcon /></LinkButton>
+                  <LinkButton to={contactDraftUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "r6-guide-hero", slug })}>{page.operationCtaLabel ?? "Уточнить следующий шаг"} <ArrowIcon /></LinkButton>
                   {page.printChecklistPath && <a href={`${import.meta.env.BASE_URL}${page.printChecklistPath}/`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-full border border-cedar-300/60 px-5 py-3 font-semibold text-cedar-300 hover:bg-cedar-300 hover:text-bark-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Чек-лист для печати ↗</a>}
                   <LinkButton to={isDrillingGuide ? "/burenie-skvazhiny-omsk/" : "/mobilnaya-banya-omsk/"} size="lg" variant="ghost">{isDrillingGuide ? "Цена и состав бурения" : "Модели и комплектация"} <ArrowIcon /></LinkButton>
                 </>
               ) : isSaunaOffer ? (
                 <>
-                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r7-hero", slug })}>{page.offerCtaLabel ?? "Уточнить предложение"} <ArrowIcon /></LinkButton>
+                  <LinkButton to={contactDraftUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "r7-hero", slug })}>{page.offerCtaLabel ?? "Уточнить предложение"} <ArrowIcon /></LinkButton>
                   {isCategory ? <a href="#models" className="inline-flex min-h-11 items-center rounded-full border border-cedar-300/60 px-5 py-3 font-semibold text-cedar-300 hover:bg-bark-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300">Сравнить четыре модели ↓</a> : <LinkButton to="/mobilnaya-banya-omsk/" size="lg" variant="ghost">Сравнить модели <ArrowIcon /></LinkButton>}
                 </>
               ) : isGuide ? (
@@ -441,7 +441,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                 {page.requestChecklist.map((item, index) => <li key={item} className="flex gap-3 text-sm leading-relaxed text-cream-100 sm:text-base"><span className="shrink-0 font-display text-cedar-300">{index + 1}.</span><span>{item}</span></li>)}
               </ol>
               <p className="mt-6 text-sm leading-relaxed text-cream-300/85">Отправьте то, что уже известно. Остальные параметры уточним в разговоре — заполнение формы не требуется.</p>
-              <LinkButton to={whatsappUrl(waText)} external className="mt-6" onClick={() => track("cta_click", { type: "whatsapp", where: "service-request", slug })}>Отправить параметры <ArrowIcon /></LinkButton>
+              <LinkButton to={contactDraftUrl(waText)} external className="mt-6" onClick={() => track("cta_click", { type: "contact_choice", where: "service-request", slug })}>Отправить параметры <ArrowIcon /></LinkButton>
             </div>
           </div>
         </section>
@@ -489,8 +489,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             {isPlasterGuide && (
               <div className="mt-8 flex flex-col gap-5 rounded-2xl bg-bark-950 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
                 <p className="max-w-xl text-sm leading-relaxed text-cream-100 sm:text-base">Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p>
-                <LinkButton to={whatsappUrl(plasterWaText)} external className="shrink-0" onClick={() => track("cta_click", { type: "whatsapp", where: "plaster-comparison", slug })}>
-                  Обсудить расчёт в WhatsApp <ArrowIcon />
+                <LinkButton to={contactDraftUrl(plasterWaText)} external className="shrink-0" onClick={() => track("cta_click", { type: "contact_choice", where: "plaster-comparison", slug })}>
+                  Обсудить расчёт <ArrowIcon />
                 </LinkButton>
               </div>
             )}
@@ -654,7 +654,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           <h2 className="mt-4 font-display text-2xl text-cream-50">{isMaterialGuide ? "Нужно подобрать штукатурную систему?" : isPlasterGuide ? "Хотите рассчитать механизированную штукатурку?" : isScreedGuide ? "Нужен расчёт полусухой стяжки для вашего объекта?" : isRepairGuide ? "Нужно согласовать штукатурку и стяжку?" : isDrillingGuide ? "Нужно обсудить бурение на вашем участке?" : isGuide ? "Остались вопросы по строительным работам?" : isCategory ? "Не знаете, какая модель подойдёт?" : "Можно обсудить ваш участок или объект"}</h2>
           <p className="mt-3 text-sm leading-relaxed text-cream-300/75">{isPlasterGuide ? "Пришлите площадь, высоту и фото стен. Обсудим объём, доступ и состав работ перед расчётом." : isScreedGuide ? "Пришлите площадь, этаж и фото основания — уточним состав работ и стоимость." : isService ? "Пришлите параметры объекта и фотографии, которые есть под рукой. Уточним остальные данные и состав работ перед итоговой сметой." : "Позвоните или отправьте сообщение — уточним условия и следующий шаг без обязательства оформлять заказ сразу."}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <LinkButton to={whatsappUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : isScreedGuide ? "Запросить расчёт стяжки" : isService ? "Отправить данные для расчёта" : "Написать в WhatsApp"}</LinkButton>
+            <LinkButton to={contactDraftUrl(isPlasterGuide ? plasterWaText : waText)} external onClick={() => track("cta_click", { type: "contact_choice", where: "seo-landing-bottom", slug })}>{isPlasterGuide ? "Отправить площадь и фото" : isScreedGuide ? "Запросить расчёт стяжки" : isService ? "Отправить данные для расчёта" : "Выбрать связь: MAX"}</LinkButton>
             {isRepairGuide ? (
               <>
                 <LinkButton to="/mehanizirovannaya-shtukaturka-omsk/" variant="ghost">Штукатурка</LinkButton>
