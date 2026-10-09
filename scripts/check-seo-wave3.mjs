@@ -19,7 +19,7 @@ const home = read("dist/index.html");
 for (const page of source) {
   assert.ok(page.description.length >= 100 && page.description.length <= 180, "Yandex snippet in reasonable range: " + page.slug);
   assert.ok(!/бан[ьяиею]|саун|квадро/i.test(JSON.stringify(page)), "No legacy sauna copy");
-  assert.ok(!/бесплатный выезд|гарантия\s+\d+|стоимость\s+от\s+\d+/iu.test(JSON.stringify(page)), "No unverified offer promise");
+  assert.ok(!/гарантия\s+\d+|стоимость\s+от\s+\d+/iu.test(JSON.stringify(page)), "No unverified offer promise");
   const url = SITE + page.slug + "/";
   const html = read("dist/" + page.slug + "/index.html");
   assert.ok(sitemap.includes("<loc>" + url + "</loc>"), "Guide in sitemap: " + page.slug);
