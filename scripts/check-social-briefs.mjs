@@ -18,7 +18,7 @@ for(const code of ["",...Object.keys(offers)]){
   assert.ok(html.includes('<meta name="robots" content="noindex, follow" />'),`Direct campaign brief must not compete with SEO landing: ${slug}`);
   assert.ok(html.includes(`property="og:title" content="${name} в Омске`),`Social OG title matches service: ${slug}`);
   assert.ok(html.includes(`property="og:url" content="https://conradipui-glitch.github.io/silalesa/${slug}/"`),`Social OG URL uses static route: ${slug}`);
-  assert.ok(html.includes('wa.me/')&&html.includes('Для предварительной оценки'),`No JS consultation link works: ${slug}`);
+  assert.ok(html.includes('tel:+79136884533')&&html.includes('Для предварительной оценки'),`No JS consultation link works: ${slug}`);
   assert.ok(!sitemap.includes(`/silalesa/${slug}/`),`Social campaign links are excluded from SEO sitemap: ${slug}`);
 }
-console.log("SOCIAL BRIEFS STATIC PASS: 15 direct 200 URLs, indexable content excluded, OG parity, no-JS WhatsApp");
+console.log("SOCIAL BRIEFS STATIC PASS: 15 direct 200 URLs, indexable content excluded, OG parity, no-JS phone and MAX");
