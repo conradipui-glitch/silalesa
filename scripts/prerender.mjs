@@ -158,6 +158,9 @@ function staticSnapshot(page) {
   const screedServiceLink = page.slug === "polusuhaya-styazhka-omsk"
     ? `<p><a href="${SITE_URL}${SCREED_GUIDE_SLUG}/">Полусухая или мокрая стяжка: в чём разница?</a></p>`
     : "";
+  const twoStageCalculatorLinks = isRepairGuide
+    ? `<section aria-label="Калькуляторы перед заказом"><h2>Один объект — два разных расчёта</h2><p>Площадь стен и пола считают по-разному: сначала определите размеры и объёмы, затем согласуйте состав смет и порядок работ.</p><ul><li><a href="${SITE_URL}${plasterCalculatorPage.slug}/">Рассчитать стены: окна, двери, толщина и объём штукатурки</a></li><li><a href="${SITE_URL}${calculatorPage.slug}/">Рассчитать пол: площадь, средняя толщина и объём стяжки</a></li></ul></section>`
+    : "";
   const plasterCalculatorLink = ["mehanizirovannaya-shtukaturka-omsk", "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka", "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka"].includes(page.slug)
     ? `<section aria-label="Бесплатный калькулятор штукатурки стен"><h2>Калькулятор штукатурки стен</h2><p>Рассчитайте площадь стен, вычтите проёмы и оцените объём слоя и стартовую стоимость работ.</p><p><a href="${SITE_URL}${plasterCalculatorPage.slug}/">Открыть калькулятор штукатурки</a></p></section>`
     : "";
@@ -241,7 +244,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${twoStageCalculatorLinks}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
