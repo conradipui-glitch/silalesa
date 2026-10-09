@@ -52,6 +52,6 @@ for (const entry of entries) {
 const sequence = read("dist/guides/remont/shtukaturka-ili-styazhka-chto-snachala/index.html");
 assert.ok(sequence.includes("Один объект — два разных расчёта"), "Missing standalone dual-tool choice without JavaScript");
 assert.ok(sequence.includes("45,3 м²") && sequence.includes("20 м²"), "Two differently measured areas not explained");
-assert.ok(!sequence.includes("единый пакет «под ключ»"), "Do not imply a combined package price");
+assert.ok(sequence.includes("не означает автоматически единый пакет"), "Guide must not imply a combined package price");
 
 console.log("SEO_WAVE2_PASS: four buyer-useful repair articles, 2 different calculator intents, no-JS/SEO parity and no new duplicate route.");
