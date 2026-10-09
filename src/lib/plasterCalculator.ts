@@ -37,7 +37,7 @@ export const initialPlasterRooms: PlasterRoom[] = [{
 }];
 
 export const initialPlasterMaterial: PlasterMaterial = {
-  enabled: false, consumption: 8.5, bagWeight: 30, reserve: 5,
+  enabled: false, consumption: 0, bagWeight: 0, reserve: 5,
 };
 
 const inRange = (value: number, min: number, max: number) =>
@@ -75,23 +75,23 @@ export function plasterRoomMetrics(room: PlasterRoom) {
 export function calculatePlaster(rooms: PlasterRoom[], material: PlasterMaterial = initialPlasterMaterial) {
   const metrics = rooms.map((room) => ({ room, ...plasterRoomMetrics(room) }));
   const valid = rooms.length > 0 && rooms.length <= MAX_PLASTER_ROOMS
-    && metrics.every((value) => value.valid)
-    && (!material.enabled || (
-      inRange(material.consumption, 0.01, 100)
-      && inRange(material.bagWeight, 0.1, 100)
-      && inRange(material.reserve, 0, 20)
-    ));
+    && metrics.every((value) => value.valid);
+  const materialValid = !material.enabled || (
+    inRange(material.consumption, 0.01, 100)
+    && inRange(material.bagWeight, 0.1, 100)
+    && inRange(material.reserve, 0, 20)
+  );
   const grossArea = metrics.reduce((sum, item) => sum + item.grossArea, 0);
   const openingsArea = metrics.reduce((sum, item) => sum + item.openingsArea, 0);
   const netArea = metrics.reduce((sum, item) => sum + item.netArea, 0);
   const volume = metrics.reduce((sum, item) => sum + item.volume, 0);
-  const materialKg = material.enabled && valid
+  const materialKg = material.enabled && valid && materialValid
     ? metrics.reduce((sum, item) => sum + item.netArea * (item.room.thickness / 10) * material.consumption, 0)
       * (1 + material.reserve / 100)
     : null;
   const bags = materialKg === null ? null : Math.ceil(materialKg / material.bagWeight);
   return {
-    valid, metrics, grossArea, openingsArea, netArea, volume,
+    valid, materialValid, metrics, grossArea, openingsArea, netArea, volume,
     averageThickness: netArea > 0 ? volume * 1000 / netArea : 0,
     budgetFrom: netArea * PLASTER_START_PRICE,
     materialKg, bags,
@@ -112,7 +112,7 @@ export function describePlasterEstimate(rooms: PlasterRoom[], material: PlasterM
     `Площадь до вычета: ${plasterNumber(calc.grossArea)} м²; проёмы: ${plasterNumber(calc.openingsArea)} м²; под штукатурку: ${plasterNumber(calc.netArea)} м².`,
     `Геометрический объём слоя: ${plasterNumber(calc.volume, 4)} м³.`,
     `Предварительный ориентир работ — от ${plasterNumber(calc.budgetFrom, 0)} ₽ по стартовой ставке ${PLASTER_START_PRICE} ₽/м²; это не смета.`,
-    ...(material.enabled ? [`По введённому паспортному расходу ${plasterNumber(material.consumption)} кг/м² на 10 мм: ${plasterNumber(calc.materialKg!, 1)} кг с запасом ${material.reserve}% ≈ ${calc.bags} мешков по ${plasterNumber(material.bagWeight)} кг (не подтверждённая комплектация).`] : []),
+    ...(material.enabled && calc.materialValid ? [`По введённому паспортному расходу ${plasterNumber(material.consumption)} кг/м² на 10 мм: ${plasterNumber(calc.materialKg!, 1)} кг с запасом ${material.reserve}% ≈ ${calc.bags} мешков по ${plasterNumber(material.bagWeight)} кг (не подтверждённая комплектация).`] : []),
     "Нужно уточнить основание, состав работ, материал, доступ и итоговую стоимость для объекта. Откосы отдельно не учитывались.",
     "Калькулятор: https://conradipui-glitch.github.io/silalesa/kalkulyator-shtukaturki-sten/",
   ].join("\n");
