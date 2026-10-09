@@ -23,6 +23,7 @@ const basePages = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-screed.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-plaster.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-materials.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-guides-wave3.json"), "utf8")),
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
@@ -114,6 +115,9 @@ function staticSnapshot(page) {
   const isScreedGuide = page.slug === SCREED_GUIDE_SLUG;
   const isPlasterGuide = page.slug === PLASTER_GUIDE_SLUG;
   const isMaterialGuide = page.slug === MATERIAL_GUIDE_SLUG;
+  const isWave3Masonry = page.slug === "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona";
+  const isWave3Demolition = page.slug === "guides/remont/demontazh-pered-remontom-smeta";
+  const isWave3Guide = isWave3Masonry || isWave3Demolition;
   const saunaChoice = saunaChoiceFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1]);
   const operation = operationalGuideFallback(page, saunaChoiceModels, servicePages.find((item) => item.slug === "burenie-skvazhiny-omsk")?.priceLabel, SITE_URL, whatsappMatch[1]);
   const offer = saunaOfferFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1], modelAssets);
@@ -147,7 +151,7 @@ function staticSnapshot(page) {
       ? { path: "mehanizirovannaya-shtukaturka-omsk", label: "Об услуге механизированной штукатурки" }
     : isScreedGuide
       ? { path: "polusuhaya-styazhka-omsk", label: "Об услуге полусухой стяжки" }
-      : { path: "mobilnaya-banya-omsk", label: "Смотреть готовые бани" };
+      : { path: "services", label: "Все строительные работы" };
   const repairServiceLinks = `<p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка в Омске</a></p><p><a href="${SITE_URL}polusuhaya-styazhka-omsk/">Полусухая стяжка в Омске</a></p>`;
   const plasterServiceLink = page.slug === "mehanizirovannaya-shtukaturka-omsk"
     ? `<p><a href="${SITE_URL}${PLASTER_GUIDE_SLUG}/">Механизированная или ручная штукатурка: что выбрать?</a></p>`
@@ -172,6 +176,9 @@ function staticSnapshot(page) {
     : page.slug === "mehanizirovannaya-shtukaturka-omsk" || page.slug === "polusuhaya-styazhka-omsk"
       ? `<p><a href="${SITE_URL}${REPAIR_GUIDE_SLUG}/">Штукатурка или стяжка: что делать сначала?</a></p>`
       : "";
+  const wave3GuideLinks = isWave3Guide
+    ? `<nav aria-label="Связанные строительные материалы"><h2>Что ещё проверить перед работами</h2><ul><li><a href="${SITE_URL}${isWave3Masonry ? "guides/remont/demontazh-pered-remontom-smeta" : "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona"}/">${isWave3Masonry ? "Демонтаж перед ремонтом: состав сметы" : "Кладка кирпича и газобетона: сравнение смет"}</a></li><li><a href="${SITE_URL}services/">Каталог строительных работ в Омске</a></li></ul></nav><p><a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(page.choicePrompt+" Страница: "+SITE_URL+page.slug+"/")}">Обсудить объём работ в WhatsApp</a></p>`
+    : "";
   const guideLinks = isGuide
     ? operation.hasSteps ? "" : isRepairGuide
       ? repairServiceLinks
@@ -179,6 +186,7 @@ function staticSnapshot(page) {
         ? `<p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка в Омске</a></p>`
       : isScreedGuide
         ? `<p><a href="${SITE_URL}polusuhaya-styazhka-omsk/">Полусухая стяжка в Омске</a></p>`
+      : isWave3Guide ? wave3GuideLinks
       : `<nav aria-label="Ещё полезные гайды"><h2>Другие полезные гайды</h2><ul>${pages.filter((guide) => guide.kind === "guide" && guide.slug !== page.slug && guide.slug !== REPAIR_GUIDE_SLUG && guide.slug !== SCREED_GUIDE_SLUG && guide.slug !== PLASTER_GUIDE_SLUG && guide.slug !== MATERIAL_GUIDE_SLUG).map((guide) => `<li><a href="${SITE_URL}${guide.slug}/">${escapeHtml(guide.h1)}</a></li>`).join("")}</ul></nav><p><a href="${SITE_URL}${guideTarget.path}/">${escapeHtml(guideTarget.label)}</a></p>`
     : "";
 
@@ -249,7 +257,14 @@ function staticSnapshot(page) {
 
 function servicesSnapshot() {
   const canonical = `${SITE_URL}${servicesHub.slug}/`;
-  const directionItems = constructionCatalog.map((service) => `<li><strong>${escapeHtml(service.title)}</strong><p>${escapeHtml(service.text)}</p><p>Для первого расчёта: ${escapeHtml(service.requestHint)}.</p></li>`).join("");
+  const directionItems = constructionCatalog.map((service) => {
+    const infoLink = service.title === "Кладочные работы"
+      ? `<p><a href="${SITE_URL}guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona/">Как сравнить сметы на кладку</a></p>`
+      : service.title === "Демонтажные работы"
+      ? `<p><a href="${SITE_URL}guides/remont/demontazh-pered-remontom-smeta/">Что проверить перед демонтажем</a></p>`
+      : "";
+    return `<li><strong>${escapeHtml(service.title)}</strong><p>${escapeHtml(service.text)}</p><p>Для первого расчёта: ${escapeHtml(service.requestHint)}.</p>${infoLink}</li>`;
+  }).join("");
   const items = servicePages
     .map(
       (page) => `<li><a href="${SITE_URL}${page.slug}/">${escapeHtml(page.h1)}</a><p>${escapeHtml(page.priceLabel ?? "")}</p><p>${escapeHtml(page.lead)}</p></li>`,

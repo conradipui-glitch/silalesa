@@ -6,7 +6,7 @@ const root = process.cwd();
 const BASE = "https://conradipui-glitch.github.io/silalesa/";
 const sources = [
   "seo-pages.json", "seo-page-guides.json", "seo-page-guides-remont.json",
-  "seo-page-guides-screed.json", "seo-page-guides-plaster.json", "seo-page-guides-materials.json",
+  "seo-page-guides-screed.json", "seo-page-guides-plaster.json", "seo-page-guides-materials.json", "seo-page-guides-wave3.json",
 ].flatMap((f) => JSON.parse(fs.readFileSync(path.join(root, "src/data", f), "utf8")));
 const overrideFiles = [
   "seo-page-overrides.json", "seo-page-overrides-next.json", "seo-page-overrides-r3.json",

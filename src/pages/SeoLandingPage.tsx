@@ -71,6 +71,9 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isScreedGuide = page.slug === SCREED_GUIDE_SLUG;
   const isPlasterGuide = page.slug === PLASTER_GUIDE_SLUG;
   const isMaterialGuide = page.slug === MATERIAL_GUIDE_SLUG;
+  const isWave3Masonry = page.slug === "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona";
+  const isWave3Demolition = page.slug === "guides/remont/demontazh-pered-remontom-smeta";
+  const isWave3Guide = isWave3Masonry || isWave3Demolition;
   const image = isMaterialGuide
     ? serviceComparisonBySlug["mehanizirovannaya-shtukaturka-omsk"].before
     : isDrillingGuide
@@ -122,10 +125,12 @@ export function SeoLandingPage({ slug }: { slug: string }) {
 
   const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_BASE}${page.slug}/`;
 
-  const otherGuides = isGuide && !isOperationalGuide && !isRepairGuide && !isScreedGuide && !isPlasterGuide && !isMaterialGuide
+  const otherGuides = isGuide && !isOperationalGuide && !isRepairGuide && !isScreedGuide && !isPlasterGuide && !isMaterialGuide && !isWave3Guide
     ? seoPages.filter((item) => item.kind === "guide" && item.slug !== page.slug && item.slug !== REPAIR_GUIDE_SLUG)
     : [];
-  const related = isMaterialGuide
+  const related = isWave3Guide
+    ? seoPages.filter((item) => item.slug === (isWave3Masonry ? "guides/remont/demontazh-pered-remontom-smeta" : "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona") || item.slug === "guides/remont/shtukaturka-ili-styazhka-chto-snachala")
+    : isMaterialGuide
     ? seoPages.filter((item) => item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === PLASTER_GUIDE_SLUG)
     : isRepairGuide
     ? seoPages.filter((item) => item.slug === PLASTER_GUIDE_SLUG || item.slug === SCREED_GUIDE_SLUG || item.slug === "mehanizirovannaya-shtukaturka-omsk" || item.slug === "polusuhaya-styazhka-omsk")
@@ -207,7 +212,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         <div className="mt-8 grid items-center gap-10 lg:grid-cols-[1fr_0.95fr] lg:gap-14">
           <div className="reveal">
             <p className="text-xs uppercase tracking-[0.22em] text-cedar-300">{page.eyebrow}</p>
-            <h1 className={`mt-4 max-w-3xl font-display font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] ${isPlasterGuide ? "text-[clamp(25px,7vw,34px)] sm:text-[44px] lg:text-[clamp(34px,3.4vw,46px)]" : "text-[34px] sm:text-5xl lg:text-[58px]"}`}>{page.h1}</h1>
+            <h1 className={`mt-4 max-w-3xl font-display font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] ${isPlasterGuide ? "text-[clamp(25px,7vw,34px)] sm:text-[44px] lg:text-[clamp(34px,3.4vw,46px)]" : isWave3Guide ? "text-[clamp(27px,7.4vw,34px)] sm:text-[44px] lg:text-[clamp(38px,3.7vw,51px)]" : "text-[34px] sm:text-5xl lg:text-[58px]"}`}>{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
 
             {isPlasterGuide && (
@@ -271,6 +276,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
                     Полусухая стяжка <ArrowIcon />
                   </LinkButton>
                 </>
+              ) : isWave3Guide ? (
+                <>
+                  <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "wave3_guide_estimate", slug })}>
+                    Обсудить объём работ <ArrowIcon />
+                  </LinkButton>
+                  <LinkButton to="/services/" size="lg" variant="ghost">Все строительные направления <ArrowIcon /></LinkButton>
+                </>
               ) : isSaunaChoiceGuide ? (
                 <>
                   <LinkButton to={whatsappUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "r5-guide-hero", slug })}>{page.choiceCtaLabel ?? "Помогите выбрать баню"} <ArrowIcon /></LinkButton>
@@ -303,7 +315,23 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           </div>
 
           <div className="reveal" style={{ ["--reveal-delay" as string]: "100ms" }}>
-            {comparison ? (
+            {isWave3Guide ? (
+              <div className="relative flex min-h-[330px] flex-col justify-between overflow-hidden rounded-[28px] border border-cedar-300/25 bg-gradient-to-br from-bark-800 via-bark-900 to-bark-950 p-6 shadow-card sm:min-h-[390px] sm:p-9">
+                <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full border-[40px] border-cedar-300/10" />
+                <p className="relative text-xs font-semibold uppercase tracking-[0.19em] text-cedar-300">Перед разговором с подрядчиком</p>
+                <div className="relative">
+                  <p className="font-display text-3xl leading-tight text-cream-50 sm:text-4xl">{isWave3Masonry ? "Площадь ≠ объём" : "Площадь ≠ смета"}</p>
+                  <p className="mt-4 max-w-sm text-base leading-relaxed text-cream-200/85">{isWave3Masonry
+                    ? "Длина, высота, проёмы, толщина стены — только после этого сравниваем расценки."
+                    : "Материал, толщина, доступ и вывоз могут менять стоимость одного и того же метража."}</p>
+                </div>
+                <div className="relative grid grid-cols-3 gap-2 border-t border-cream-50/15 pt-5 text-left">
+                  {(isWave3Masonry ? [["01", "Размеры"], ["02", "Материал"], ["03", "Состав работ"]] : [["01", "Конструкции"], ["02", "Допуски"], ["03", "Вывоз"]]).map(([number,label])=>(
+                    <div key={number} className="min-w-0"><p className="font-display text-xl text-cedar-300">{number}</p><p className="mt-1 break-words text-xs leading-snug text-cream-200">{label}</p></div>
+                  ))}
+                </div>
+              </div>
+            ) : comparison ? (
               <BeforeAfter {...comparison} />
             ) : (
               <div className={isService ? "overflow-hidden rounded-3xl bg-bark-800 shadow-card aspect-[16/10]" : "kvadro-mask overflow-hidden bg-bark-800 shadow-card aspect-[4/3]"}>

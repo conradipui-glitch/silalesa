@@ -33,7 +33,7 @@ const entries = [
 
 const site = "https://conradipui-glitch.github.io/silalesa/";
 const sitemap = read("dist/sitemap.xml");
-assert.equal((sitemap.match(/<loc>/g) ?? []).length, 12, "No thin duplicate SEO pages created");
+assert.equal((sitemap.match(/<loc>/g) ?? []).length, 14, "Twelve original canonical pages plus two W3 buyer guides; no W2 duplicate pages");
 
 for (const entry of entries) {
   assert.ok(entry.page, "Missing SEO wave 2 guide: " + entry.slug);

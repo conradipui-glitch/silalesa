@@ -4,6 +4,7 @@ import rawRepairGuides from "./seo-page-guides-remont.json";
 import rawScreedGuides from "./seo-page-guides-screed.json";
 import rawPlasterGuides from "./seo-page-guides-plaster.json";
 import rawMaterialGuides from "./seo-page-guides-materials.json";
+import rawWave3Guides from "./seo-page-guides-wave3.json";
 import rawOverrides from "./seo-page-overrides.json";
 import rawNextOverrides from "./seo-page-overrides-next.json";
 import rawR3Overrides from "./seo-page-overrides-r3.json";
@@ -68,7 +69,7 @@ for (const override of [...rawOverrides, ...rawNextOverrides, ...rawR3Overrides,
   overrideBySlug.set(override.slug, { ...(overrideBySlug.get(override.slug) ?? {}), ...override });
 }
 
-const rawAllPages = [...rawPages, ...rawGuides, ...rawRepairGuides, ...rawScreedGuides, ...rawPlasterGuides, ...rawMaterialGuides] as SeoPage[];
+const rawAllPages = [...rawPages, ...rawGuides, ...rawRepairGuides, ...rawScreedGuides, ...rawPlasterGuides, ...rawMaterialGuides, ...rawWave3Guides] as SeoPage[];
 
 // Current construction release: bath pages live only in the preserved legacy branch.
 export const seoPages = rawAllPages

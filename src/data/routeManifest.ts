@@ -8,7 +8,9 @@ export const seoSlugs: string[] = [
   "guides/remont/shtukaturka-ili-styazhka-chto-snachala",
   "guides/remont/polusuhaya-ili-mokraya-styazhka",
   "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka",
-  "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka"
+  "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka",
+  "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona",
+  "guides/remont/demontazh-pered-remontom-smeta"
 ];
 export const landingMetaBySlug: Record<string, { h1: string; kind: string }> = {
   "polusuhaya-styazhka-omsk": {
@@ -41,6 +43,14 @@ export const landingMetaBySlug: Record<string, { h1: string; kind: string }> = {
   },
   "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka": {
     "h1": "Гипсовая или цементная штукатурка: что выбрать и где применять?",
+    "kind": "guide"
+  },
+  "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona": {
+    "h1": "Сколько стоит кладка кирпича и газобетона?",
+    "kind": "guide"
+  },
+  "guides/remont/demontazh-pered-remontom-smeta": {
+    "h1": "Демонтаж перед ремонтом: как подготовить расчёт?",
     "kind": "guide"
   }
 };
