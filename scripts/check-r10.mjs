@@ -28,11 +28,11 @@ const warnings = [];
 const verify = (condition, message) => { if (!condition) errors.push(message); };
 const warn = (condition, message) => { if (!condition) warnings.push(message); };
 const escape = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-const routes = [site, `${site}services/`, ...effective.map((page) => `${site}${page.slug}/`)];
+const routes = [site, `${site}services/`, ...effective.map((page) => `${site}${page.slug}/`), `${site}kalkulyator-styazhki-pola/`];
 const sitemap = [...read('dist/sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 verify(effective.length === 8, `Construction SEO registry: expected 8, found ${effective.length}`);
 verify(new Set(effective.map((p) => p.slug)).size === effective.length, 'Duplicate SEO slugs');
-verify(sitemap.length === 10 && new Set(sitemap).size === 10, `Construction sitemap: expected 10 distinct URLs, found ${sitemap.length}`);
+verify(sitemap.length === 11 && new Set(sitemap).size === 11, `Construction sitemap: expected 11 distinct URLs, found ${sitemap.length}`);
 verify(JSON.stringify(sitemap) === JSON.stringify(routes), 'Sitemap differs from actual source registry/order');
 verify([...overrides.keys()].filter((slug) => !/banya|mobilnaya-banya|karkasnaya-banya|guides\/bani/.test(slug)).every((slug) => effective.some((p) => p.slug === slug)), 'Orphan construction override slug');
 verify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');
@@ -131,6 +131,12 @@ for (const url of routes) {
   routeRows.push({ route: url.replace(site, '/') || '/', type: page?.kind ?? (url === site ? 'home' : 'services'), staticHTML: true, canonical: canonical === url, h1: h1 === 1, links: localLinks.length });
 }
 
+const calculatorStatic = read('dist/kalkulyator-styazhki-pola/index.html');
+verify(calculatorStatic.includes('Объём слоя в м³') && calculatorStatic.includes('12 000 ₽'), 'Calculator static formula and sample are visible without JS');
+verify(calculatorStatic.includes('application/ld+json') && calculatorStatic.includes('WebApplication'), 'Calculator structured metadata missing');
+verify(read('dist/index.html').includes(`${site}kalkulyator-styazhki-pola/`), 'Home no-JS needs calculator link');
+verify(read('dist/polusuhaya-styazhka-omsk/index.html').includes(`${site}kalkulyator-styazhki-pola/`), 'Screed service must link to calculator');
+verify(read('dist/guides/remont/polusuhaya-ili-mokraya-styazhka/index.html').includes(`${site}kalkulyator-styazhki-pola/`), 'Guide must link to calculator');
 const legacy = effective.filter((p) => p.productId);
 verify(legacy.length === 3, `Expected 3 construction service aliases, got ${legacy.length}`);
 for (const page of legacy) {
@@ -167,4 +173,4 @@ warn(imageLinks.length > 0, 'No actual bundled photography checked');
 const outcome = { checked: { canonical: routeRows.length, aliases: legacy.length, printable: printPages.length, internalLinks: links.length, localImages: imageLinks.length }, errors, warnings, routes: routeRows };
 console.log('R10 ACCEPTANCE AUDIT:', JSON.stringify(outcome, null, 2));
 assert.equal(errors.length, 0, `${errors.length} acceptance failures; see R10 ACCEPTANCE AUDIT above`);
-console.log('R10 PASS: 10 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
+console.log('R10 PASS: 11 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
