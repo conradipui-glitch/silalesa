@@ -86,7 +86,7 @@ async function checkServiceDiscovery(page, label) {
     label: el.getAttribute('aria-label') || '',
     height: Math.round(el.getBoundingClientRect().height),
   })));
-  assert.equal(linkKinds.filter((entry) => entry.href.startsWith('https://wa.me/')).length, 12, `${label}: 12 directions open a service-specific consultation`);
+  assert.equal(linkKinds.filter((entry) => entry.href.startsWith('#contact-draft=')).length, 12, `${label}: 12 directions open a service-specific consultation`);
   assert.equal(linkKinds.filter((entry) => /mehanizirovannaya-shtukaturka-omsk|polusuhaya-styazhka-omsk/.test(entry.href)).length, 2, `${label}: two detailed service pages remain linked`);
   assert.ok(linkKinds.every((entry) => entry.height >= 44 && entry.label.length > 15), `${label}: every service action has a readable, accessible 44px target`);
   const hints = page.locator('#services [data-qa="service-request-hint"]');
@@ -100,8 +100,8 @@ async function checkServiceDiscovery(page, label) {
   })) {
     const card = page.locator('#services [data-qa="service-group"] article').filter({ hasText: serviceName });
     assert.equal(await card.count(), 1, `${label}: distinct service card for ${serviceName}`);
-    const href = await card.locator('a[href^="https://wa.me/"]').getAttribute('href');
-    const message = new URL(href).searchParams.get('text') ?? '';
+    const href = await card.locator('a[href^="#contact-draft="]').getAttribute('href');
+    const message = decodeURIComponent(href.slice('#contact-draft='.length));
     assert.ok(message.includes(serviceName), `${label}: consultation prefills chosen service`);
     assert.ok(keywords.every((word) => message.includes(word)), `${label}: consultation prefills relevant estimation context for ${serviceName}`);
   }
@@ -184,8 +184,8 @@ async function checkIntentAwareHomepage() {
     assert.equal(await page.locator('[data-qa="hero-copy"]').getAttribute("data-offer-code"),code);
     const heading = (await page.locator("main h1").innerText()).trim();
     assert.ok(heading.includes(title) && heading.includes("в Омске"), `Focused H1 names the requested service: ${heading}`);
-    const href = await page.locator('[data-qa="hero-copy"] a[href*="wa.me/"]').first().getAttribute("href");
-    assert.ok(new URL(href).searchParams.get("text")?.includes(title), `Focused WhatsApp prompt matches ${title}`);
+    const href = await page.locator('[data-qa="hero-copy"] a[href^="#contact-draft="]').first().getAttribute("href");
+    assert.ok(decodeURIComponent(href.slice('#contact-draft='.length)).includes(title), `Focused contact chooser prompt matches ${title}`);
     assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'),homeCanonical,"Explicit focus never generates SEO duplicate canonical");
     assert.equal(await page.locator('[data-qa="offer-context-note"]').count(),1,"Explicit focus explains navigation context");
   }
@@ -256,20 +256,20 @@ async function checkSocialServiceBriefs() {
   await page.locator("#brief-volume").fill("135 м²");
   await page.locator("#brief-timing").selectOption("В течение 1–3 месяцев");
   await page.locator("#brief-details").fill("Есть проект и фото кровли");
-  const wa = page.locator('[data-qa="brief-whatsapp"]');
-  const url = new URL(await wa.getAttribute("href"));
-  const message = url.searchParams.get("text") || "";
+  const wa = page.locator('[data-qa="brief-contact"]');
+  const url = new URL("https://example.invalid/" + (await wa.getAttribute("href")));
+  const message = decodeURIComponent(url.hash.slice('#contact-draft='.length));
   for (const phrase of ["Кровельные работы", "Центральный округ", "135 м²", "1–3 месяцев", "Есть проект"]) {
-    assert.ok(message.includes(phrase), `WhatsApp prepared draft contains: ${phrase}`);
+    assert.ok(message.includes(phrase), `contact chooser prepared draft contains: ${phrase}`);
   }
   await page.locator("details > summary").click();
   assert.ok((await page.locator('[data-qa="brief-message-preview"]').innerText()).includes("135 м²"), "Visitor can review the message locally");
-  assert.ok(url.host === "wa.me", "CTA only opens WhatsApp, no form transmission");
+  assert.ok(url.host === "example.invalid" && url.hash.startsWith('#contact-draft='), "CTA stores a local draft, not a sent message");
 
   await page.locator("#brief-service").selectOption("monolith");
   await page.waitForURL("**/brief/monolith/");
   assert.ok((await page.locator("main h1").innerText()).includes("Монолитные работы"), "Changing service changes title and address");
-  assert.ok((await page.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).includes("monolith")===false, "WhatsApp uses Russian service text, not internal service code");
+  assert.ok((await page.locator('[data-qa="brief-contact"]').getAttribute("href")).includes("monolith")===false, "contact chooser uses Russian service text, not internal service code");
   assert.ok((await page.locator("#brief-location").inputValue()).includes("Центральный"), "Switching service retains entered brief");
   assert.equal(await page.locator('[data-qa="brief-service-guidance"]').count(), 0, "Generic directions do not inherit another service’s checklist");
   const fit = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
@@ -289,21 +289,21 @@ async function checkSocialServiceBriefs() {
   const desktopFit = await desktop.evaluate(() => ({ scroll: document.documentElement.scrollWidth, width: innerWidth }));
   assert.ok(desktopFit.scroll <= desktopFit.width + 2, "No desktop overflow");
   await visit(desktop, "brief/roofing/?utm_source=telegram&utm_medium=post&utm_campaign=roof_oct26", "social: tagged roofing");
-  const taggedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
-  assert.ok(taggedMessage.includes("Публикация: Telegram / roof_oct26."), "Published campaign label is included in visitor-reviewed WhatsApp draft");
+  const taggedMessage = decodeURIComponent((await desktop.locator('[data-qa="brief-contact"]').getAttribute("href")).slice('#contact-draft='.length));
+  assert.ok(taggedMessage.includes("Публикация: Telegram / roof_oct26."), "Published campaign label is included in visitor-reviewed contact chooser draft");
   await desktop.locator("#brief-service").selectOption("facades");
   await desktop.waitForURL("**/brief/facades/?utm_source=telegram&utm_medium=post&utm_campaign=roof_oct26");
-  const switchedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
+  const switchedMessage = decodeURIComponent((await desktop.locator('[data-qa="brief-contact"]').getAttribute("href")).slice('#contact-draft='.length));
   assert.ok(switchedMessage.includes("Фасадные работы") && switchedMessage.includes("Публикация: Telegram / roof_oct26."), "Campaign survives service selection, service remains accurate");
   await visit(desktop, "brief/screed/?utm_source=unexpected&utm_campaign=hacker", "social: untrusted source");
-  const untrustedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
-  assert.ok(!untrustedMessage.includes("Публикация:"), "Unknown UTM source cannot inject attribution into WhatsApp");
+  const untrustedMessage = decodeURIComponent((await desktop.locator('[data-qa="brief-contact"]').getAttribute("href")).slice('#contact-draft='.length));
+  assert.ok(!untrustedMessage.includes("Публикация:"), "Unknown UTM source cannot inject attribution into contact chooser");
   await visit(desktop, "brief/roofing/?utm_source=vk&utm_campaign=%0Asecret", "social: rejected campaign");
-  const rejectedMessage = new URL(await desktop.locator('[data-qa="brief-whatsapp"]').getAttribute("href")).searchParams.get("text") || "";
+  const rejectedMessage = decodeURIComponent((await desktop.locator('[data-qa="brief-contact"]').getAttribute("href")).slice('#contact-draft='.length));
   assert.ok(rejectedMessage.includes("Публикация: ВКонтакте.") && !rejectedMessage.includes("secret"), "Malicious or personal campaign values are rejected");
   console.log("CHROMIUM_CAMPAIGN_TAG_PASS: Telegram/VK, service changes, missing/invalid labels, opt-in draft parity");
 
-  console.log("CHROMIUM_SOCIAL_BRIEF_PASS: direct mobile and desktop URLs, own OG/noindex metadata, live service select, editable WhatsApp draft");
+  console.log("CHROMIUM_SOCIAL_BRIEF_PASS: direct mobile and desktop URLs, own OG/noindex metadata, live service select, editable contact chooser draft");
   await desk.close();
 }
 
@@ -440,8 +440,8 @@ async function run(label, contextOptions) {
   assert.ok(screedCopy.includes('Полусухая смесь содержит меньше воды и требует уплотнения'), `${label}: screed first answer uses approved source rather than stale R3 override`);
   const screedAction = page.getByRole('link', { name: 'Запросить расчёт стяжки' }).first();
   assert.equal(await screedAction.count(), 1, `${label}: screed guide offers a named estimate action`);
-  const screedContact = new URL(await screedAction.getAttribute('href'));
-  assert.ok(screedContact.searchParams.get('text')?.includes('Нужен расчёт полусухой стяжки'), `${label}: estimate message reflects screed service`);
+  const screedContact = new URL('https://example.invalid/' + (await screedAction.getAttribute('href')));
+  assert.ok(decodeURIComponent(screedContact.hash.slice('#contact-draft='.length)).includes('Нужен расчёт полусухой стяжки'), `${label}: estimate message reflects screed service`);
   const screedNote = page.locator('aside[aria-label="О характере материала"]');
   assert.equal(await screedNote.count(), 1, `${label}: guide has a brief technical-scope note`);
   assert.ok((await screedNote.innerText()).length < 180, `${label}: no overly wordy disclaimer`);
@@ -474,9 +474,9 @@ async function run(label, contextOptions) {
   await visit(page, 'services/', `${label}: return from retired route`);
   assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'index, follow', `${label}: indexability is restored after 404`);
   if (label === 'mobile') {
-    const wa = page.locator('a[href*="wa.me/"]').first();
+    const wa = page.locator('a[href^="#contact-draft="]').first();
     const href = await wa.getAttribute('href');
-    assert.ok(href && href.startsWith('https://wa.me/') && href.includes('text='), 'Mobile WhatsApp link is encoded; no message sent');
+    assert.ok(href && href.startsWith('#contact-draft=') && decodeURIComponent(href.slice('#contact-draft='.length)).length > 10, 'Mobile contact chooser link is encoded; no message sent');
     const dimensions = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, width: window.innerWidth }));
     assert.ok(dimensions.scrollWidth <= dimensions.width + 2, `Mobile page horizontal overflow: ${JSON.stringify(dimensions)}`);
     console.log('CHROMIUM_MOBILE_PASS', dimensions);
