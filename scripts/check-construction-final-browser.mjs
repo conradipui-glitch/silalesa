@@ -122,6 +122,36 @@ try {
       checked += 1;
     }
 
+    // Consent-based mascot-assisted draft: do not initiate an external request
+    // in QA; intercept window.open and verify the content locally.
+    await page.goto(origin + '/silalesa/', { waitUntil: 'networkidle' });
+    const assistant = page.locator('[data-qa="forest-lead-assistant"]');
+    await assistant.waitFor({ state: 'visible' });
+    assert.equal(await page.locator('[data-qa="forest-lead-dialog"]').count(), 0, 'Mascot does not auto-open a form');
+    assert.equal(await page.locator('[data-qa="forest-lead-hint"]').count(), 0, 'Mascot does not show an immediate hint');
+    const mascot = page.locator('[data-qa="forest-lead-trigger"]');
+    assert.equal(await mascot.count(), 1, 'One interactive forest mascot');
+    await mascot.click();
+    const dialog = page.locator('[data-qa="forest-lead-dialog"]');
+    await dialog.waitFor({ state: 'visible' });
+    await dialog.locator('select[name="service"]').selectOption('Кладочные работы');
+    await dialog.locator('textarea[name="notes"]').fill('Стенка 20 м²');
+    await dialog.locator('input[name="phone"]').fill('+7 999 100-00-00');
+    await page.evaluate(() => {
+      window.__mascotCapturedUrl = '';
+      window.open = (url) => { window.__mascotCapturedUrl = String(url); return null; };
+    });
+    await dialog.locator('[data-qa="forest-lead-whatsapp"]').click();
+    const submittedDraft = await page.evaluate(() => window.__mascotCapturedUrl);
+    assert.ok(submittedDraft.startsWith('https://wa.me/'), 'Lead helper must only prepare WhatsApp draft');
+    const draft = new URL(submittedDraft).searchParams.get('text');
+    assert.ok(draft?.includes('Кладочные работы') && draft.includes('Стенка 20 м²') && draft.includes('+7 999 100-00-00'), 'Prepared message includes selected service and visitor-provided details');
+    assert.equal(await page.evaluate(() => JSON.stringify(window.__silalesaEvents ?? []).includes('+7 999 100-00-00')), false, 'Never send visitor contact details to analytics');
+    await page.keyboard.press('Escape');
+    assert.equal(await dialog.count(), 0, 'Escape closes assistant dialog');
+    await page.goto(origin + '/silalesa/kalkulyator-styazhki-pola/', { waitUntil: 'networkidle' });
+    assert.equal(await page.locator('[data-qa="forest-lead-assistant"]').count(), 0, 'Mascot never obscures working calculators');
+
     for (const retired of ['mobilnaya-banya-omsk/', 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/']) {
       await page.goto(origin + '/silalesa/' + retired, { waitUntil: 'networkidle' });
       assert.ok((await page.locator('main h1').innerText()).includes('Такой страницы нет'), 'Retired route displays 404 screen');
