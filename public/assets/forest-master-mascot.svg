@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 208 240" role="img" aria-labelledby="title desc">
+<title id="title">Лесной мастер</title>
+<desc id="desc">Дружелюбный строительный помощник в кедровой каске с маленькой веточкой и рулеткой.</desc>
+<defs>
+  <linearGradient id="helmet" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#859a67"/><stop offset=".55" stop-color="#536b4b"/><stop offset="1" stop-color="#344a3a"/></linearGradient>
+  <linearGradient id="wood" x1="0" x2="1" y1=".2" y2=".9"><stop stop-color="#f3c98d"/><stop offset=".5" stop-color="#d59a5d"/><stop offset="1" stop-color="#a56f3f"/></linearGradient>
+  <linearGradient id="coat" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#405c4c"/><stop offset="1" stop-color="#23372f"/></linearGradient>
+  <filter id="shadow" x="-25%" y="-30%" width="150%" height="175%"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#080b0a" flood-opacity=".28"/></filter>
+</defs>
+<g filter="url(#shadow)">
+<path d="M37 221c3-33 18-55 39-64 12-5 22-7 30-7s24 2 34 7c23 10 33 32 34 64z" fill="url(#coat)" stroke="#23372f" stroke-width="4"/>
+<path d="M69 163l18 56h41l19-55" fill="none" stroke="#d69754" stroke-width="10" stroke-linecap="round"/>
+<path d="M75 165l10 15m54-15-10 15" fill="none" stroke="#f1c285" stroke-width="3" stroke-linecap="round"/>
+<rect x="79" y="184" width="52" height="39" rx="11" fill="#d39a59" stroke="#965e35" stroke-width="2"/>
+<path d="M105 193l-7 8h5v9h6v-9h5z" fill="#395748"/>
+<path d="M92 165l11 15 13-15" fill="#efe3d0"/>
+<path d="M66 135l-15-5c-7-3-13 1-13 8v11c0 10 16 19 26 16l16-10z" fill="#bb8857" stroke="#915a36" stroke-width="3"/>
+<path d="M155 138l19-10c7-3 15 0 16 9 0 8-4 14-12 17l-22 12z" fill="#ba8751" stroke="#915a36" stroke-width="3"/>
+<path d="M172 130l-1-14m6 17l8-13" stroke="#ba8751" stroke-width="9" stroke-linecap="round"/>
+<rect x="56" y="56" width="102" height="112" rx="49" fill="url(#wood)" stroke="#9f6b43" stroke-width="3"/>
+<path d="M64 129c12 28 23 34 45 35 20 0 34-16 41-36-11 13-24 9-34 8-9 0-16 10-24 3-12-8-20 2-28-10Z" fill="#6b462f" opacity=".88"/>
+<path d="M84 141q23 17 46 0" fill="none" stroke="#fff0d5" stroke-width="4.8" stroke-linecap="round"/>
+<path d="M74 114q12-7 22 0m23 0q12-7 22 0" fill="none" stroke="#533c2c" stroke-width="7" stroke-linecap="round"/>
+<ellipse cx="85" cy="121" rx="6" ry="8" fill="#282a26"/><ellipse cx="130" cy="121" rx="6" ry="8" fill="#282a26"/>
+<circle cx="87" cy="118" r="2" fill="#fff9e7"/><circle cx="132" cy="118" r="2" fill="#fff9e7"/>
+<ellipse cx="107" cy="134" rx="8" ry="5" fill="#b77748"/>
+<path d="M58 75c0-34 21-52 49-52 32 0 51 18 52 52z" fill="url(#helmet)" stroke="#344a3a" stroke-width="4"/>
+<path d="M53 74h110c7 0 12 6 10 11-2 7-13 11-24 11H66c-14 0-24-4-25-11-1-5 4-11 12-11" fill="#3d5947" stroke="#324637" stroke-width="3"/>
+<path d="M91 33v42" stroke="#afc39b" stroke-width="3" opacity=".65"/>
+<path d="M110 46l-12 15h7v11h10V61h7z" fill="#dfad68" stroke="#1f3830" stroke-width="2"/>
+<path d="M114 39c2-12 9-20 19-24m-23 23c-3-12-13-18-20-19" fill="none" stroke="#436a40" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M119 29c12-1 17-9 16-15-10 0-17 5-16 15m-21-3c-13 0-16-9-16-14 11 0 17 5 16 14" fill="#8da96f" stroke="#486f4b" stroke-width="1.5"/>
+<rect x="143" y="190" width="30" height="27" rx="6" fill="#e6b86c" stroke="#94643b" stroke-width="2.5"/>
+<circle cx="157" cy="204" r="7" fill="#f8f0dd" stroke="#94643b" stroke-width="2"/>
+<path d="M157 198v6l4 3" fill="none" stroke="#94643b" stroke-width="2" stroke-linecap="round"/>
+</g>
+</svg>
