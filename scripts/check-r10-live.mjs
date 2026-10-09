@@ -5,13 +5,13 @@ import fs from 'node:fs';
 // Does not click or send WhatsApp messages. HTTP 200 on a legacy page is a static HTML alias,
 // not a server-side 301 (GitHub Pages does not support one).
 const site = 'https://conradipui-glitch.github.io/silalesa/';
-const sources = ['seo-pages.json','seo-page-guides.json','seo-page-guides-remont.json','seo-page-guides-screed.json','seo-page-guides-plaster.json','seo-page-guides-materials.json'];
+const sources = ['seo-pages.json','seo-page-guides.json','seo-page-guides-remont.json','seo-page-guides-screed.json','seo-page-guides-plaster.json','seo-page-guides-materials.json','seo-page-guides-wave3.json'];
 const pages = sources.flatMap((file) => JSON.parse(fs.readFileSync(`src/data/${file}`, 'utf8')))
   .filter((page) => page.kind === 'service' || (page.kind === 'guide' && !page.slug.startsWith('guides/bani/')));
 const routes = [site, `${site}services/`, ...pages.map((page) => `${site}${page.slug}/`), `${site}kalkulyator-styazhki-pola/`, `${site}kalkulyator-shtukaturki-sten/`];
 const aliases = pages.filter((page) => page.productId);
 const printable = pages.filter((page) => page.printChecklistPath);
-assert.equal(routes.length, 12, 'Construction sitemap must cover 12 canonical routes');
+assert.equal(routes.length, 14, 'Construction sitemap must cover 14 canonical routes');
 assert.equal(aliases.length, 3, 'Three numeric service URLs');
 assert.equal(printable.length, 0, 'Sauna printable checklist must not be on construction website');
 
@@ -61,7 +61,7 @@ const sitemapUrl = `${site}sitemap.xml`;
 const sitemap = await request(sitemapUrl);
 checked++;
 const actual = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-check(sitemap.status === 200 && JSON.stringify(actual) === JSON.stringify(routes), 'Live sitemap does not match construction registry (12 URLs)');
+check(sitemap.status === 200 && JSON.stringify(actual) === JSON.stringify(routes), 'Live sitemap does not match construction registry (14 URLs)');
 const robots = await request(`${site}robots.txt`);
 checked++;
 check(robots.status === 200 && robots.body.includes(`Sitemap: ${sitemapUrl}`), 'Live robots.txt wrong or unavailable');
@@ -80,4 +80,4 @@ check(unknown.status === 404, `Unknown route should remain HTTP 404, got ${unkno
 
 console.log('R10 LIVE HTTP SUMMARY:', JSON.stringify({ checked, canonical: routes.length, legacy: aliases.length, printable: printable.length, sitemap: 1, robots: 1, llms: 1, unknown404: unknown.status === 404, errors }, null, 2));
 assert.equal(errors.length, 0, 'Live acceptance failed; see R10 LIVE HTTP SUMMARY');
-console.log('CONSTRUCTION LIVE PASS: 12 canonical HTML pages, 3 service aliases, 2 retired sauna 404s, sitemap/robots/llms parity, unknown URL 404. No WhatsApp messages sent.');
+console.log('CONSTRUCTION LIVE PASS: 14 canonical HTML pages, 3 service aliases, 2 retired sauna 404s, sitemap/robots/llms parity, unknown URL 404. No WhatsApp messages sent.');
