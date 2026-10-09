@@ -1,5 +1,5 @@
 import { ArrowIcon, LinkButton } from "./Brand";
-import { formatPrice, saunas, whatsappUrl } from "../data/products";
+import { formatPrice, saunas, contactDraftUrl } from "../data/products";
 import { seoPageBySlug, type SeoPage } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
@@ -41,7 +41,7 @@ export function OperationalGuide({ page }: { page: SeoPage }) {
           ))}
         </div>
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <LinkButton to={whatsappUrl(message)} external size="lg" onClick={() => track("cta_click", { type: "whatsapp", where: "r6-operational-guide", slug: page.slug })}>
+          <LinkButton to={contactDraftUrl(message)} external size="lg" onClick={() => track("cta_click", { type: "contact_choice", where: "r6-operational-guide", slug: page.slug })}>
             {page.operationCtaLabel ?? "Уточнить следующий шаг"} <ArrowIcon />
           </LinkButton>
           {page.printChecklistPath && (
