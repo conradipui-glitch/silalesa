@@ -21,6 +21,7 @@ const SCREED_GUIDE_SLUG = "guides/remont/polusuhaya-ili-mokraya-styazhka";
 const PLASTER_GUIDE_SLUG = "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka";
 const MATERIAL_GUIDE_SLUG = "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka";
 const ScreedCalculator = lazy(() => import("../components/ScreedCalculator").then((module) => ({ default: module.ScreedCalculator })));
+const PlasterCalculator = lazy(() => import("../components/PlasterCalculator").then((module) => ({ default: module.PlasterCalculator })));
 
 function useLandingMeta(slug: string, title: string, description: string) {
   useEffect(() => {
@@ -505,6 +506,23 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             </div>
             <Suspense fallback={<p role="status" className="rounded-2xl border border-cream-50/10 p-6 text-cream-200">Загружаем калькулятор…</p>}>
               <ScreedCalculator compact/>
+            </Suspense>
+          </div>
+        </section>
+      )}
+      {(page.slug === "mehanizirovannaya-shtukaturka-omsk" || isPlasterGuide || isMaterialGuide) && (
+        <section className="bg-bark-950 py-14 sm:py-20" aria-label="Калькулятор штукатурки стен">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cedar-300">Бесплатный строительный инструмент</p>
+                <h2 className="mt-3 font-display text-2xl text-cream-50 sm:text-3xl">Рассчитайте штукатурку по своим помещениям</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-cream-200">Вычтем окна и двери, покажем площадь стен, объём слоя и ориентир работ. Без телефона и регистрации.</p>
+              </div>
+              <Link to="/kalkulyator-shtukaturki-sten/" className="inline-flex min-h-11 items-center font-semibold text-cedar-300 underline underline-offset-4 hover:text-cream-50">Открыть отдельной страницей ↗</Link>
+            </div>
+            <Suspense fallback={<p role="status" className="rounded-2xl border border-cream-50/10 p-6 text-cream-200">Загружаем калькулятор…</p>}>
+              <PlasterCalculator compact />
             </Suspense>
           </div>
         </section>
