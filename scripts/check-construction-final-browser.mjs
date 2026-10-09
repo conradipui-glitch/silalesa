@@ -6,7 +6,7 @@ const origin = 'http://127.0.0.1:4173';
 const site = 'https://conradipui-glitch.github.io/silalesa/';
 const sitemap = fs.readFileSync('dist/sitemap.xml', 'utf8');
 const routes = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
-assert.equal(routes.length, 10, 'The construction release has 10 canonical pages');
+assert.equal(routes.length, 11, 'The construction release has 11 canonical pages');
 
 const browser = await chromium.launch({ headless: true });
 let checked = 0;
@@ -53,6 +53,17 @@ try {
       if (/\/(polusuhaya-styazhka|mehanizirovannaya-shtukaturka|burenie-skvazhiny)-omsk\//.test(pathname)) {
         assert.equal(state.priceNotes, 1, 'One clear service price note: ' + pathname);
         assert.ok(!state.text.includes('Цены на сайте — ориентир'), 'No duplicate price disclaimer: ' + pathname);
+      }
+      if (pathname.endsWith('/kalkulyator-styazhki-pola/')) {
+        const calculator = page.locator('[data-qa="screed-calculator"]');
+        assert.equal(await calculator.count(), 1, 'Interactive calculator renders on direct URL');
+        assert.equal(await page.locator('[data-qa="calculator-room"]').count(), 2, 'Two example rooms render');
+        assert.ok((await page.locator('[data-qa="calculator-area"]').innerText()).includes('32'), 'Default calculator area is 32 m²');
+        assert.ok((await page.locator('[data-qa="calculator-budget"]').innerText()).includes('19'), 'Default budget uses 600 ₽/m²');
+        await page.getByRole('button', { name: '+ Добавить помещение' }).click();
+        assert.equal(await page.locator('[data-qa="calculator-room"]').count(), 3, 'Adding a room updates the result');
+        const wa = await page.locator('[data-qa="calculator-whatsapp"]').getAttribute('href');
+        assert.ok(wa && new URL(wa).searchParams.get('text')?.includes('Общая площадь'), 'Calculator sends draft data, not an empty message');
       }
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;
