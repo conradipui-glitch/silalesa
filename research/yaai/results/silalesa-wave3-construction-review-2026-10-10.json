@@ -1,0 +1,594 @@
+{
+  "generatedAt": "2026-10-09T21:12:09.343Z",
+  "source": "Yandex Wordstat TopRequests via yaai",
+  "regions": [
+    "Омск",
+    "Омская область"
+  ],
+  "meteredTopRequests": 16,
+  "totalTopRows": 100,
+  "overlapWarning": "Wordstat matches and regions overlap; no counts summed; no visit or lead figures.",
+  "groups": {
+    "industrial": [
+      {
+        "region": "Омская область",
+        "phrase": "промышленные бетонные полы",
+        "count": 14,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "промышленные бетонные полы",
+        "count": 13,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "лак для бетонных полов промышленный",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "лак для бетонных полов промышленный",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "бетонно промышленный пол устройство",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "бетонные полы промышленных зданий",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "бетонные полы промышленных зданий",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "покрытие для промышленного бетонного пола",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "промышленный наливной бетонный пол",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "смесь для промышленных бетонных полов",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "толщина промышленного бетонного пола",
+        "count": 1,
+        "source": "top"
+      }
+    ],
+    "demolition": [
+      {
+        "region": "Омск",
+        "phrase": "демонтажные работы омск",
+        "count": 28,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтажные работы омск",
+        "count": 28,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стен цена",
+        "count": 18,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стен цена",
+        "count": 18,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "выполнение демонтажных и отделочных работ омск",
+        "count": 12,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "выполнение демонтажных и отделочных работ омск",
+        "count": 12,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стен цена работы",
+        "count": 7,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стен цена работы",
+        "count": 7,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж штукатурки стен цена",
+        "count": 3,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж штукатурки стен цена",
+        "count": 3,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж кирпичной стены цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж кирпичной стены цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стен цена за м2",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стен цена за м2",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж шпаклевки со стен цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж шпаклевки со стен цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж шпаклевки со стен цена за м2",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж шпаклевки со стен цена за м2",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж кирпичных стен цена за м3",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж кирпичных стен цена за м3",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж краски со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж краски со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж масляной краски со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж масляной краски со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж плитки со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж плитки со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж плитки стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж плитки стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стен цена за квадратный метр",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стен цена за квадратный метр",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стен цена за метр",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стен цена за метр",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стен цена м3",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стен цена м3",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж стены цена за квадратный",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж стены цена за квадратный",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж штукатурка стен цена за метр",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж штукатурка стен цена за метр",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж штукатурки со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж штукатурки со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "стоимость демонтажа штукатурки со стен цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "стоимость демонтажа штукатурки со стен цена",
+        "count": 1,
+        "source": "top"
+      }
+    ],
+    "masonry": [
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича цена",
+        "count": 51,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича омск цена",
+        "count": 29,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка кирпича цена",
+        "count": 23,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича цена за штуку",
+        "count": 17,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кирпич баварская кладка цена",
+        "count": 13,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кирпич баварской кладки цена за штуку",
+        "count": 13,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка кирпича цена за работу",
+        "count": 8,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича цена за работу",
+        "count": 8,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "цена кладки облицовочного кирпича",
+        "count": 7,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка кирпича омск цена",
+        "count": 6,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка кирпича омск цена за работу",
+        "count": 6,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича омск цена за работу",
+        "count": 6,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка забутовочного кирпича цена",
+        "count": 4,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка забутовочного кирпича цена",
+        "count": 4,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича цена метр",
+        "count": 4,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка газобетона цена",
+        "count": 3,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка кирпича цена метр",
+        "count": 3,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "цена работ кладки газобетона",
+        "count": 3,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж кирпичной стены цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж кирпичной стены цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "за кладку газобетона блоков цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "за кладку газобетона блоков цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "каменщики цены на кладку кирпича",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "каменщики цены на кладку облицовочного кирпича",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка блоков из газобетона цена работы",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка блоков из газобетона цена работы",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка газобетона цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка газобетона цена за м2",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка газобетона цена за м2",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кладка колонн из кирпича цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка колонн из кирпича цена",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "цена кладки кирпича за погонный метр",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "цена кладки кирпича за погонный метр",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "цена работ кладки газобетона",
+        "count": 2,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "демонтаж кирпичных стен цена за м3",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "демонтаж кирпичных стен цена за м3",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кирпич для кладки печи цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омск",
+        "phrase": "кирпич кладка цена сколько",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кирпич кладка цена сколько",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича под расшивку цена",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича под расшивку цена за м2",
+        "count": 1,
+        "source": "top"
+      },
+      {
+        "region": "Омская область",
+        "phrase": "кладка кирпича столбы цена",
+        "count": 1,
+        "source": "top"
+      }
+    ],
+    "monolith": []
+  },
+  "runUrl": "https://github.com/conradipui-glitch/yaai/actions/runs/37991927965",
+  "artifactUrl": "https://github.com/conradipui-glitch/yaai/actions/runs/37991927965/artifacts/11645582207",
+  "scope": "Only 42 largest TopRows per regex group retained in this summary; 16 paid requests, 8 seeds × 2 overlapping regions",
+  "interpretation": "Counts are Wordstat TopRequests signals, not unique users, search console impressions, leads or verified customer needs. Missing monolith rows in this limited summary do NOT equal zero demand."
+}
