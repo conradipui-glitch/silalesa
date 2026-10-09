@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
+import { ContactChoice } from "./components/ContactChoice";
 import { ConstructionFooter, ConstructionHeader, ConstructionMobileBar } from "./components/ConstructionChrome";
 import { NotFound } from "./pages/ConstructionNotFound";
 import { landingByProductId } from "./data/routeManifest";
@@ -146,6 +147,7 @@ export default function App() {
   return (
     <RouterProvider>
       <Screen />
+      <ContactChoice />
     </RouterProvider>
   );
 }
