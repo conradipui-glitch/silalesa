@@ -9,6 +9,7 @@ const seoData = [
   'seo-page-guides-screed.json',
   'seo-page-guides-plaster.json',
   'seo-page-guides-materials.json',
+  'seo-page-guides-wave3.json',
 ];
 const overrideData = [
   'seo-page-overrides.json',
