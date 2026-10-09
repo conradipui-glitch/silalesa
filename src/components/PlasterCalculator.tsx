@@ -44,7 +44,7 @@ function sharedMaterial(): PlasterMaterial | null {
     const x = parsed as Record<string, unknown>;
     if (x.enabled !== true) return null;
     const candidate: PlasterMaterial = { enabled: true, consumption: Number(x.consumption), bagWeight: Number(x.bagWeight), reserve: Number(x.reserve) };
-    return calculatePlaster(initialPlasterRooms, candidate).valid ? candidate : null;
+    return calculatePlaster(initialPlasterRooms, candidate).materialValid ? candidate : null;
   } catch { return null; }
 }
 
@@ -84,7 +84,7 @@ export function PlasterCalculator({ compact = false }: Props) {
       name, length, width, height, thickness,
       openings: openings.map(({ label, width: openingWidth, height: openingHeight, count }) => ({ label, width: openingWidth, height: openingHeight, count })),
     }))));
-    if (material.enabled) u.searchParams.set("mix", JSON.stringify(material));
+    if (material.enabled && result.materialValid) u.searchParams.set("mix", JSON.stringify(material));
     return u.toString();
   }
   const invalid = !result.valid;
@@ -196,13 +196,14 @@ export function PlasterCalculator({ compact = false }: Props) {
                   ["reserve", "Запас, %", material.reserve],
                 ] as const).map(([key, label, val]) => (
                   <label key={key} className="min-w-0 text-sm text-cream-200">{label}
-                    <input type="number" className={inputClass} inputMode="decimal" value={val === 0 ? 0 : val || ""}
+                    <input type="number" className={inputClass} inputMode="decimal" data-qa={`plaster-material-${key}`} value={key === "reserve" ? val : (val || "")}
                       min={key === "reserve" ? 0 : 0.1} max={key === "reserve" ? 20 : 100} step={key === "reserve" ? 1 : 0.1}
                       onChange={(e) => { setCopied(null); setMaterial((x) => ({ ...x, [key]: Number(e.target.value) })); }}/>
                   </label>
                 ))}
               </div>
             )}
+            {material.enabled && !result.materialValid && <p role="status" className="mt-3 rounded-lg border border-orange-400/35 bg-orange-400/10 p-3 text-sm text-orange-100">Для количества мешков заполните расход с упаковки и вес мешка. Площадь и стоимость работ продолжают рассчитываться.</p>}
             {material.enabled && <p className="mt-3 text-xs leading-relaxed text-cream-300">Формула: площадь × толщина / 10 × паспортный расход, затем выбранный запас. Массу округляем вверх до целого мешка. Не переносите расход с одной марки на другую.</p>}
           </div>
           {invalid && <p role="alert" className="rounded-xl border border-orange-400/40 bg-orange-400/10 p-4 text-sm text-orange-100">Проверьте размеры помещений и проёмов: площадь проёмов должна быть меньше площади стен. Толщина — 1–150 мм, высота — 1–20 м. Для материалов нужны значения с упаковки.</p>}
@@ -223,7 +224,7 @@ export function PlasterCalculator({ compact = false }: Props) {
             </div>
             <div className="mt-4 flex items-center justify-between gap-3 border-b border-cream-50/10 pb-3 text-sm"><span className="text-cream-300">Геометрический объём слоя</span><strong data-qa="plaster-volume" className="shrink-0 whitespace-nowrap font-display text-base tabular-nums sm:text-xl">{invalid ? "—" : `${plasterNumber(result.volume, 4)} м³`}</strong></div>
             <div className="mt-4 flex items-center justify-between gap-3 border-b border-cream-50/10 pb-3 text-sm"><span className="text-cream-300">Средняя толщина</span><strong className="font-display text-lg">{invalid ? "—" : `${plasterNumber(result.averageThickness, 1)} мм`}</strong></div>
-            {material.enabled && !invalid && <div className="mt-4 rounded-xl border border-cream-50/10 bg-bark-800 p-4">
+            {material.enabled && result.materialValid && !invalid && <div className="mt-4 rounded-xl border border-cream-50/10 bg-bark-800 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cedar-300">По вашей упаковке</p>
               <p data-qa="plaster-bags" className="mt-2 font-display text-2xl">{result.bags} {bagLabel(result.bags ?? 0)}</p>
               <p className="mt-1 text-sm text-cream-300">{plasterNumber(result.materialKg ?? 0, 1)} кг с запасом {material.reserve}%</p>
