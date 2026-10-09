@@ -12,6 +12,7 @@ const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
 const ServiceBriefPage = lazy(() => import("./pages/ServiceBriefPage").then((m) => ({ default: m.ServiceBriefPage })));
 const ScreedCalculatorPage = lazy(() => import("./pages/ScreedCalculatorPage").then((m) => ({ default: m.ScreedCalculatorPage })));
 const PlasterCalculatorPage = lazy(() => import("./pages/PlasterCalculatorPage").then((m) => ({ default: m.PlasterCalculatorPage })));
+const ForestLeadAssistant = lazy(() => import("./components/ForestLeadAssistant").then((m) => ({ default: m.ForestLeadAssistant })));
 
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
@@ -132,6 +133,11 @@ function Screen() {
       </main>
       <ConstructionFooter />
       <ConstructionMobileBar />
+      {(route.name === "home" || route.name === "services" || route.name === "landing") && (
+        <Suspense fallback={null}>
+          <ForestLeadAssistant key={route.name === "landing" ? route.slug : route.name} source={window.location.pathname} />
+        </Suspense>
+      )}
     </>
   );
 }

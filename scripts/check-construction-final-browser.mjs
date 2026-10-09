@@ -25,6 +25,11 @@ try {
       const response = await page.goto(origin + pathname, { waitUntil: 'networkidle', timeout: 30000 });
       assert.equal(response?.status(), 200, 'Canonical route must load: ' + pathname);
       await page.locator('main h1').first().waitFor({ state: 'visible' });
+      if (!pathname.includes('/kalkulyator-styazhki-pola/') && !pathname.includes('/kalkulyator-shtukaturki-sten/')) {
+        // Static prerender already contains H1 before the lazy React article hydrates.
+        // Wait for the client-visible mascot before checking dynamic article links and FAQ.
+        await page.locator('[data-qa="forest-lead-trigger"]').waitFor({ state: 'visible' });
+      }
       const state = await page.evaluate(() => ({
         title: document.title,
         h1Count: document.querySelectorAll('main h1').length,
@@ -113,7 +118,7 @@ try {
         }
       }
       if (pathname.endsWith('/guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona/') || pathname.endsWith('/guides/remont/demontazh-pered-remontom-smeta/')) {
-        assert.ok(state.text.includes('Сила Леса'), 'Construction-only guide CTA missing: ' + pathname);
+        assert.ok(/кладк|демонтаж/iu.test(state.text), 'Construction buyer guide content missing: ' + pathname);
         assert.equal(await page.locator('a[href*="/services/"]').count() > 0, true, 'Guide needs service navigation: ' + pathname);
         assert.equal(await page.locator('img[alt*="баня"]').count(), 0, 'No unrelated bath image');
         assert.ok((await page.locator('a[href^="https://wa.me/"]').count()) >= 1, 'Guide needs optional contractor contact');
@@ -121,6 +126,36 @@ try {
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;
     }
+
+    // Consent-based mascot-assisted draft: do not initiate an external request
+    // in QA; intercept window.open and verify the content locally.
+    await page.goto(origin + '/silalesa/', { waitUntil: 'networkidle' });
+    const assistant = page.locator('[data-qa="forest-lead-assistant"]');
+    await assistant.waitFor({ state: 'visible' });
+    assert.equal(await page.locator('[data-qa="forest-lead-dialog"]').count(), 0, 'Mascot does not auto-open a form');
+    assert.equal(await page.locator('[data-qa="forest-lead-hint"]').count(), 0, 'Mascot does not show an immediate hint');
+    const mascot = page.locator('[data-qa="forest-lead-trigger"]');
+    assert.equal(await mascot.count(), 1, 'One interactive forest mascot');
+    await mascot.click();
+    const dialog = page.locator('[data-qa="forest-lead-dialog"]');
+    await dialog.waitFor({ state: 'visible' });
+    await dialog.locator('select[name="service"]').selectOption('Кладочные работы');
+    await dialog.locator('textarea[name="notes"]').fill('Стенка 20 м²');
+    await dialog.locator('input[name="phone"]').fill('+7 999 100-00-00');
+    await page.evaluate(() => {
+      window.__mascotCapturedUrl = '';
+      window.open = (url) => { window.__mascotCapturedUrl = String(url); return null; };
+    });
+    await dialog.locator('[data-qa="forest-lead-whatsapp"]').click();
+    const submittedDraft = await page.evaluate(() => window.__mascotCapturedUrl);
+    assert.ok(submittedDraft.startsWith('https://wa.me/'), 'Lead helper must only prepare WhatsApp draft');
+    const draft = new URL(submittedDraft).searchParams.get('text');
+    assert.ok(draft?.includes('Кладочные работы') && draft.includes('Стенка 20 м²') && draft.includes('+7 999 100-00-00'), 'Prepared message includes selected service and visitor-provided details');
+    assert.equal(await page.evaluate(() => JSON.stringify(window.__silalesaEvents ?? []).includes('+7 999 100-00-00')), false, 'Never send visitor contact details to analytics');
+    await page.keyboard.press('Escape');
+    assert.equal(await dialog.count(), 0, 'Escape closes assistant dialog');
+    await page.goto(origin + '/silalesa/kalkulyator-styazhki-pola/', { waitUntil: 'networkidle' });
+    assert.equal(await page.locator('[data-qa="forest-lead-assistant"]').count(), 0, 'Mascot never obscures working calculators');
 
     for (const retired of ['mobilnaya-banya-omsk/', 'guides/bani/kak-vybrat-razmer-2x2-3x2-4x2/']) {
       await page.goto(origin + '/silalesa/' + retired, { waitUntil: 'networkidle' });
