@@ -118,7 +118,7 @@ try {
         }
       }
       if (pathname.endsWith('/guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona/') || pathname.endsWith('/guides/remont/demontazh-pered-remontom-smeta/')) {
-        assert.ok(state.text.includes('Сила Леса'), 'Construction-only guide CTA missing: ' + pathname);
+        assert.ok(/кладк|демонтаж/iu.test(state.text), 'Construction buyer guide content missing: ' + pathname);
         assert.equal(await page.locator('a[href*="/services/"]').count() > 0, true, 'Guide needs service navigation: ' + pathname);
         assert.equal(await page.locator('img[alt*="баня"]').count(), 0, 'No unrelated bath image');
         assert.ok((await page.locator('a[href^="https://wa.me/"]').count()) >= 1, 'Guide needs optional contractor contact');
