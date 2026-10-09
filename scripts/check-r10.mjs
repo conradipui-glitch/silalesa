@@ -28,11 +28,11 @@ const warnings = [];
 const verify = (condition, message) => { if (!condition) errors.push(message); };
 const warn = (condition, message) => { if (!condition) warnings.push(message); };
 const escape = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-const routes = [site, `${site}services/`, ...effective.map((page) => `${site}${page.slug}/`), `${site}kalkulyator-styazhki-pola/`];
+const routes = [site, `${site}services/`, ...effective.map((page) => `${site}${page.slug}/`), `${site}kalkulyator-styazhki-pola/`, `${site}kalkulyator-shtukaturki-sten/`];
 const sitemap = [...read('dist/sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
 verify(effective.length === 8, `Construction SEO registry: expected 8, found ${effective.length}`);
 verify(new Set(effective.map((p) => p.slug)).size === effective.length, 'Duplicate SEO slugs');
-verify(sitemap.length === 11 && new Set(sitemap).size === 11, `Construction sitemap: expected 11 distinct URLs, found ${sitemap.length}`);
+verify(sitemap.length === 12 && new Set(sitemap).size === 12, `Construction sitemap: expected 12 distinct URLs, found ${sitemap.length}`);
 verify(JSON.stringify(sitemap) === JSON.stringify(routes), 'Sitemap differs from actual source registry/order');
 verify([...overrides.keys()].filter((slug) => !/banya|mobilnaya-banya|karkasnaya-banya|guides\/bani/.test(slug)).every((slug) => effective.some((p) => p.slug === slug)), 'Orphan construction override slug');
 verify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');
@@ -131,6 +131,12 @@ for (const url of routes) {
   routeRows.push({ route: url.replace(site, '/') || '/', type: page?.kind ?? (url === site ? 'home' : 'services'), staticHTML: true, canonical: canonical === url, h1: h1 === 1, links: localLinks.length });
 }
 
+const plasterStatic = read('dist/kalkulyator-shtukaturki-sten/index.html');
+verify(plasterStatic.includes('45,3 м²') && plasterStatic.includes('0,6795 м³') && plasterStatic.includes('24 915 ₽'), 'Plaster no-JS maths example and explanation missing');
+verify(plasterStatic.includes('WebApplication') && plasterStatic.includes('550 ₽/м²'), 'Plaster schema or starting price missing');
+for (const path of ['dist/index.html', 'dist/mehanizirovannaya-shtukaturka-omsk/index.html', 'dist/guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/index.html', 'dist/guides/remont/gipsovaya-ili-tsementnaya-shtukaturka/index.html']) {
+  verify(read(path).includes(`${site}kalkulyator-shtukaturki-sten/`), `Missing plaster calculator link: ${path}`);
+}
 const calculatorStatic = read('dist/kalkulyator-styazhki-pola/index.html');
 verify(calculatorStatic.includes('Объём слоя в м³') && calculatorStatic.includes('12 000 ₽'), 'Calculator static formula and sample are visible without JS');
 verify(calculatorStatic.includes('application/ld+json') && calculatorStatic.includes('WebApplication'), 'Calculator structured metadata missing');
@@ -173,4 +179,4 @@ warn(imageLinks.length > 0, 'No actual bundled photography checked');
 const outcome = { checked: { canonical: routeRows.length, aliases: legacy.length, printable: printPages.length, internalLinks: links.length, localImages: imageLinks.length }, errors, warnings, routes: routeRows };
 console.log('R10 ACCEPTANCE AUDIT:', JSON.stringify(outcome, null, 2));
 assert.equal(errors.length, 0, `${errors.length} acceptance failures; see R10 ACCEPTANCE AUDIT above`);
-console.log('R10 PASS: 11 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
+console.log('R10 PASS: 12 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
