@@ -74,7 +74,11 @@ try {
         assert.ok((await calc.locator('[data-qa="plaster-volume"]').innerText()).includes('0,6795'), 'Layer volume');
         assert.ok((await calc.locator('[data-qa="plaster-budget"]').innerText()).includes('24'), 'Starting estimate');
         await calc.getByRole('checkbox', { name: 'Включить' }).check();
-        assert.ok((await calc.locator('[data-qa="plaster-bags"]').innerText()).includes('21 мешок'), 'Bag count uses user-entered package rate and proper grammar');
+        assert.equal(await calc.locator('[data-qa="plaster-bags"]').count(), 0, 'No bags without actual manufacturer values');
+        assert.ok((await calc.locator('[data-qa="plaster-net"]').innerText()).includes('45,3'), 'Incomplete optional bags never hide geometry');
+        await calc.locator('[data-qa="plaster-material-consumption"]').fill('8.5');
+        await calc.locator('[data-qa="plaster-material-bagWeight"]').fill('30');
+        assert.ok((await calc.locator('[data-qa="plaster-bags"]').innerText()).includes('21 мешок'), 'Bag count uses entered package rate and proper grammar');
 
         await calc.getByRole('button', { name: '+ Добавить помещение' }).click();
         assert.equal(await calc.locator('[data-qa="plaster-room"]').count(), 2, 'Room added');
