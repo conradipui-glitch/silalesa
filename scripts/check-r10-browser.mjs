@@ -76,8 +76,11 @@ async function checkServiceDiscovery(page, label) {
   const targets = await navLinks.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
   assert.deepEqual(targets, ['#services-general', '#services-structure', '#services-finishing', '#services-special'], `${label}: group navigation uses real in-page anchors`);
 
-  const serviceLinks = page.locator('#services [data-qa="service-group"] article a');
+  const serviceLinks = page.locator('#services [data-qa="service-group"] article a[aria-label^="Обсудить работы:"], #services [data-qa="service-group"] article a[aria-label^="Подробнее об услуге"]');
   assert.equal(await serviceLinks.count(), 14, `${label}: every construction direction has an action`);
+  const wave3Guides = page.locator('#services [data-qa="wave3-catalogue-guide"]');
+  assert.equal(await wave3Guides.count(), 2, `${label}: masonry and demolition offer additional relevant guides without replacing 14 service actions`);
+
   const linkKinds = await serviceLinks.evaluateAll((els) => els.map((el) => ({
     href: el.getAttribute('href') || '',
     label: el.getAttribute('aria-label') || '',
