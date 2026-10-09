@@ -21,6 +21,10 @@ const withMaterial = lib.calculatePlaster([room], { enabled: true, consumption: 
 near(withMaterial.materialKg, 606.45375, "Manufacturer consumption scaled to 15mm with reserve");
 assert.equal(withMaterial.bags, 21, "Bags rounded up");
 assert.equal(result.bags, null, "Never invent bag count without user-supplied package values");
+const unfilled = lib.calculatePlaster([room], { enabled: true, consumption: 0, bagWeight: 0, reserve: 5 });
+assert.equal(unfilled.valid, true, "Geometry works even if material fields are blank");
+assert.equal(unfilled.materialValid, false, "Bag result needs actual manufacturer data");
+assert.equal(unfilled.bags, null, "Empty manufacturer data cannot produce bag count");
 const added = { ...room, id: 2, name: "Спальня", length: 4, width: 3, height: 2.5, thickness: 20, openings: [] };
 const both = lib.calculatePlaster([room, added]);
 near(both.grossArea, 83.6, "Multiroom gross");
@@ -33,8 +37,8 @@ assert.equal(lib.calculatePlaster([{ ...room, thickness: Infinity }]).valid, fal
 assert.equal(lib.calculatePlaster([{ ...room, openings: [{ id: 9, label: "Impossible", width: 8, height: 1, count: 1 }] }]).valid, false);
 assert.equal(lib.calculatePlaster([{ ...room, openings: [{ id: 9, label: "Impossible", width: 1, height: 1, count: 300 }] }]).valid, false);
 assert.equal(lib.calculatePlaster([{ ...room, openings: [{ id: 9, label: "Too many doors", width: 2, height: 2, count: 30 }] }]).valid, false);
-assert.equal(lib.calculatePlaster([room], { enabled: true, consumption: 0, bagWeight: 30, reserve: 5 }).valid, false);
-assert.equal(lib.calculatePlaster([room], { enabled: true, consumption: 8.5, bagWeight: 0, reserve: 5 }).valid, false);
+assert.equal(lib.calculatePlaster([room], { enabled: true, consumption: 0, bagWeight: 30, reserve: 5 }).materialValid, false);
+assert.equal(lib.calculatePlaster([room], { enabled: true, consumption: 8.5, bagWeight: 0, reserve: 5 }).materialValid, false);
 assert.equal(lib.calculatePlaster(Array.from({ length: 11 }, (_, i) => ({ ...room, id: i + 1 }))).valid, false);
 const message = lib.describePlasterEstimate([room], { enabled: false, consumption: 8.5, bagWeight: 30, reserve: 5 });
 assert.ok(message.includes("45,3") && message.includes("24") && message.includes("не смета"));
