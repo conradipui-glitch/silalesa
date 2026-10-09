@@ -13,7 +13,7 @@ const outlineButton = "inline-flex min-h-11 items-center justify-center rounded-
 function sharedRooms(): PlasterRoom[] | null {
   try {
     const raw = new URLSearchParams(window.location.search).get("walls");
-    if (!raw || raw.length > 6500) return null;
+    if (!raw || raw.length > 24000) return null;
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed) || !parsed.length || parsed.length > MAX_PLASTER_ROOMS) return null;
     const rooms: PlasterRoom[] = parsed.map((item: unknown, index) => {
@@ -35,11 +35,31 @@ function sharedRooms(): PlasterRoom[] | null {
   } catch { return null; }
 }
 
+function sharedMaterial(): PlasterMaterial | null {
+  try {
+    const raw = new URLSearchParams(window.location.search).get("mix");
+    if (!raw || raw.length > 500) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    const x = parsed as Record<string, unknown>;
+    if (x.enabled !== true) return null;
+    const candidate: PlasterMaterial = { enabled: true, consumption: Number(x.consumption), bagWeight: Number(x.bagWeight), reserve: Number(x.reserve) };
+    return calculatePlaster(initialPlasterRooms, candidate).valid ? candidate : null;
+  } catch { return null; }
+}
+
+function bagLabel(n: number): string {
+  const remainder100 = n % 100;
+  if (remainder100 >= 11 && remainder100 <= 14) return "мешков";
+  if (n % 10 === 1) return "мешок";
+  return n % 10 >= 2 && n % 10 <= 4 ? "мешка" : "мешков";
+}
+
 type Props = { compact?: boolean };
 export function PlasterCalculator({ compact = false }: Props) {
   const [rooms, setRooms] = useState<PlasterRoom[]>(() =>
     typeof window === "undefined" ? initialPlasterRooms : sharedRooms() ?? initialPlasterRooms);
-  const [material, setMaterial] = useState<PlasterMaterial>(initialPlasterMaterial);
+  const [material, setMaterial] = useState<PlasterMaterial>(() => typeof window === "undefined" ? initialPlasterMaterial : sharedMaterial() ?? initialPlasterMaterial);
   const [copied, setCopied] = useState<"report" | "link" | null>(null);
   const result = useMemo(() => calculatePlaster(rooms, material), [rooms, material]);
   const summary = useMemo(() => describePlasterEstimate(rooms, material), [rooms, material]);
@@ -64,6 +84,7 @@ export function PlasterCalculator({ compact = false }: Props) {
       name, length, width, height, thickness,
       openings: openings.map(({ label, width: openingWidth, height: openingHeight, count }) => ({ label, width: openingWidth, height: openingHeight, count })),
     }))));
+    if (material.enabled) u.searchParams.set("mix", JSON.stringify(material));
     return u.toString();
   }
   const invalid = !result.valid;
@@ -200,11 +221,11 @@ export function PlasterCalculator({ compact = false }: Props) {
               <p data-qa="plaster-budget" className="mt-2 font-display text-3xl tabular-nums text-cedar-300">{invalid ? "—" : `от ${plasterNumber(result.budgetFrom, 0)} ₽`}</p>
               <p className="mt-2 text-xs leading-relaxed text-cream-300">По стартовой ставке от {PLASTER_START_PRICE} ₽/м², без согласованной сметы. Толщина, основание, подготовка и доступ меняют цену.</p>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-3 border-b border-cream-50/10 pb-3 text-sm"><span className="text-cream-300">Геометрический объём слоя</span><strong data-qa="plaster-volume" className="font-display text-xl">{invalid ? "—" : `${plasterNumber(result.volume, 4)} м³`}</strong></div>
+            <div className="mt-4 flex items-center justify-between gap-3 border-b border-cream-50/10 pb-3 text-sm"><span className="text-cream-300">Геометрический объём слоя</span><strong data-qa="plaster-volume" className="shrink-0 whitespace-nowrap font-display text-base tabular-nums sm:text-xl">{invalid ? "—" : `${plasterNumber(result.volume, 4)} м³`}</strong></div>
             <div className="mt-4 flex items-center justify-between gap-3 border-b border-cream-50/10 pb-3 text-sm"><span className="text-cream-300">Средняя толщина</span><strong className="font-display text-lg">{invalid ? "—" : `${plasterNumber(result.averageThickness, 1)} мм`}</strong></div>
             {material.enabled && !invalid && <div className="mt-4 rounded-xl border border-cream-50/10 bg-bark-800 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cedar-300">По вашей упаковке</p>
-              <p data-qa="plaster-bags" className="mt-2 font-display text-2xl">{result.bags} мешков</p>
+              <p data-qa="plaster-bags" className="mt-2 font-display text-2xl">{result.bags} {bagLabel(result.bags ?? 0)}</p>
               <p className="mt-1 text-sm text-cream-300">{plasterNumber(result.materialKg ?? 0, 1)} кг с запасом {material.reserve}%</p>
             </div>}
             {!invalid && <div className="mt-6" aria-label="Площадь штукатурки по помещениям">
