@@ -1,5 +1,5 @@
 import { ArrowIcon, LinkButton } from "./Brand";
-import { whatsappUrl } from "../data/products";
+import { contactDraftUrl } from "../data/products";
 import { track } from "../lib/utils";
 import { Link } from "../lib/router";
 
@@ -55,7 +55,7 @@ export function PlasterProcessGuide() {
             <p className="mt-1 font-display text-3xl font-semibold">от 550 ₽/м²</p>
             <p className="mt-1 text-sm text-bark-600">Ориентир, не окончательная смета: сумма зависит от площади и условий объекта.</p>
           </div>
-          <LinkButton to={whatsappUrl(contactText)} external onClick={() => track("cta_click", { type: "whatsapp", where: "p01-simple-top", slug: guideSlug })}>Пришлите площадь и фото стен <ArrowIcon /></LinkButton>
+          <LinkButton to={contactDraftUrl(contactText)} external onClick={() => track("cta_click", { type: "contact_choice", where: "p01-simple-top", slug: guideSlug })}>Пришлите площадь и фото стен <ArrowIcon /></LinkButton>
         </div>
 
         <div className="mt-9 grid gap-4 sm:grid-cols-2" aria-label="Практические различия способов штукатурки">
@@ -82,7 +82,7 @@ export function PlasterProcessGuide() {
           <div className="mt-6 rounded-2xl bg-bark-900 p-5 text-cream-50 sm:p-6">
             <h4 className="font-display text-xl">Что делать дальше?</h4>
             <p className="mt-2 text-sm leading-relaxed text-cream-100">Попросите указать состав работ и полную сумму с возможными доплатами. Неизвестные пункты — повод задать вопрос, а не обязательные поля для заполнения. Мы можем обсудить механизированную штукатурку по площади и фото объекта.</p>
-            <LinkButton to={whatsappUrl(contactText)} external className="mt-5" onClick={() => track("cta_click", { type: "whatsapp", where: "p01-simple-bottom", slug: guideSlug })}>Обсудить расчёт в WhatsApp <ArrowIcon /></LinkButton>
+            <LinkButton to={contactDraftUrl(contactText)} external className="mt-5" onClick={() => track("cta_click", { type: "contact_choice", where: "p01-simple-bottom", slug: guideSlug })}>Обсудить расчёт <ArrowIcon /></LinkButton>
             <p className="mt-3 text-xs text-cream-200">Начальная ставка не включает автоматически все возможные работы. Конкретный состав согласуем до заказа.</p>
           </div>
         </div>
