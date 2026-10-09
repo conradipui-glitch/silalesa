@@ -63,6 +63,12 @@ const calculatorPage = {
   description: "Рассчитайте площадь, толщину и объём стяжки по нескольким помещениям. Ориентир стоимости в Омске, четыре точки замера, запас и результат без регистрации.",
   h1: "Калькулятор стяжки пола",
 };
+const plasterCalculatorPage = {
+  slug: "kalkulyator-shtukaturki-sten",
+  title: "Калькулятор штукатурки стен онлайн: площадь, проёмы, цена — Сила Леса",
+  description: "Посчитайте штукатурку стен онлайн: комнаты, окна, двери, толщина слоя, площадь, объём и ориентир цены в Омске. Расход мешков — по данным с упаковки.",
+  h1: "Калькулятор штукатурки стен",
+};
 const servicesHub = {
   slug: "services",
   title: "Строительные работы в Омске — Сила Леса",
@@ -152,6 +158,9 @@ function staticSnapshot(page) {
   const screedServiceLink = page.slug === "polusuhaya-styazhka-omsk"
     ? `<p><a href="${SITE_URL}${SCREED_GUIDE_SLUG}/">Полусухая или мокрая стяжка: в чём разница?</a></p>`
     : "";
+  const plasterCalculatorLink = ["mehanizirovannaya-shtukaturka-omsk", "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka", "guides/remont/gipsovaya-ili-tsementnaya-shtukaturka"].includes(page.slug)
+    ? `<section aria-label="Бесплатный калькулятор штукатурки стен"><h2>Калькулятор штукатурки стен</h2><p>Рассчитайте площадь стен, вычтите проёмы и оцените объём слоя и стартовую стоимость работ.</p><p><a href="${SITE_URL}${plasterCalculatorPage.slug}/">Открыть калькулятор штукатурки</a></p></section>`
+    : "";
   const calculatorLink = ["polusuhaya-styazhka-omsk", "guides/remont/polusuhaya-ili-mokraya-styazhka"].includes(page.slug)
     ? `<section aria-label="Бесплатный расчёт стяжки"><h2>Калькулятор стяжки пола</h2><p>Рассчитайте несколько помещений, среднюю толщину и объём стяжки без регистрации.</p><p><a href="${SITE_URL}${calculatorPage.slug}/">Открыть калькулятор стяжки пола</a></p></section>`
     : "";
@@ -232,7 +241,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${calculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
@@ -353,6 +362,36 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(directory, "index.html"), html, "utf8");
 }
 
+// Indexable no-JS answer with formulas and a useful numerical example.
+{
+  const canonical = `${SITE_URL}${plasterCalculatorPage.slug}/`;
+  const overview = `<div id="root" data-prerendered="true"><main><article>
+    <nav aria-label="Хлебные крошки"><a href="${SITE_URL}">Главная</a> / Калькулятор штукатурки</nav>
+    <h1>${escapeHtml(plasterCalculatorPage.h1)}</h1>
+    <p>Рассчитайте площадь штукатурки по прямоугольным комнатам, вычтите окна и двери, задайте среднюю толщину и получите объём слоя. Интерактивная версия даёт расчёт без регистрации.</p>
+    <section><h2>Как посчитать штукатурку на стены</h2>
+      <p>Площадь стен = 2 × (длина + ширина) × высота. Вычтите площадь окон и дверей: ширина × высота каждого проёма × количество.</p>
+      <p>Пример: комната 5 × 4 × 2,7 м имеет 48,6 м² стен. Окно площадью 1,5 м² и дверь площадью 1,8 м² дают 45,3 м² после вычета.</p>
+      <p>При толщине слоя 15 мм геометрический объём: 45,3 × 15 / 1000 = 0,6795 м³. По стартовой ставке от 550 ₽/м² базовый ориентир работ — от 24 915 ₽. Это не окончательная смета.</p>
+      <p>Чтобы получить мешки смеси, укажите паспортный расход в кг/м² на 10 мм и вес конкретного мешка. Без данных производителя нельзя достоверно определить количество сухого материала.</p>
+    </section>
+    <section><h2>Что учесть до заказа</h2><p>Откосы, сложные поверхности, подготовку основания, толщину и дополнительные работы оценивают отдельно. Вывод объёма по средней толщине — геометрический ориентир.</p></section>
+    <section><h2>Полезные ссылки</h2><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Механизированная штукатурка в Омске</a></p>
+      <p><a href="${SITE_URL}guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/">Механизированная или ручная штукатурка</a></p>
+      <p><a href="${SITE_URL}guides/remont/gipsovaya-ili-tsementnaya-shtukaturka/">Гипсовая или цементная штукатурка</a></p></section>
+  </article></main></div>`;
+  const structured = { "@context": "https://schema.org", "@type": "WebApplication",
+    name: plasterCalculatorPage.h1, url: canonical, description: plasterCalculatorPage.description,
+    inLanguage: "ru", applicationCategory: "CalculatorApplication", operatingSystem: "Any",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "RUB" } };
+  let html = applyPageMeta(template, { title: plasterCalculatorPage.title, description: plasterCalculatorPage.description, canonical });
+  html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(structured)}</script>\n</head>`);
+  html = html.replace('<div id="root"></div>', overview);
+  const directory = path.join(DIST, plasterCalculatorPage.slug);
+  await fs.mkdir(directory, { recursive: true });
+  await fs.writeFile(path.join(directory, "index.html"), html, "utf8");
+}
+
 // Compact direct-link microsites for VK, Telegram and campaign messages.
 // The static first answer and OG meta are available without client JS.
 {
@@ -394,7 +433,7 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
 }
 
-const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`];
+const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`, `${SITE_URL}${plasterCalculatorPage.slug}/`];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls
   .map((url) => `  <url><loc>${url}</loc></url>`)
   .join("\n")}\n</urlset>\n`;
@@ -422,6 +461,7 @@ const llms = `# Сила Леса
 - [Главная](${SITE_URL})
 - [Все строительные услуги](${SITE_URL}${servicesHub.slug}/)
 - [Калькулятор стяжки пола](${SITE_URL}${calculatorPage.slug}/) — площадь, толщина, объём и ориентир бюджета без регистрации.
+- [Калькулятор штукатурки стен](${SITE_URL}${plasterCalculatorPage.slug}/) — площадь комнат, проёмы, толщина, объём, ориентир работ и паспортный расход смеси.
 - [Карта сайта](${SITE_URL}sitemap.xml)
 
 ## Страницы услуг и материалов
