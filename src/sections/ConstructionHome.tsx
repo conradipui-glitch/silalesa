@@ -87,6 +87,11 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {constructionServices.filter((service) => service.group === group.title).map((service, index) => {
                 const detailPath = detailedServicePages[service.title];
+                const guidePath = service.title === "Кладочные работы"
+                  ? "/guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona/"
+                  : service.title === "Демонтажные работы"
+                    ? "/guides/remont/demontazh-pered-remontom-smeta/"
+                    : null;
                 return (
                   <article
                     key={service.title}
@@ -101,6 +106,13 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                     <p data-qa="service-request-hint" className="mt-4 border-t border-cream-50/10 pt-4 text-base leading-relaxed text-cream-300/85">
                       <span className="font-medium text-cream-50">Для первого расчёта:</span> {service.requestHint}.
                     </p>
+                    {guidePath && (
+                      <Link to={guidePath} data-qa="wave3-catalogue-guide"
+                        className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-cedar-300 underline underline-offset-4 hover:text-cream-50"
+                        onClick={() => track("nav", { from: "construction-catalogue", service: service.title, to: guidePath })}>
+                        Что учесть перед заказом →
+                      </Link>
+                    )}
                     <div className="mt-6 border-t border-cream-50/10 pt-2">
                       {detailPath ? (
                         <Link
