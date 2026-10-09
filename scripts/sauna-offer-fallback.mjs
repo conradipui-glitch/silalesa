@@ -7,7 +7,7 @@ export function saunaOfferFallback(page, models, base, phone, assetMap = {}) {
   const list = (page.offerModels ?? []).map((key) => models.find((entry) => entry.key === key)).filter(Boolean);
   const catalogue = list.length > 0;
   const message = `${page.offerPrompt} Страница: ${base}${page.slug}/`;
-  const contact = `<a href="https://wa.me/${phone}?text=${encodeURIComponent(message)}">${escapeHtml(page.offerCtaLabel ?? 'Уточнить предложение')}</a>`;
+  const contact = `<a href="tel:${phone}">${escapeHtml(page.offerCtaLabel ?? 'Уточнить предложение')}</a>`;
   const cost = model ? `${model.key === 'f55' ? 'от ' : ''}${price(model.price)}` : `от ${price(Math.min(...list.map((item) => item.price)))}`;
   const photo = (item) => assetMap[item.key] ? `<img loading="lazy" width="640" height="400" src="${escapeHtml(assetMap[item.key])}" alt="${escapeHtml(item.name)} — фото модели" />` : '';
   const first = `<section aria-label="Цена и выбор бани"><h2>Цена и следующий шаг</h2><p><strong>${escapeHtml(model ? model.name : 'Четыре модели бань')} — ${escapeHtml(cost)}</strong></p>${model ? `<p>${escapeHtml(model.plan)}. ${escapeHtml(model.detail)}</p>` : '<p>Сравните реальные планировки и цены четырёх моделей ниже.</p>'}<p>${contact} · <a href="${base}mobilnaya-banya-omsk/${catalogue ? '#models' : ''}">${catalogue ? 'Сравнить четыре модели' : 'Каталог моделей'}</a></p>${model?.key === 'k4' ? '<p>На фотографии дополнительные опции: боковой вход, увеличенное окно и стеклянная дверца печи. В стандартную цену они не включены.</p>' : ''}${model?.key === 'f55' ? '<p>Стоимость доставки и установки каркасной бани уточняется отдельно от стандарта Квадро; схема внутренних помещений условная.</p>' : ''}</section>`;
