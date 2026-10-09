@@ -54,8 +54,8 @@ const pages = basePages
   .filter((page) => page.kind === "service" || (page.kind === "guide" && !page.slug.startsWith("guides/bani/")))
   .map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
 const servicePages = pages.filter((page) => page.kind === "service");
-const whatsappMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8")).match(/whatsapp:\s*"(\d+)"/);
-if (!whatsappMatch) throw new Error("Canonical WhatsApp contact missing");
+const phoneMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8")).match(/phonePrimary:\s*\{[^}]*tel:\s*"([^"]+)"/);
+if (!phoneMatch) throw new Error("Canonical phone contact missing");
 const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 
 const calculatorPage = {
@@ -118,9 +118,9 @@ function staticSnapshot(page) {
   const isWave3Masonry = page.slug === "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona";
   const isWave3Demolition = page.slug === "guides/remont/demontazh-pered-remontom-smeta";
   const isWave3Guide = isWave3Masonry || isWave3Demolition;
-  const saunaChoice = saunaChoiceFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1]);
-  const operation = operationalGuideFallback(page, saunaChoiceModels, servicePages.find((item) => item.slug === "burenie-skvazhiny-omsk")?.priceLabel, SITE_URL, whatsappMatch[1]);
-  const offer = saunaOfferFallback(page, saunaChoiceModels, SITE_URL, whatsappMatch[1], modelAssets);
+  const saunaChoice = saunaChoiceFallback(page, saunaChoiceModels, SITE_URL, phoneMatch[1]);
+  const operation = operationalGuideFallback(page, saunaChoiceModels, servicePages.find((item) => item.slug === "burenie-skvazhiny-omsk")?.priceLabel, SITE_URL, phoneMatch[1]);
+  const offer = saunaOfferFallback(page, saunaChoiceModels, SITE_URL, phoneMatch[1], modelAssets);
   const comparison = isGuide && page.comparison
     ? `${page.choiceModels?.length ? '<details><summary>Подробная таблица сравнения готовой бани и строительства</summary>' : ''}<section><h2>${escapeHtml(page.comparison.heading)}</h2><p>${escapeHtml(page.comparison.intro)}</p><table><caption>Готовая Квадро и строительство на участке</caption><thead><tr><th>Критерий</th><th>Готовая Квадро</th><th>Строительство на участке</th></tr></thead><tbody>${page.comparison.rows.map(([criterion, ready, build]) => `<tr><th>${escapeHtml(criterion)}</th><td>${escapeHtml(ready)}</td><td>${escapeHtml(build)}</td></tr>`).join("")}</tbody></table></section>${page.choiceModels?.length ? '</details>' : ''}`
     : "";
@@ -128,9 +128,9 @@ function staticSnapshot(page) {
     ? `<details><summary>Подробная таблица сравнения способов штукатурки</summary><section aria-label="Сравнение способов штукатурки"><h2>${escapeHtml(page.methodComparison.heading)}</h2><p>${escapeHtml(page.methodComparison.intro)}</p><table><caption>${escapeHtml(page.methodComparison.heading)}</caption><thead><tr><th scope="col">Вопрос</th>${page.methodComparison.columns.map((column) => `<th scope="col">${escapeHtml(column)}</th>`).join("")}</tr></thead><tbody>${page.methodComparison.rows.map(([criterion, machine, hand]) => `<tr><th scope="row">${escapeHtml(criterion)}</th><td>${escapeHtml(machine)}</td><td>${escapeHtml(hand)}</td></tr>`).join("")}</tbody></table></section></details>`
     : "";
   const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_URL}${page.slug}/`;
-  const plasterCta = isPlasterGuide ? `<section><h2>Хотите рассчитать механизированную штукатурку?</h2><p>Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p><p><a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(plasterWaText)}">Обсудить расчёт в WhatsApp</a></p></section>` : "";
+  const plasterCta = isPlasterGuide ? `<section><h2>Хотите рассчитать механизированную штукатурку?</h2><p>Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p><p><a href="tel:${phoneMatch[1]}">Позвонить и обсудить расчёт</a></p></section>` : "";
   const plasterFirstAnswer = isPlasterGuide
-    ? `<section aria-label="Короткий ответ о штукатурке"><p><strong>Механизированная штукатурка — от 550 ₽/м².</strong> Для большого доступного объёма запросите расчёт со станцией; для локального ремонта сравните ручной способ. Это ориентир, не окончательная смета.</p><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Условия услуги</a> · <a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(plasterWaText)}">Пришлите площадь и фото стен — обсудим расчёт</a></p></section>`
+    ? `<section aria-label="Короткий ответ о штукатурке"><p><strong>Механизированная штукатурка — от 550 ₽/м².</strong> Для большого доступного объёма запросите расчёт со станцией; для локального ремонта сравните ручной способ. Это ориентир, не окончательная смета.</p><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Условия услуги</a> · <a href="tel:${phoneMatch[1]}">Пришлите площадь и фото стен — обсудим расчёт</a></p></section>`
     : "";
   const screedVisual = isScreedGuide
     ? `<section aria-label="Визуальное сравнение полусухой и мокрой стяжки"><h2>Полусухая и мокрая стяжка: что сравнивать</h2><p>Полусухая смесь содержит меньше воды, требует распределения и уплотнения; мокрый раствор более подвижен и укладывается по инструкции выбранного материала. Ни один метод сам по себе не гарантирует сроки или качество.</p><table><caption>Критерии выбора стяжки</caption><thead><tr><th>Критерий</th><th>Полусухая</th><th>Мокрая</th></tr></thead><tbody><tr><th>Укладка</th><td>Распределение, уплотнение, выравнивание</td><td>Укладка, выравнивание по техкарте</td></tr><tr><th>Слои и нагрузка</th><td>По проекту конструкции</td><td>По проекту конструкции</td></tr><tr><th>Готовность к покрытию</th><td>Проверка влажности и требований покрытия</td><td>Проверка влажности и требований покрытия</td></tr><tr><th>Смета</th><td>Полный состав и условия объекта</td><td>Тот же полный состав и условия объекта</td></tr></tbody></table><h3>Условная схема слоёв</h3><ol><li>Основание / перекрытие</li><li>Разделительный или изоляционный слой, если предусмотрен проектом</li><li>Стяжка выбранной технологии</li><li>Совместимое финишное покрытие</li></ol><p>Схема не в масштабе. Для тёплого пола, мокрой зоны и ограниченной несущей способности решение определяют отдельно. Интерактивная проверка условий доступна при включённом JavaScript.</p></section>`
@@ -139,7 +139,7 @@ function staticSnapshot(page) {
     ? `<section aria-label="Карта очередности ремонта"><h2>Карта очередности: штукатурка и стяжка</h2><p>Выберите сценарий в интерактивной схеме, если включён JavaScript. Здесь — доступный без него ориентир. Порядок всегда уточняют по проекту и техническим документам материалов.</p><h3>Типовой маршрут с мокрой штукатуркой</h3><ol><li>Согласовать уровни, проёмы и коммуникации.</li><li>Оштукатурить потолок, если предусмотрен, затем стены.</li><li>Проверить требования к передаче штукатурного этапа.</li><li>Подготовить основание, проверить скрытые работы и тёплый пол до закрытия.</li><li>Выполнить стяжку и обеспечить предусмотренный уход.</li><li>Передавать основание под покрытие после проверки требований системы.</li></ol><h3>Если стяжка уже готова</h3><p>Сначала проверить допустимость нагрузки и влаги, защитить пол от раствора и оборудования, выполнить штукатурку и осмотреть основание перед отделкой.</p><h3>Если вместо мокрой штукатурки — гипсокартон</h3><p>Очередность сухой облицовки может отличаться: в некоторых системах ГКЛ устанавливают после стяжки. Проверить проект и инструкцию конкретной системы.</p><p>Для мокрых зон отдельно согласовать гидроизоляцию; тёплый пол проверяет профильный специалист. Универсальных сроков в схеме нет.</p></section>`
     : "";
   const plasterVisual = isPlasterGuide
-    ? renderPlasterFallback({ siteUrl: SITE_URL, slug: page.slug, whatsapp: whatsappMatch[1] })
+    ? renderPlasterFallback({ siteUrl: SITE_URL, slug: page.slug, phone: phoneMatch[1] })
     : "";
   const sections = isGuide && page.sections
     ? page.sections.map((section) => `<section><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>` : ""}</section>`).join("")
@@ -177,7 +177,7 @@ function staticSnapshot(page) {
       ? `<p><a href="${SITE_URL}${REPAIR_GUIDE_SLUG}/">Штукатурка или стяжка: что делать сначала?</a></p>`
       : "";
   const wave3GuideLinks = isWave3Guide
-    ? `<nav aria-label="Связанные строительные материалы"><h2>Что ещё проверить перед работами</h2><ul><li><a href="${SITE_URL}${isWave3Masonry ? "guides/remont/demontazh-pered-remontom-smeta" : "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona"}/">${isWave3Masonry ? "Демонтаж перед ремонтом: состав сметы" : "Кладка кирпича и газобетона: сравнение смет"}</a></li><li><a href="${SITE_URL}services/">Каталог строительных работ в Омске</a></li></ul></nav><p><a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(page.choicePrompt+" Страница: "+SITE_URL+page.slug+"/")}">Обсудить объём работ в WhatsApp</a></p>`
+    ? `<nav aria-label="Связанные строительные материалы"><h2>Что ещё проверить перед работами</h2><ul><li><a href="${SITE_URL}${isWave3Masonry ? "guides/remont/demontazh-pered-remontom-smeta" : "guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona"}/">${isWave3Masonry ? "Демонтаж перед ремонтом: состав сметы" : "Кладка кирпича и газобетона: сравнение смет"}</a></li><li><a href="${SITE_URL}services/">Каталог строительных работ в Омске</a></li></ul></nav><p><a href="tel:${phoneMatch[1]}">Обсудить объём работ по телефону</a></p>`
     : "";
   const guideLinks = isGuide
     ? operation.hasSteps ? "" : isRepairGuide
@@ -207,7 +207,7 @@ function staticSnapshot(page) {
     : "";
 
   const serviceBlock = page.kind === "service" && page.priceLabel && page.requestChecklist && page.serviceResults && page.requestPrompt
-    ? `<section aria-label="Стоимость и расчёт услуги"><h2>Цена и условия</h2><p><strong>${escapeHtml(page.priceLabel)}</strong> — ${escapeHtml(page.priceNote ?? "Стоимость уточняется по объекту.")}</p><h2>Что получит клиент</h2><ul>${page.serviceResults.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><h2>Что прислать для расчёта</h2><ol>${page.requestChecklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol><p><a href="https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(page.requestPrompt + " Страница: " + SITE_URL + page.slug + "/")}">Отправить данные для расчёта в WhatsApp</a></p></section>`
+    ? `<section aria-label="Стоимость и расчёт услуги"><h2>Цена и условия</h2><p><strong>${escapeHtml(page.priceLabel)}</strong> — ${escapeHtml(page.priceNote ?? "Стоимость уточняется по объекту.")}</p><h2>Что получит клиент</h2><ul>${page.serviceResults.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><h2>Что прислать для расчёта</h2><ol>${page.requestChecklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol><p><a href="tel:${phoneMatch[1]}">Позвонить для предварительного расчёта</a></p></section>`
     : "";
 
   const about = page.kind === "service"
@@ -419,12 +419,12 @@ for (const page of pages.filter((entry) => entry.productId)) {
     const canonical = `${SITE_URL}${slug}/`;
     const title = `${offer.title} в Омске — отправить задачу | Сила Леса`;
     const description = code
-      ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем откройте готовое обращение в WhatsApp.`
-      : "Выберите строительные работы, укажите данные объекта и откройте готовое обращение в WhatsApp. Без регистрации и отправки данных в фоне.";
+      ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем выберите звонок или MAX и подготовьте обращение.`
+      : "Выберите строительные работы, укажите данные объекта и выберите звонок или MAX. Без регистрации и отправки данных в фоне.";
     let html = applyPageMeta(template, { title, description, canonical });
     html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
-    const wa = `https://wa.me/${whatsappMatch[1]}?text=${encodeURIComponent(`Здравствуйте! Интересуют работы «${offer.title}» в Омске. Подскажите, какие данные нужны для предварительного расчёта.`)}`;
-    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${wa}">Обсудить работы в WhatsApp</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
+    const wa = "https://max.ru/"; // Homepage only; customer MAX profile not verified.
+    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${wa}">Открыть MAX (найти контакт по номеру)</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
     html = html.replace(/<div id="root"><\/div>/i, snapshot);
     const targetDir = path.join(DIST, slug);
     await fs.mkdir(targetDir, { recursive: true });
@@ -434,7 +434,7 @@ for (const page of pages.filter((entry) => entry.productId)) {
 
 // Give the construction-first home page a meaningful no-JS first answer.
 {
-  const home = constructionHomeFallback(SITE_URL, whatsappMatch[1], "+79136884533", constructionCatalog);
+  const home = constructionHomeFallback(SITE_URL, phoneMatch[1], "+79136884533", constructionCatalog);
   if (!template.includes('<div id="root"></div>')) throw new Error('Home root placeholder missing');
   await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
 }
