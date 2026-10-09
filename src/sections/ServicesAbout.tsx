@@ -1,5 +1,5 @@
 import { ArrowIcon, LinkButton, LogoMark, PhoneIcon, SectionHead } from "../components/Brand";
-import { company, formatPrice, mapsUrl, services, whatsappUrl } from "../data/products";
+import { company, formatPrice, mapsUrl, services, contactDraftUrl } from "../data/products";
 import { landingByProductId } from "../data/routeManifest";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { Link } from "../lib/router";
@@ -125,8 +125,8 @@ export function About() {
             <LinkButton to={`tel:${company.phonePrimary.tel}`} onClick={() => track("cta_click", { type: "call", where: "contacts-btn" })}>
               <PhoneIcon /> Позвонить
             </LinkButton>
-            <LinkButton to={whatsappUrl("Здравствуйте! Хочу посмотреть баню и уточнить комплектацию. Страница: https://conradipui-glitch.github.io/silalesa/")} variant="ghost" external onClick={() => track("cta_click", { type: "whatsapp", where: "contacts" })}>
-              Написать в WhatsApp
+            <LinkButton to={contactDraftUrl("Здравствуйте! Хочу посмотреть баню и уточнить комплектацию. Страница: https://conradipui-glitch.github.io/silalesa/")} variant="ghost" external onClick={() => track("cta_click", { type: "contact_choice", where: "contacts" })}>
+              Написать в MAX
             </LinkButton>
           </div>
         </div>
