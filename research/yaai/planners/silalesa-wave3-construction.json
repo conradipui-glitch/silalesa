@@ -1,0 +1,82 @@
+{
+  "defaultFocusWeight": 1,
+  "nowCount": 2,
+  "nextCount": 3,
+  "genericGuidePath": "/guides/{slug}/",
+  "genericLandingPath": "/{slug}/",
+  "targets": [
+    {
+      "id": "floor-guide",
+      "title": "Промышленные полы с топпингом: как выбрать систему и подготовить ТЗ",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "primary",
+      "path": "/guides/promyshlennye-poly/s-topppingom-ili-bez/",
+      "priority": "P1",
+      "focusWeight": 2,
+      "intentIds": [
+        "IND"
+      ],
+      "note": "Подтвердить SERP, разграничить стяжку и промышленный пол; без произвольных цен, характеристик прочности и сроков."
+    },
+    {
+      "id": "dem-guide",
+      "title": "Демонтаж перед ремонтом: исходные данные и состав сметы",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "primary",
+      "path": "/guides/demontazh/chto-uchest-pered-rabotami/",
+      "priority": "P1",
+      "focusWeight": 2,
+      "intentIds": [
+        "DEM"
+      ],
+      "note": "Не инструктировать сносить несущие конструкции; требовать проектную проверку и разрешения при необходимости."
+    },
+    {
+      "id": "masonry-guide",
+      "title": "Как сравнить сметы на кладку кирпича и газоблока",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "primary",
+      "path": "/guides/kladka/kirpich-ili-gazobeton/",
+      "priority": "P1",
+      "focusWeight": 2,
+      "intentIds": [
+        "MAS"
+      ],
+      "note": "Без голословных норм расхода клея и толщины, проверять проект и тип блоков."
+    },
+    {
+      "id": "monolith-guide",
+      "title": "Монолитные работы: что влияет на цену и документы перед заказом",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "primary",
+      "path": "/guides/monolit/raschet-i-podgotovka/",
+      "priority": "P2",
+      "focusWeight": 1,
+      "intentIds": [
+        "MON"
+      ],
+      "note": "Не заменять конструктора калькулятором бетона, не обещать несогласованные расценки."
+    },
+    {
+      "id": "service-hub",
+      "title": "Каталог строительных работ",
+      "kind": "landing",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/services/",
+      "priority": "P1",
+      "focusWeight": 2,
+      "intentIds": [
+        "IND",
+        "DEM",
+        "MAS",
+        "MON"
+      ],
+      "note": "Если отдельный интент не доказан, улучшить навигацию и подготовку заявки на существующем хабе вместо нового SEO URL."
+    }
+  ]
+}
