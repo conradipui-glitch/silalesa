@@ -29,7 +29,9 @@ export const company = {
   city: "Омск",
   phonePrimary: { display: "+7 (913) 688-45-33", tel: "+79136884533" },
   phoneSecondary: { display: "+7 (999) 456-33-64", tel: "+79994563364", person: "Евгений" },
-  whatsapp: "79994563364",
+  // Set only after the company supplies a verified personal MAX share link (max.ru/u/...).
+  // An empty string keeps the honest number-search fallback rather than inventing a chat URL.
+  maxProfileUrl: "",
   showroom: "Омск, ул. Нефтезаводская, 49/1",
   vk: "https://vk.com/silalesa55",
   site: "https://silalesa55.ru/",
@@ -47,9 +49,19 @@ export function mapsUrl(address: string) {
   return `https://yandex.ru/maps/?text=${encodeURIComponent(address)}`;
 }
 
-export function whatsappUrl(text?: string) {
-  const base = `https://wa.me/${company.whatsapp}`;
-  return text ? `${base}?text=${encodeURIComponent(text)}` : base;
+export const CONTACT_DRAFT_PREFIX = "#contact-draft=";
+export const CONTACT_OPEN_EVENT = "silalesa:contact-choice";
+
+// Only a local fragment in the rendered page. The handler prevents navigation,
+// so even a user-entered draft is not transmitted via a URL to an external app.
+export function contactDraftUrl(text?: string) {
+  return CONTACT_DRAFT_PREFIX + encodeURIComponent(text ?? "");
+}
+
+export function openContactChoice(message: string) {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(CONTACT_OPEN_EVENT, { detail: { message } }));
+  }
 }
 
 /* ------------------------------------------------------------------ */
