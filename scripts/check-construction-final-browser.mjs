@@ -25,6 +25,11 @@ try {
       const response = await page.goto(origin + pathname, { waitUntil: 'networkidle', timeout: 30000 });
       assert.equal(response?.status(), 200, 'Canonical route must load: ' + pathname);
       await page.locator('main h1').first().waitFor({ state: 'visible' });
+      if (!pathname.includes('/kalkulyator-styazhki-pola/') && !pathname.includes('/kalkulyator-shtukaturki-sten/')) {
+        // Static prerender already contains H1 before the lazy React article hydrates.
+        // Wait for the client-visible mascot before checking dynamic article links and FAQ.
+        await page.locator('[data-qa="forest-lead-trigger"]').waitFor({ state: 'visible' });
+      }
       const state = await page.evaluate(() => ({
         title: document.title,
         h1Count: document.querySelectorAll('main h1').length,
