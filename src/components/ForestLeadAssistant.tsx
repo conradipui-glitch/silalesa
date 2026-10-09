@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
-import { company, whatsappUrl } from "../data/products";
+import { company, openContactChoice } from "../data/products";
 import { track } from "../lib/utils";
 
 const dismissedKey = "silalesa-forest-master-prompt-dismissed-v1";
@@ -53,7 +53,6 @@ export function ForestLeadAssistant({ source }: Props) {
   }, [source]);
 
   const message = useMemo(() => buildForestLeadMessage(service, notes, phone, email, url), [service, notes, phone, email, url]);
-  const wa = whatsappUrl(message);
 
   useEffect(() => {
     // Do not auto-open or obscure searchable content. Only a small, dismissible
@@ -119,11 +118,12 @@ export function ForestLeadAssistant({ source }: Props) {
       return;
     }
     setEmailError("");
-    track("cta_click", { type: "whatsapp", where: "forest_lead_helper", service });
-    track("quiz_complete", { type: "forest_lead_helper", channel: "whatsapp", service });
+    track("cta_click", { type: "contact_choice", where: "forest_lead_helper", service });
+    track("quiz_complete", { type: "forest_lead_helper", channel: "contact_choice", service });
     // Explicit handoff: no contact details are stored or sent to a server.
-    // WhatsApp opens with a draft; the visitor chooses whether to send it.
-    window.open(wa, "_blank", "noopener,noreferrer");
+    // The user chooses phone or MAX. Nothing is submitted automatically.
+    setIsOpen(false);
+    openContactChoice(message);
   };
 
   const copy = async () => {
@@ -191,15 +191,15 @@ export function ForestLeadAssistant({ source }: Props) {
                 </label>
               </div>
               {emailError && <p role="alert" className="text-sm text-ember-500">{emailError}</p>}
-              <button type="submit" data-qa="forest-lead-whatsapp" className="flex min-h-[50px] w-full items-center justify-center rounded-full bg-moss-600 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-moss-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-moss-600">
-                Продолжить в WhatsApp ↗
+              <button type="submit" data-qa="forest-lead-contact" className="flex min-h-[50px] w-full items-center justify-center rounded-full bg-moss-600 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-moss-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-moss-600">
+                Выбрать способ связи ↗
               </button>
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button type="button" onClick={() => { void copy(); }} className={buttonStyle}>Скопировать запрос</button>
                 <a href={`tel:${company.phonePrimary.tel}`} onClick={() => track("cta_click", { type: "call", where: "forest_lead_helper" })} className={buttonStyle+" inline-flex items-center justify-center"}>Позвонить</a>
               </div>
               <p aria-live="polite" role="status" className="text-center text-xs text-moss-600">{copied ? "Запрос скопирован" : ""}</p>
-              <p className="pb-1 text-center text-xs leading-relaxed text-bark-600">WhatsApp откроет подготовленное сообщение — отправку вы подтверждаете сами. Данные не сохраняются на сайте.</p>
+              <p className="pb-1 text-center text-xs leading-relaxed text-bark-600">Подготовим сообщение для MAX или звонка. Ничего не отправляем без вашего действия и не сохраняем данные на сервере.</p>
             </form>
           </div>
         </div>

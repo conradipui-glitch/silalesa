@@ -1,6 +1,6 @@
 import { ArrowIcon, LinkButton } from "./Brand";
 import models from "../data/sauna-choice-models.json";
-import { byId, formatPrice, whatsappUrl } from "../data/products";
+import { byId, formatPrice, contactDraftUrl } from "../data/products";
 import type { SeoPage } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
@@ -69,7 +69,7 @@ export function SaunaOffer({ page }: { page: SeoPage }) {
             <p className="mt-2 text-sm text-cream-300">Достаточно того, что уже знаете. Заполнять анкету необязательно.</p>
             <ol className="mt-5 space-y-3">{page.offerChecklist?.map((item, index) => <li key={item} className="flex gap-3 text-sm leading-relaxed text-cream-100 sm:text-base"><span className="font-semibold text-cedar-300">{index + 1}.</span><span>{item}</span></li>)}</ol>
           </div>
-          <LinkButton to={whatsappUrl(contact)} external size="lg" className="shrink-0" onClick={() => track("cta_click", { type: "whatsapp", where: "r7-offer", slug: page.slug })}>{page.offerCtaLabel ?? "Уточнить предложение"} <ArrowIcon /></LinkButton>
+          <LinkButton to={contactDraftUrl(contact)} external size="lg" className="shrink-0" onClick={() => track("cta_click", { type: "contact_choice", where: "r7-offer", slug: page.slug })}>{page.offerCtaLabel ?? "Уточнить предложение"} <ArrowIcon /></LinkButton>
         </div>
         {!catalogue && <nav className="mt-9 border-t border-cream-50/15 pt-6" aria-label="Другие модели">
           <h3 className="font-display text-xl">Сравнить с другими моделями</h3>

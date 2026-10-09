@@ -67,8 +67,8 @@ try {
         assert.ok((await page.locator('[data-qa="calculator-budget"]').innerText()).includes('19'), 'Default budget uses 600 ₽/m²');
         await page.getByRole('button', { name: '+ Добавить помещение' }).click();
         assert.equal(await page.locator('[data-qa="calculator-room"]').count(), 3, 'Adding a room updates the result');
-        const wa = await page.locator('[data-qa="calculator-whatsapp"]').getAttribute('href');
-        assert.ok(wa && new URL(wa).searchParams.get('text')?.includes('Общая площадь'), 'Calculator sends draft data, not an empty message');
+        const draftHref = await page.locator('[data-qa="calculator-contact"]').getAttribute('href');
+        assert.ok(draftHref?.startsWith('#contact-draft=') && decodeURIComponent(draftHref.slice('#contact-draft='.length)).includes('Общая площадь'), 'Calculator prepares a local, consent-based contact draft');
       }
       if (pathname.endsWith('/kalkulyator-shtukaturki-sten/')) {
         const calc = page.locator('[data-qa="plaster-calculator"]');
@@ -87,8 +87,8 @@ try {
 
         await calc.getByRole('button', { name: '+ Добавить помещение' }).click();
         assert.equal(await calc.locator('[data-qa="plaster-room"]').count(), 2, 'Room added');
-        const href = await calc.locator('[data-qa="plaster-whatsapp"]').getAttribute('href');
-        assert.ok(href && new URL(href).searchParams.get('text')?.includes('Помещение 2'), 'Draft estimate includes second room');
+        const href = await calc.locator('[data-qa="plaster-contact"]').getAttribute('href');
+        assert.ok(href?.startsWith('#contact-draft=') && decodeURIComponent(href.slice('#contact-draft='.length)).includes('Помещение 2'), 'Local draft includes second room');
         const sharedRooms = [{
           name: "Проверка", length: 5, width: 4, height: 2.7, thickness: 15,
           openings: [{ label: "Окно", width: 1.5, height: 1, count: 1 }, { label: "Дверь", width: .9, height: 2, count: 1 }],
@@ -121,14 +121,13 @@ try {
         assert.ok(/кладк|демонтаж/iu.test(state.text), 'Construction buyer guide content missing: ' + pathname);
         assert.equal(await page.locator('a[href*="/services/"]').count() > 0, true, 'Guide needs service navigation: ' + pathname);
         assert.equal(await page.locator('img[alt*="баня"]').count(), 0, 'No unrelated bath image');
-        assert.ok((await page.locator('a[href^="https://wa.me/"]').count()) >= 1, 'Guide needs optional contractor contact');
+        assert.ok((await page.locator('a[href^="#contact-draft="]').count()) >= 1, 'Guide needs an optional contact chooser');
       }
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;
     }
 
-    // Consent-based mascot-assisted draft: do not initiate an external request
-    // in QA; intercept window.open and verify the content locally.
+    // Consent-based mascot-assisted draft remains local until the visitor acts.
     await page.goto(origin + '/silalesa/', { waitUntil: 'networkidle' });
     const assistant = page.locator('[data-qa="forest-lead-assistant"]');
     await assistant.waitFor({ state: 'visible' });
@@ -142,18 +141,16 @@ try {
     await dialog.locator('select[name="service"]').selectOption('Кладочные работы');
     await dialog.locator('textarea[name="notes"]').fill('Стенка 20 м²');
     await dialog.locator('input[name="phone"]').fill('+7 999 100-00-00');
-    await page.evaluate(() => {
-      window.__mascotCapturedUrl = '';
-      window.open = (url) => { window.__mascotCapturedUrl = String(url); return null; };
-    });
-    await dialog.locator('[data-qa="forest-lead-whatsapp"]').click();
-    const submittedDraft = await page.evaluate(() => window.__mascotCapturedUrl);
-    assert.ok(submittedDraft.startsWith('https://wa.me/'), 'Lead helper must only prepare WhatsApp draft');
-    const draft = new URL(submittedDraft).searchParams.get('text');
-    assert.ok(draft?.includes('Кладочные работы') && draft.includes('Стенка 20 м²') && draft.includes('+7 999 100-00-00'), 'Prepared message includes selected service and visitor-provided details');
+    await dialog.locator('[data-qa="forest-lead-contact"]').click();
+    const chooser = page.locator('[data-qa="contact-choice-dialog"]');
+    await chooser.waitFor({ state: 'visible' });
+    const draft = await chooser.getByRole('textbox', { name: 'Подготовленный текст обращения' }).inputValue();
+    assert.ok(draft.includes('Кладочные работы') && draft.includes('Стенка 20 м²') && draft.includes('+7 999 100-00-00'), 'Contact chooser preserves the user-approved draft');
+    assert.equal(await chooser.locator('[data-qa="contact-choice-call"]').getAttribute('href'), 'tel:+79136884533', 'Call channel is ready');
+    assert.ok((await chooser.locator('[data-qa="contact-choice-max"]').getAttribute('href')).startsWith('https://max.ru/'), 'MAX channel exists without inventing owner profile');
     assert.equal(await page.evaluate(() => JSON.stringify(window.__silalesaEvents ?? []).includes('+7 999 100-00-00')), false, 'Never send visitor contact details to analytics');
     await page.keyboard.press('Escape');
-    assert.equal(await dialog.count(), 0, 'Escape closes assistant dialog');
+    assert.equal(await chooser.count(), 0, 'Escape closes contact chooser');
     await page.goto(origin + '/silalesa/kalkulyator-styazhki-pola/', { waitUntil: 'networkidle' });
     assert.equal(await page.locator('[data-qa="forest-lead-assistant"]').count(), 0, 'Mascot never obscures working calculators');
 

@@ -4,7 +4,7 @@ import {
   MAX_PLASTER_OPENINGS, MAX_PLASTER_ROOMS, PLASTER_START_PRICE, plasterNumber,
   type PlasterMaterial, type PlasterOpening, type PlasterRoom,
 } from "../lib/plasterCalculator";
-import { whatsappUrl } from "../data/products";
+import { contactDraftUrl } from "../data/products";
 import { track } from "../lib/utils";
 
 const inputClass = "mt-1 block w-full min-w-0 rounded-xl border border-cream-50/20 bg-bark-950 px-3 py-3 text-base text-cream-50 outline-none focus-visible:border-cedar-300 focus-visible:ring-2 focus-visible:ring-cedar-300/35";
@@ -237,9 +237,9 @@ export function PlasterCalculator({ compact = false }: Props) {
               </li>)}</ul>
             </div>}
             <div className="mt-6 space-y-3">
-              <a data-qa="plaster-whatsapp" href={invalid ? undefined : whatsappUrl(summary)}
+              <a data-qa="plaster-contact" href={invalid ? undefined : contactDraftUrl(summary)}
                 aria-disabled={invalid} tabIndex={invalid ? -1 : undefined} target="_blank" rel="noopener noreferrer"
-                onClick={(event) => { if (invalid) { event.preventDefault(); return; } track("cta_click", { type: "plaster_calculator_whatsapp", where: "plaster-calculator", rooms: rooms.length }); }}
+                onClick={(event) => { if (invalid) { event.preventDefault(); return; } track("cta_click", { type: "plaster_calculator_contact_choice", where: "plaster-calculator", rooms: rooms.length }); }}
                 className={`flex min-h-12 w-full items-center justify-center rounded-full bg-cedar-400 px-5 py-3 text-center font-semibold text-bark-950 transition hover:bg-cedar-300 ${invalid ? "pointer-events-none opacity-40" : ""}`}>
                 Обсудить расчёт с мастером ↗
               </a>

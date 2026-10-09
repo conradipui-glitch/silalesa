@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowIcon, Button, CheckIcon, LinkButton, SectionHead } from "../components/Brand";
-import { formatPrice, saunas, whatsappUrl, type Product } from "../data/products";
+import { formatPrice, saunas, contactDraftUrl, type Product } from "../data/products";
 import { loadJSON, removeKey, saveJSON, storageAvailable, track } from "../lib/utils";
 import { cn } from "../utils/cn";
 import { landingByProductId } from "../data/routeManifest";
@@ -248,7 +248,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
               lead="Сначала два ответа — нужные помещения и место под баню. Сразу покажем подходящие по этим условиям модели и цены. Бюджет, количество гостей и подъезд можно уточнить после первого результата."
             />
             <p className="reveal mt-6 text-xs text-bark-600/70">
-              Это ориентир по габаритам самой бани, а не проект установки: отступы, основание и подъезд проверяются отдельно. Сообщение откроется в WhatsApp, отправите его вы сами.
+              Это ориентир по габаритам самой бани, а не проект установки: отступы, основание и подъезд проверяются отдельно. Сообщение откроется в MAX, отправите его вы сами.
             </p>
           </div>
 
@@ -321,7 +321,7 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
                 <h3 className="font-display text-2xl text-cream-50">По указанным помещениям и габариту места подходящей модели в каталоге нет</h3>
                 <p className="text-sm text-cream-200/85">Не предлагаем баню, которая физически не помещается или не содержит нужные помещения. Проверьте размеры площадки и свободное место для установки с менеджером.</p>
                 <div className="mt-auto flex flex-wrap gap-3">
-                  <LinkButton to={whatsappUrl(`Здравствуйте! Не нашёл подходящую баню: помещения — ${answers.rooms ? roomLabels[answers.rooms] : "не указаны"}, место — ${answers.space ? spaces[answers.space].label : "не указано"}. Помогите уточнить вариант и условия установки.`)} external>Уточнить в WhatsApp <ArrowIcon /></LinkButton>
+                  <LinkButton to={contactDraftUrl(`Здравствуйте! Не нашёл подходящую баню: помещения — ${answers.rooms ? roomLabels[answers.rooms] : "не указаны"}, место — ${answers.space ? spaces[answers.space].label : "не указано"}. Помогите уточнить вариант и условия установки.`)} external>Уточнить в MAX <ArrowIcon /></LinkButton>
                   <button type="button" onClick={() => { setStep(0); setStage("q"); }} className="rounded-full border border-cream-50/20 px-4 py-2 text-sm">Изменить ответы</button>
                   <LinkButton to="/mobilnaya-banya-omsk/" variant="ghost">Посмотреть каталог</LinkButton>
                 </div>
@@ -370,11 +370,11 @@ export function Quiz({ setModel }: { setModel: (k: ModelKey) => void }) {
                 </div>
                 <div className="mt-auto pt-8 flex flex-wrap gap-3">
                   <LinkButton
-                    to={whatsappUrl(quizMessage)}
+                    to={contactDraftUrl(quizMessage)}
                     external
-                    onClick={() => track("cta_click", { type: "whatsapp", where: "quiz", model: best.product.modelKey ?? "" })}
+                    onClick={() => track("cta_click", { type: "contact_choice", where: "quiz", model: best.product.modelKey ?? "" })}
                   >
-                    Отправить подбор в WhatsApp <ArrowIcon />
+                    Обсудить подбор <ArrowIcon />
                   </LinkButton>
                   <LinkButton to={modelHref(best.product)} variant="ghost" onClick={() => track("product_view", { id: best.product.id, from: "quiz" })}>
                     Открыть модель

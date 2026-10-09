@@ -70,16 +70,16 @@ export function track(name: AnalyticsEvent, payload: Payload = {}) {
       emit("tel_click", { ...payload, channel: "call" });
     }
 
-    if (["whatsapp", "vk"].includes(type)) {
-      emit("messenger_click", { ...payload, channel: type });
+    if (type === "max") {
+      emit("messenger_click", { ...payload, channel: "max" });
     }
 
-    if (type === "whatsapp" && where === "configurator") {
-      emit("calc_submit", { ...payload, channel: "whatsapp" });
+    if (type === "contact_choice" && where === "configurator") {
+      emit("calc_submit", { ...payload, channel: "contact_choice" });
     }
 
     // Клик по каналу связи — это только намерение обратиться, а не подтверждённая заявка.
-    if (["call", "call2", "whatsapp", "vk"].includes(type)) {
+    if (["call", "call2", "contact_choice", "max"].includes(type)) {
       emit("lead_intent", { ...payload, channel: type.replace("call2", "call") });
     }
   }

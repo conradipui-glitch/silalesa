@@ -1,6 +1,6 @@
 import { ArrowIcon, LinkButton } from "./Brand";
 import models from "../data/sauna-choice-models.json";
-import { byId, formatPrice, whatsappUrl } from "../data/products";
+import { byId, formatPrice, contactDraftUrl } from "../data/products";
 import type { SeoPage } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
@@ -60,7 +60,7 @@ export function SaunaChoiceGuide({ page }: { page: SeoPage }) {
               {page.choiceChecklist?.map((item, index) => <li key={item} className="flex gap-3 text-sm leading-relaxed text-cream-100 sm:text-base"><span className="font-semibold text-cedar-300">{index + 1}.</span><span>{item}</span></li>)}
             </ol>
           </div>
-          <LinkButton to={whatsappUrl(contact)} external size="lg" className="shrink-0" onClick={() => track("cta_click", { type: "whatsapp", where: "r5-model-guide", slug: page.slug })}>
+          <LinkButton to={contactDraftUrl(contact)} external size="lg" className="shrink-0" onClick={() => track("cta_click", { type: "contact_choice", where: "r5-model-guide", slug: page.slug })}>
             {page.choiceCtaLabel ?? "Обсудить модель"} <ArrowIcon />
           </LinkButton>
         </div>

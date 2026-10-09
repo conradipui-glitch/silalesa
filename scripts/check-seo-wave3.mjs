@@ -29,7 +29,7 @@ for (const page of source) {
   assert.ok(html.includes('"@type":"Article"') && html.includes('"@type":"FAQPage"'), "Structured data: " + page.slug);
   assert.ok(html.includes("data-prerendered=\"true\""), "Static readable page: " + page.slug);
   assert.ok(html.includes(SITE + "services/"), "Link to real service list: " + page.slug);
-  assert.ok(html.includes("https://wa.me/"), "Optional call to action: " + page.slug);
+  assert.ok(html.includes('href="tel:+79136884533"') && !html.includes("https://wa.me/"), "Working phone CTA without retired WhatsApp: " + page.slug);
   assert.ok(hub.includes(url) && home.includes(url), "Discoverable on non-JS construction home + services hub: " + page.slug);
   assert.ok(html.includes("Связанные строительные материалы"), "Related construction context");
 }

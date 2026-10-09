@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowIcon, LinkButton, LogoMark, PhoneIcon } from "./Brand";
-import { company, whatsappUrl } from "../data/products";
+import { company, contactDraftUrl } from "../data/products";
 import { Link, useRouter } from "../lib/router";
 import { track } from "../lib/utils";
 import { cn } from "../utils/cn";
@@ -89,7 +89,7 @@ export function ConstructionHeader() {
 
   useEffect(() => setOpen(false), [route]);
 
-  const wa = whatsappUrl("Здравствуйте! Хочу обсудить строительные работы. Подскажите, какие данные нужны для предварительного расчёта?");
+  const wa = contactDraftUrl("Здравствуйте! Хочу обсудить строительные работы. Подскажите, какие данные нужны для предварительного расчёта?");
 
   return (
     <header className={cn("fixed inset-x-0 top-0 z-50 transition-colors duration-300", scrolled || open ? "border-b border-cream-50/8 bg-bark-900/90 backdrop-blur-md" : "bg-transparent")}>
@@ -129,7 +129,7 @@ export function ConstructionHeader() {
             external
             size="sm"
             className="hidden h-11 sm:inline-flex"
-            onClick={() => track("cta_click", { type: "whatsapp", where: "construction-header" })}
+            onClick={() => track("cta_click", { type: "contact_choice", where: "construction-header" })}
           >
             Обсудить объект
           </LinkButton>
@@ -175,7 +175,7 @@ export function ConstructionHeader() {
               <PhoneIcon className="text-cedar-400" /> {company.phoneSecondary.display}
             </a>
             <LinkButton to={wa} external size="md" className="mt-4 w-full" onClick={() => setOpen(false)}>
-              Написать в WhatsApp
+              Выбрать связь: MAX
             </LinkButton>
           </div>
         </div>
@@ -185,7 +185,7 @@ export function ConstructionHeader() {
 }
 
 export function ConstructionMobileBar() {
-  const wa = whatsappUrl("Здравствуйте! Хочу обсудить строительные работы и получить предварительный расчёт.");
+  const wa = contactDraftUrl("Здравствуйте! Хочу обсудить строительные работы и получить предварительный расчёт.");
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-cream-50/10 bg-bark-900/94 px-3 pb-[max(env(safe-area-inset-bottom),8px)] pt-2 backdrop-blur-md md:hidden">
       <div className="grid grid-cols-2 gap-2">
@@ -196,7 +196,7 @@ export function ConstructionMobileBar() {
         >
           <PhoneIcon /> Позвонить
         </a>
-        <LinkButton to={wa} external size="md" className="h-11 text-sm" onClick={() => track("cta_click", { type: "whatsapp", where: "construction-mobile-bar" })}>
+        <LinkButton to={wa} external size="md" className="h-11 text-sm" onClick={() => track("cta_click", { type: "contact_choice", where: "construction-mobile-bar" })}>
           Обсудить объект
         </LinkButton>
       </div>
@@ -205,7 +205,7 @@ export function ConstructionMobileBar() {
 }
 
 export function ConstructionFooter() {
-  const wa = whatsappUrl("Здравствуйте! Хочу обсудить строительный объект.");
+  const wa = contactDraftUrl("Здравствуйте! Хочу обсудить строительный объект.");
   return (
     <footer className="border-t border-cream-50/8 bg-bark-950 pb-24 md:pb-10">
       <div className="strap" aria-hidden="true" />
@@ -241,7 +241,7 @@ export function ConstructionFooter() {
             <li><a href={`tel:${company.phonePrimary.tel}`} className="hover:text-cream-50">{company.phonePrimary.display}</a></li>
             <li><a href={`tel:${company.phoneSecondary.tel}`} className="hover:text-cream-50">{company.phoneSecondary.display}</a> <span className="text-cream-300/80">— {company.phoneSecondary.person}</span></li>
             <li className="pt-2 text-cream-300/80">{company.city}</li>
-            <li><a href={wa} target="_blank" rel="noopener noreferrer" className="text-cedar-300 hover:text-cedar-200">Обсудить объект в WhatsApp</a></li>
+            <li><a href={wa} target="_blank" rel="noopener noreferrer" className="text-cedar-300 hover:text-cedar-200">Обсудить объект в MAX</a></li>
           </ul>
         </div>
       </div>

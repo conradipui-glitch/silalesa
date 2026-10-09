@@ -9,11 +9,11 @@ assert.ok(asset.includes("<svg") && asset.includes("Лесной мастер") 
 assert.ok(ui.includes('forest-lead-trigger') && ui.includes('forest-lead-dialog') && ui.includes('forest-lead-hint'), "Controlled launcher, panel and a dismissible hint");
 assert.ok(ui.includes("window.scrollY") && ui.includes("18000") && ui.includes('matchMedia("(max-width: 767px)")'), "No immediate disruptive popup and no unsolicited mobile prompt");
 assert.ok(ui.includes('role="dialog"') && ui.includes('aria-modal="true"') && ui.includes('event.key === "Escape"'), "Keyboard-accessible dialog");
-assert.ok(ui.includes("buildForestLeadMessage") && ui.includes("Продолжить в WhatsApp") && ui.includes("Скопировать запрос"), "Honest optional message handoff");
+assert.ok(ui.includes("buildForestLeadMessage") && ui.includes("Выбрать способ связи") && ui.includes("Скопировать запрос") && ui.includes("openContactChoice(message)"), "Honest optional message handoff");
 assert.ok(ui.includes('sessionStorage.setItem(dismissedKey') && !ui.includes('localStorage.setItem('), "Only harmless prompt dismissal stored temporarily");
 assert.ok(ui.includes("track(\"quiz_start\"") && ui.includes("track(\"quiz_complete\""), "Behavior observable without personal data in analytics");
-assert.ok(ui.includes("window.open(wa") && !ui.includes('fetch(') && !ui.includes('XMLHttpRequest'), "No fabricated backend or personal-data upload");
+assert.ok(ui.includes("openContactChoice(message)") && !ui.includes("window.open(") && !ui.includes('fetch(') && !ui.includes('XMLHttpRequest'), "No fabricated backend or personal-data upload");
 assert.ok(app.includes('lazy(() => import("./components/ForestLeadAssistant")'), "Assistant separately chunked");
 assert.ok(app.includes('route.name === "home" || route.name === "services" || route.name === "landing"'), "Assistant excluded from working calculators and 404");
 assert.ok(!generated.includes("forest-lead-dialog"), "Searchable HTML must remain unobstructed without JS");
-console.log("FOREST_HELPER_PASS: branded light mascot, accessible non-intrusive capture, honest draft handoff, route scope and no PII persistence.");
+console.log("FOREST_HELPER_PASS: branded light mascot, accessible non-intrusive capture, phone and MAX contact choice, route scope and no PII persistence.");

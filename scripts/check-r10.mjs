@@ -55,8 +55,9 @@ for (const service of catalogue) {
 }
 
 const products = read('src/data/products.ts');
-const waNumber = products.match(/whatsapp:\s*"(\d+)"/)?.[1];
-verify(Boolean(waNumber), 'No actual WhatsApp destination in product registry');
+const primaryPhone = products.match(/phonePrimary:\s*\{[^}]*tel:\s*"([^"]+)"/)?.[1];
+verify(Boolean(primaryPhone), 'No canonical phone contact in product registry');
+verify(!/whatsappUrl|wa\.me\//i.test(products), 'Retired WhatsApp contact still present in registry');
 
 function routeFile(url) {
   const parsed = new URL(url, site);
@@ -92,13 +93,10 @@ for (const url of routes) {
   for (const href of localLinks) {
     if (/^(mailto:|tel:|javascript:)/i.test(href)) {
       verify(!href.startsWith('javascript:'), `javascript: link on ${url}`);
+      if (href.startsWith('tel:')) verify(/^tel:\+7\d{10}$/.test(href), `Invalid call link on ${url}: ${href}`);
       continue;
     }
-    if (/^https:\/\/wa\.me\//i.test(href)) {
-      const wa = new URL(href);
-      verify(wa.pathname === `/${waNumber}` && Boolean(wa.searchParams.get('text')?.trim()), `Malformed or noncanonical WhatsApp CTA: ${url}`);
-      continue;
-    }
+    verify(!/wa\.me\/|whatsapp/i.test(href), `Retired WhatsApp CTA: ${url}`);
     if (href.startsWith('#')) {
       verify(href.length > 1 && html.includes(`id="${href.slice(1)}"`), `Nonworking no-JS in-page anchor ${href} in ${url}`);
       continue;
@@ -126,7 +124,7 @@ for (const url of routes) {
     verify(html.includes(`<h1>${escape(page.h1)}</h1>`) && html.includes(escape(page.lead)), `Rendered first answer differs from merged source: ${url}`);
     verify(html.includes('FAQPage'), `Missing structured FAQs: ${url}`);
     if (page.kind === 'service' || page.offerModel || page.offerModels) {
-      verify(html.includes(`https://wa.me/${waNumber}?text=`), `Missing direct contact for commercial page: ${url}`);
+      verify(html.includes(`href="tel:${primaryPhone}"`), `Missing working phone contact for commercial page: ${url}`);
     }
   }
   routeRows.push({ route: url.replace(site, '/') || '/', type: page?.kind ?? (url === site ? 'home' : 'services'), staticHTML: true, canonical: canonical === url, h1: h1 === 1, links: localLinks.length });

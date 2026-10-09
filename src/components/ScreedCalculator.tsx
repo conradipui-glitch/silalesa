@@ -3,7 +3,7 @@ import {
   calculateScreed, describeScreedEstimate, formatScreedNumber, initialScreedRooms,
   MAX_ROOMS, SCREED_START_PRICE, type ScreedRoom,
 } from "../lib/screedCalculator";
-import { whatsappUrl } from "../data/products";
+import { contactDraftUrl } from "../data/products";
 import { track } from "../lib/utils";
 
 const currency = (value: number) => formatScreedNumber(value, 0);
@@ -195,9 +195,9 @@ export function ScreedCalculator({ compact = false }: Props) {
               </ul>
             </div>}
             <div className="mt-6 space-y-3">
-              <a data-qa="calculator-whatsapp" href={missing ? undefined : whatsappUrl(report)} aria-disabled={missing}
+              <a data-qa="calculator-contact" href={missing ? undefined : contactDraftUrl(report)} aria-disabled={missing}
                 tabIndex={missing ? -1 : undefined} target="_blank" rel="noopener noreferrer"
-                onClick={(event) => { if (missing) { event.preventDefault(); return; } track("cta_click", { type: "calculator_whatsapp", where: "screed-calculator", rooms: rooms.length }); }}
+                onClick={(event) => { if (missing) { event.preventDefault(); return; } track("cta_click", { type: "calculator_contact_choice", where: "screed-calculator", rooms: rooms.length }); }}
                 className={`flex min-h-12 w-full items-center justify-center rounded-full bg-cedar-400 px-5 py-3 text-center font-semibold text-bark-950 shadow-lg transition hover:bg-cedar-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300 ${missing ? "pointer-events-none opacity-45" : ""}`}>
                 Обсудить расчёт с мастером ↗
               </a>

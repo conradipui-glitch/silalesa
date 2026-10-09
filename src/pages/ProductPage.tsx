@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { PlanDiagram } from "../components/PlanDiagram";
-import { byId, company, formatPrice, products, saunas, services, standardIncluded, whatsappUrl } from "../data/products";
+import { byId, company, formatPrice, products, saunas, services, standardIncluded, contactDraftUrl } from "../data/products";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
 import { seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
@@ -150,7 +150,7 @@ export function ProductPage({ id }: { id: string }) {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <LinkButton to={`tel:${company.phonePrimary.tel}`} size="lg" onClick={() => track("cta_click", { type: "call", where: "product", id: p.id })}><PhoneIcon /> Позвонить {company.phonePrimary.display}</LinkButton>
-              <LinkButton to={whatsappUrl(waText)} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "product", id: p.id })}>Написать в WhatsApp</LinkButton>
+              <LinkButton to={contactDraftUrl(waText)} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "product", id: p.id })}>Выбрать связь: MAX</LinkButton>
             </div>
             {isSauna && <Link to="/mobilnaya-banya-omsk/" className="mt-4 inline-flex items-center gap-1.5 text-sm text-cedar-300 hover:text-cedar-200" onClick={() => track("cta_click", { type: "configurator", where: "product", id: p.id })}>Сравнить модели и комплектацию <ArrowIcon /></Link>}
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ArrowIcon, LinkButton, PhoneIcon } from "../components/Brand";
-import { company, formatPrice, images, mapsUrl, saunas, whatsappUrl } from "../data/products";
+import { company, formatPrice, images, mapsUrl, saunas, contactDraftUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track, useReducedMotion } from "../lib/utils";
 
@@ -53,8 +53,8 @@ export function Hero() {
               <LinkButton to="/mobilnaya-banya-omsk/" size="lg" onClick={() => track("cta_click", { type: "catalog", where: "hero" })}>
                 Модели и цены <ArrowIcon />
               </LinkButton>
-              <LinkButton to={whatsappUrl("Здравствуйте! Хочу подобрать баню. Подскажите по модели, комплектации и доставке. Страница: https://conradipui-glitch.github.io/silalesa/")} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "hero" })}>
-                Спросить в WhatsApp
+              <LinkButton to={contactDraftUrl("Здравствуйте! Хочу подобрать баню. Подскажите по модели, комплектации и доставке. Страница: https://conradipui-glitch.github.io/silalesa/")} variant="ghost" size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "hero" })}>
+                Спросить в MAX
               </LinkButton>
               <a href={`tel:${company.phonePrimary.tel}`} className="inline-flex items-center gap-2 px-2 text-sm text-cream-200/80 hover:text-cedar-300" onClick={() => track("cta_click", { type: "call", where: "hero" })}>
                 <PhoneIcon /> {company.phonePrimary.display}
