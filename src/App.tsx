@@ -11,6 +11,7 @@ const SeoLandingPage = lazy(() => import("./pages/SeoLandingPage").then((m) => (
 const SeasonalDecor = lazy(() => import("./seasonal/SeasonalDecor"));
 const ServiceBriefPage = lazy(() => import("./pages/ServiceBriefPage").then((m) => ({ default: m.ServiceBriefPage })));
 const ScreedCalculatorPage = lazy(() => import("./pages/ScreedCalculatorPage").then((m) => ({ default: m.ScreedCalculatorPage })));
+const PlasterCalculatorPage = lazy(() => import("./pages/PlasterCalculatorPage").then((m) => ({ default: m.PlasterCalculatorPage })));
 
 const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
@@ -124,6 +125,7 @@ function Screen() {
           {route.name === "product" && <ProductRoute id={route.id} />}
           {route.name === "services" && <ServicesScreen />}
           {route.name === "calculator" && <ScreedCalculatorPage />}
+          {route.name === "plaster-calculator" && <PlasterCalculatorPage />}
           {route.name === "landing" && <SeoLandingPage key={route.slug} slug={route.slug} />}
           {route.name === "notfound" && <NotFound path={route.path} />}
         </Suspense>

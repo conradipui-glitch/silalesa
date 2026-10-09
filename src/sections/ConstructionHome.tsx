@@ -427,6 +427,14 @@ export function ConstructionHome() {
               </Link>
             </article>
           </div>
+          <Link to="/kalkulyator-shtukaturki-sten/" className="reveal mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-cedar-300/30 bg-cedar-400/10 px-6 py-5 text-cream-50 transition hover:border-cedar-300/70 hover:bg-cedar-400/15">
+            <div>
+              <p className="text-xs uppercase tracking-[0.15em] text-cedar-300">Новый бесплатный инструмент</p>
+              <p className="mt-2 font-display text-xl">Калькулятор штукатурки стен</p>
+              <p className="mt-1 text-sm text-cream-200/80">Комнаты, окна, двери, толщина и стартовая стоимость работ — без регистрации.</p>
+            </div>
+            <span className="inline-flex min-h-11 items-center font-semibold text-cedar-300">Рассчитать стены <ArrowIcon className="ml-2" /></span>
+          </Link>
           <Link to="/kalkulyator-styazhki-pola/" className="reveal mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-cedar-300/30 bg-cedar-400/10 px-6 py-5 text-cream-50 transition hover:border-cedar-300/70 hover:bg-cedar-400/15">
             <div>
               <p className="text-xs uppercase tracking-[0.15em] text-cedar-300">Бесплатный строительный инструмент</p>

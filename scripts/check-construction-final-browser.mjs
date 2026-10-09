@@ -6,7 +6,7 @@ const origin = 'http://127.0.0.1:4173';
 const site = 'https://conradipui-glitch.github.io/silalesa/';
 const sitemap = fs.readFileSync('dist/sitemap.xml', 'utf8');
 const routes = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
-assert.equal(routes.length, 11, 'The construction release has 11 canonical pages');
+assert.equal(routes.length, 12, 'The construction release has 12 canonical pages');
 
 const browser = await chromium.launch({ headless: true });
 let checked = 0;
@@ -64,6 +64,38 @@ try {
         assert.equal(await page.locator('[data-qa="calculator-room"]').count(), 3, 'Adding a room updates the result');
         const wa = await page.locator('[data-qa="calculator-whatsapp"]').getAttribute('href');
         assert.ok(wa && new URL(wa).searchParams.get('text')?.includes('Общая площадь'), 'Calculator sends draft data, not an empty message');
+      }
+      if (pathname.endsWith('/kalkulyator-shtukaturki-sten/')) {
+        const calc = page.locator('[data-qa="plaster-calculator"]');
+        assert.equal(await calc.count(), 1, 'Direct plaster calculator renders');
+        assert.equal(await calc.locator('[data-qa="plaster-room"]').count(), 1, 'Initial plaster room');
+        assert.ok((await calc.locator('[data-qa="plaster-gross"]').innerText()).includes('48,6'), 'Correct room walls');
+        assert.ok((await calc.locator('[data-qa="plaster-net"]').innerText()).includes('45,3'), 'Openings deducted');
+        assert.ok((await calc.locator('[data-qa="plaster-volume"]').innerText()).includes('0,6795'), 'Layer volume');
+        assert.ok((await calc.locator('[data-qa="plaster-budget"]').innerText()).includes('24'), 'Starting estimate');
+        await calc.getByRole('checkbox', { name: 'Включить' }).check();
+        assert.equal(await calc.locator('[data-qa="plaster-bags"]').count(), 0, 'No bags without actual manufacturer values');
+        assert.ok((await calc.locator('[data-qa="plaster-net"]').innerText()).includes('45,3'), 'Incomplete optional bags never hide geometry');
+        await calc.locator('[data-qa="plaster-material-consumption"]').fill('8.5');
+        await calc.locator('[data-qa="plaster-material-bagWeight"]').fill('30');
+        assert.ok((await calc.locator('[data-qa="plaster-bags"]').innerText()).includes('21 мешок'), 'Bag count uses entered package rate and proper grammar');
+
+        await calc.getByRole('button', { name: '+ Добавить помещение' }).click();
+        assert.equal(await calc.locator('[data-qa="plaster-room"]').count(), 2, 'Room added');
+        const href = await calc.locator('[data-qa="plaster-whatsapp"]').getAttribute('href');
+        assert.ok(href && new URL(href).searchParams.get('text')?.includes('Помещение 2'), 'Draft estimate includes second room');
+        const sharedRooms = [{
+          name: "Проверка", length: 5, width: 4, height: 2.7, thickness: 15,
+          openings: [{ label: "Окно", width: 1.5, height: 1, count: 1 }, { label: "Дверь", width: .9, height: 2, count: 1 }],
+        }];
+        const sharedMix = { enabled: true, consumption: 8.5, bagWeight: 30, reserve: 5 };
+        const shared = new URL(origin + pathname);
+        shared.searchParams.set('walls', JSON.stringify(sharedRooms));
+        shared.searchParams.set('mix', JSON.stringify(sharedMix));
+        await page.goto(shared.href, { waitUntil: 'networkidle' });
+        assert.ok((await page.locator('[data-qa="plaster-net"]').innerText()).includes('45,3'), 'Shared URL restores geometry');
+        assert.ok((await page.locator('[data-qa="plaster-bags"]').innerText()).includes('21 мешок'), 'Shared URL restores package configuration');
+
       }
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;

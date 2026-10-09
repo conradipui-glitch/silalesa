@@ -106,7 +106,15 @@ export function ConstructionHeader() {
               {item.label}
             </Link>
           ))}
-          <Link to="/kalkulyator-styazhki-pola/" className="rounded-full px-3 py-2 text-[13.5px] font-medium text-cedar-300 transition-colors hover:bg-cream-50/6 hover:text-cream-50" onClick={() => track("nav", { to: "screed-calculator", from: "construction-header" })}>Калькулятор</Link>
+          <details className="group relative">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-full px-3 py-2 text-[13.5px] font-medium text-cedar-300 transition hover:bg-cream-50/6 hover:text-cream-50 focus-visible:outline-2 focus-visible:outline-cedar-300">
+              Калькуляторы <span className="text-base" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-2xl border border-cream-50/15 bg-bark-900 p-2 shadow-2xl">
+              <Link to="/kalkulyator-shtukaturki-sten/" className="block rounded-xl px-3 py-3 text-sm text-cream-100 hover:bg-cream-50/10 hover:text-cedar-300">Штукатурка стен</Link>
+              <Link to="/kalkulyator-styazhki-pola/" className="block rounded-xl px-3 py-3 text-sm text-cream-100 hover:bg-cream-50/10 hover:text-cedar-300">Стяжка пола</Link>
+            </div>
+          </details>
         </nav>
         <div data-qa="header-actions" className="flex items-center gap-2">
           <a
@@ -157,6 +165,7 @@ export function ConstructionHeader() {
               </Link>
             ))}
             <Link to="/kalkulyator-styazhki-pola/" className="flex items-center justify-between border-b border-cream-50/8 py-4 font-display text-2xl font-medium text-cedar-300" onClick={() => setOpen(false)}>Калькулятор стяжки <ArrowIcon /></Link>
+            <Link to="/kalkulyator-shtukaturki-sten/" className="flex items-center justify-between border-b border-cream-50/8 py-4 font-display text-2xl font-medium text-cedar-300" onClick={() => setOpen(false)}>Калькулятор штукатурки <ArrowIcon /></Link>
           </nav>
           <div className="space-y-3 px-6 pb-10">
             <a href={`tel:${company.phonePrimary.tel}`} className="flex min-h-11 items-center gap-3 text-lg text-cream-50">
@@ -220,6 +229,7 @@ export function ConstructionFooter() {
             ))}
             <li><Link to="/services/" className="text-sm text-cream-200/80 hover:text-cream-50">Все строительные работы</Link></li>
             <li><Link to="/kalkulyator-styazhki-pola/" className="text-sm font-medium text-cedar-300 hover:text-cream-50">Калькулятор стяжки пола</Link></li>
+            <li><Link to="/kalkulyator-shtukaturki-sten/" className="text-sm font-medium text-cedar-300 hover:text-cream-50">Калькулятор штукатурки стен</Link></li>
           </ul>
         </div>
 
