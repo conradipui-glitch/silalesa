@@ -6,7 +6,7 @@ const origin = 'http://127.0.0.1:4173';
 const site = 'https://conradipui-glitch.github.io/silalesa/';
 const sitemap = fs.readFileSync('dist/sitemap.xml', 'utf8');
 const routes = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
-assert.equal(routes.length, 12, 'The construction release has 12 canonical pages');
+assert.equal(routes.length, 14, 'The construction release has 14 canonical pages');
 
 const browser = await chromium.launch({ headless: true });
 let checked = 0;
@@ -111,6 +111,12 @@ try {
           assert.equal(await links.filter({ has: page.locator(`a[href$="/${calculator}/"]`) }).count(), 0, 'No nested links');
           assert.equal(await links.evaluateAll((els, path) => els.filter((x) => x.getAttribute("href")?.endsWith("/" + path + "/")).length, calculator), 1, 'Calculator link missing: ' + calculator);
         }
+      }
+      if (pathname.endsWith('/guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona/') || pathname.endsWith('/guides/remont/demontazh-pered-remontom-smeta/')) {
+        assert.ok(state.text.includes('Сила Леса'), 'Construction-only guide CTA missing: ' + pathname);
+        assert.equal(await page.locator('a[href*="/services/"]').count() > 0, true, 'Guide needs service navigation: ' + pathname);
+        assert.equal(await page.locator('img[alt*="баня"]').count(), 0, 'No unrelated bath image');
+        assert.ok((await page.locator('a[href^="https://wa.me/"]').count()) >= 1, 'Guide needs optional contractor contact');
       }
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;
