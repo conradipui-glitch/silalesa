@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowIcon, Button, CheckIcon, LinkButton, PhoneIcon, SectionHead } from "../components/Brand";
-import { byModel, company, doorOptions, formatPrice, lampPrice, saunas, sidePackPriceK4, standardIncluded, whatsappUrl } from "../data/products";
+import { byModel, company, doorOptions, formatPrice, lampPrice, saunas, sidePackPriceK4, standardIncluded, contactDraftUrl } from "../data/products";
 import { copyText, loadJSON, removeKey, saveJSON, storageAvailable, track, useInViewOnce } from "../lib/utils";
 import { cn } from "../utils/cn";
 import { landingByProductId } from "../data/routeManifest";
@@ -252,7 +252,7 @@ export function Configurator({ model, setModel }: { model: ModelKey; setModel: (
             </fieldset>
 
             <div className="mt-4">
-              <LinkButton to={whatsappUrl(message)} size="sm" external onClick={() => track("cta_click", { type: "whatsapp", where: "configurator-quick", model })}>Уточнить стоимость в WhatsApp <ArrowIcon /></LinkButton>
+              <LinkButton to={contactDraftUrl(message)} size="sm" external onClick={() => track("cta_click", { type: "contact_choice", where: "configurator-quick", model })}>Уточнить стоимость <ArrowIcon /></LinkButton>
             </div>
             <ul className="mt-6 divide-y divide-cream-50/8 text-sm">
               {lines.map((x) => (
@@ -291,23 +291,20 @@ export function Configurator({ model, setModel }: { model: ModelKey; setModel: (
 
             {isFrame && <p className="mt-4 text-xs text-cream-300/75">Комплектация каркасной бани указана на странице модели. Доставка и установка — отдельное согласование.</p>}
             <div ref={ctaRef} className="mt-6 grid gap-2">
-              <LinkButton to={whatsappUrl(message)} size="lg" external onClick={() => track("cta_click", { type: "whatsapp", where: "configurator", model })}>
-                Отправить расчёт в WhatsApp <ArrowIcon />
+              <LinkButton to={contactDraftUrl(message)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "configurator", model })}>
+                Передать расчёт мастеру <ArrowIcon />
               </LinkButton>
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="ghost" onClick={onCopy} aria-live="polite">
                   {copied === "ok" ? "Скопировано ✓" : copied === "fail" ? "Не удалось" : "Скопировать расчёт"}
                 </Button>
-                <LinkButton to={company.vk} variant="ghost" external onClick={() => track("cta_click", { type: "vk", where: "configurator", model })}>
-                  Написать в VK
-                </LinkButton>
               </div>
               <LinkButton to={`tel:${company.phonePrimary.tel}`} variant="subtle" onClick={() => track("cta_click", { type: "call", where: "configurator", model })}>
                 <PhoneIcon /> Позвонить {company.phonePrimary.display}
               </LinkButton>
             </div>
             <p className="mt-4 text-[11px] leading-relaxed text-cream-300/55">
-              Заявка не отправляется автоматически: вы сами отправляете сообщение в WhatsApp ({company.phoneSecondary.display}, {company.phoneSecondary.person}) или VK, а менеджер подтверждает цену и срок.
+              Заявка не отправляется автоматически: выберите звонок или MAX, скопируйте расчёт и отправьте его сами. Стоимость и срок подтвердит менеджер.
               {canStore ? " Черновик расчёта хранится только в этом браузере." : " Хранилище браузера недоступно — черновик не сохранится."}
             </p>
           </aside>
