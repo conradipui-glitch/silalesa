@@ -1,0 +1,117 @@
+{
+  "defaultFocusWeight": 1,
+  "nowCount": 2,
+  "nextCount": 4,
+  "genericGuidePath": "/guides/{slug}/",
+  "genericLandingPath": "/{slug}/",
+  "targets": [
+    {
+      "id": "plaster-calculator",
+      "title": "Расчёт штукатурки стен: площадь и цена",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "primary",
+      "path": "/kalkulyator-shtukaturki-sten/",
+      "priority": "P1",
+      "focusWeight": 2,
+      "intentIds": [
+        "PL01"
+      ],
+      "keywords": [
+        "калькулятор штукатурки",
+        "расчет штукатурки стен"
+      ],
+      "note": "Создавать только после свежей региональной частотности, проверки SERP и согласования калькулятора."
+    },
+    {
+      "id": "plaster-service",
+      "title": "Механизированная штукатурка в Омске",
+      "kind": "landing",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/mehanizirovannaya-shtukaturka-omsk/",
+      "priority": "P1",
+      "focusWeight": 3,
+      "intentIds": [
+        "PL02"
+      ],
+      "keywords": [
+        "механизированн* штукатурк*",
+        "стоимост* штукатурк*"
+      ],
+      "note": "Коммерческую страницу не дублировать."
+    },
+    {
+      "id": "plaster-material-guide",
+      "title": "Гипсовая или цементная штукатурка",
+      "kind": "guide",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/guides/remont/gipsovaya-ili-tsementnaya-shtukaturka/",
+      "priority": "P2",
+      "focusWeight": 1,
+      "intentIds": [
+        "PL03"
+      ],
+      "note": "Расход мешков — не рецепт без данных производителя."
+    },
+    {
+      "id": "screed-calculator",
+      "title": "Калькулятор стяжки пола",
+      "kind": "guide",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/kalkulyator-styazhki-pola/",
+      "priority": "P1",
+      "focusWeight": 2,
+      "intentIds": [
+        "SC01"
+      ],
+      "keywords": [
+        "калькулятор стяжки пола",
+        "расчет стяжки пола"
+      ]
+    },
+    {
+      "id": "screed-service",
+      "title": "Полусухая стяжка в Омске",
+      "kind": "landing",
+      "status": "existing",
+      "mode": "primary",
+      "path": "/polusuhaya-styazhka-omsk/",
+      "priority": "P1",
+      "focusWeight": 3,
+      "intentIds": [
+        "SC02"
+      ]
+    },
+    {
+      "id": "roof-calculator",
+      "title": "Калькулятор кровли",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "primary",
+      "path": "/kalkulyator-krovli/",
+      "priority": "P2",
+      "focusWeight": 1,
+      "intentIds": [
+        "RF01"
+      ],
+      "note": "Только после подтверждения состава кровельных работ и методики расчёта."
+    },
+    {
+      "id": "roof-materials",
+      "title": "Кровельные материалы и расход",
+      "kind": "guide",
+      "status": "planned",
+      "mode": "section",
+      "path": "/kalkulyator-krovli/",
+      "priority": "P3",
+      "focusWeight": 1,
+      "intentIds": [
+        "RF02"
+      ],
+      "note": "Не создавать отдельную коммерческую страницу материалов; строительная компания оказывает работы."
+    }
+  ]
+}
