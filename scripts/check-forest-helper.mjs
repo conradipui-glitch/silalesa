@@ -12,7 +12,7 @@ assert.ok(ui.includes('role="dialog"') && ui.includes('aria-modal="true"') && ui
 assert.ok(ui.includes("buildForestLeadMessage") && ui.includes("Выбрать способ связи") && ui.includes("Скопировать запрос") && ui.includes("openContactChoice(message)"), "Honest optional message handoff");
 assert.ok(ui.includes('sessionStorage.setItem(dismissedKey') && !ui.includes('localStorage.setItem('), "Only harmless prompt dismissal stored temporarily");
 assert.ok(ui.includes("track(\"quiz_start\"") && ui.includes("track(\"quiz_complete\""), "Behavior observable without personal data in analytics");
-assert.ok(ui.includes("window.open(wa") && !ui.includes('fetch(') && !ui.includes('XMLHttpRequest'), "No fabricated backend or personal-data upload");
+assert.ok(ui.includes("openContactChoice(message)") && !ui.includes("window.open(") && !ui.includes('fetch(') && !ui.includes('XMLHttpRequest'), "No fabricated backend or personal-data upload");
 assert.ok(app.includes('lazy(() => import("./components/ForestLeadAssistant")'), "Assistant separately chunked");
 assert.ok(app.includes('route.name === "home" || route.name === "services" || route.name === "landing"'), "Assistant excluded from working calculators and 404");
 assert.ok(!generated.includes("forest-lead-dialog"), "Searchable HTML must remain unobstructed without JS");
