@@ -139,6 +139,17 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         ? seoPages.filter((item) => item.kind === "sauna" || item.kind === "category").slice(0, 3)
         : seoPages.filter((item) => item.slug !== page.slug && item.kind === page.kind).slice(0, 3);
 
+  const guideEstimateLinks = isRepairGuide
+    ? [
+        { to: "/kalkulyator-shtukaturki-sten/", label: "Рассчитать стены", title: "Штукатурка стен", detail: "Высота, проёмы и толщина слоя. Площадь и ориентир работ.", },
+        { to: "/kalkulyator-styazhki-pola/", label: "Рассчитать пол", title: "Стяжка пола", detail: "Площадь комнат, средняя толщина и объём будущего слоя.", },
+      ]
+    : isScreedGuide
+      ? [{ to: "/kalkulyator-styazhki-pola/", label: "Рассчитать стяжку", title: "Расчёт по помещениям", detail: "Узнайте площадь пола и объём слоя перед сравнением смет." }]
+      : isPlasterGuide || isMaterialGuide
+        ? [{ to: "/kalkulyator-shtukaturki-sten/", label: "Рассчитать штукатурку", title: "Площадь стен без проёмов", detail: "Введите размеры, окна, двери и предполагаемую толщину." }]
+        : [];
+
   const jsonLd = product
     ? {
         "@context": "https://schema.org",
@@ -355,6 +366,34 @@ export function SeoLandingPage({ slug }: { slug: string }) {
           )}
         </div>
       </section>
+
+      {guideEstimateLinks.length > 0 && (
+        <section data-qa="guide-estimate-links" className="bg-bark-800 py-10 text-cream-50 sm:py-14" aria-labelledby="guide-estimate-heading">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cedar-300">От вопросов — к цифрам</p>
+            <h2 id="guide-estimate-heading" className="mt-2 font-display text-2xl sm:text-3xl">{isRepairGuide ? "Один объект — два разных расчёта" : "Проверьте размеры до разговора с мастером"}</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-cream-200/85 sm:text-base">
+              {isRepairGuide
+                ? "Площадь стен и пола считают по-разному. Получите два понятных результата, а затем согласуйте порядок работ и состав смет."
+                : "Бесплатный калькулятор поможет собрать размеры и предварительный объём. Итоговую стоимость определяют после уточнения условий объекта."}
+            </p>
+            <nav aria-label="Калькуляторы для этой статьи" className={`mt-6 grid gap-3 ${isRepairGuide ? "md:grid-cols-2" : "md:max-w-xl"}`}>
+              {guideEstimateLinks.map((item) => (
+                <Link key={item.to} to={item.to}
+                  data-qa="guide-estimate-link"
+                  className="group flex min-h-40 min-w-0 flex-col justify-between rounded-2xl border border-cream-50/20 bg-bark-950/65 p-5 transition hover:border-cedar-300/65 hover:bg-bark-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300"
+                  onClick={() => track("cta_click", { type: "guide_to_calculator", from: slug, to: item.to })}>
+                  <span className="block">
+                    <span className="block font-display text-xl text-cream-50">{item.title}</span>
+                    <span className="mt-2 block text-sm leading-relaxed text-cream-200/80">{item.detail}</span>
+                  </span>
+                  <span className="mt-4 text-sm font-semibold text-cedar-300 group-hover:text-cream-50">{item.label} <span aria-hidden="true">→</span></span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </section>
+      )}
 
       {isService && page.serviceResults && page.requestChecklist && (
         <section className="bg-bark-800 py-16 text-cream-50 sm:py-20" aria-label="Что получите и как рассчитать услугу">
