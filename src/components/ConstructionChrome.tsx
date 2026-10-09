@@ -230,6 +230,8 @@ export function ConstructionFooter() {
             <li><Link to="/services/" className="text-sm text-cream-200/80 hover:text-cream-50">Все строительные работы</Link></li>
             <li><Link to="/kalkulyator-styazhki-pola/" className="text-sm font-medium text-cedar-300 hover:text-cream-50">Калькулятор стяжки пола</Link></li>
             <li><Link to="/kalkulyator-shtukaturki-sten/" className="text-sm font-medium text-cedar-300 hover:text-cream-50">Калькулятор штукатурки стен</Link></li>
+            <li><Link to="/guides/stroitelstvo/skolko-stoit-kladka-kirpicha-i-gazobetona/" className="text-sm text-cream-200/80 hover:text-cream-50">Как сравнить сметы на кладку</Link></li>
+            <li><Link to="/guides/remont/demontazh-pered-remontom-smeta/" className="text-sm text-cream-200/80 hover:text-cream-50">Демонтаж: что учесть в смете</Link></li>
           </ul>
         </div>
 
