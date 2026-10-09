@@ -10,6 +10,7 @@ const sourceFiles = [
   'seo-pages.json', 'seo-page-guides.json', 'seo-page-guides-remont.json',
   'seo-page-guides-screed.json', 'seo-page-guides-plaster.json',
   'seo-page-guides-materials.json',
+  'seo-page-guides-wave3.json',
 ];
 const pages = sourceFiles.flatMap((file) => JSON.parse(read(`src/data/${file}`)));
 const overrideFiles = [
@@ -30,9 +31,9 @@ const warn = (condition, message) => { if (!condition) warnings.push(message); }
 const escape = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 const routes = [site, `${site}services/`, ...effective.map((page) => `${site}${page.slug}/`), `${site}kalkulyator-styazhki-pola/`, `${site}kalkulyator-shtukaturki-sten/`];
 const sitemap = [...read('dist/sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-verify(effective.length === 8, `Construction SEO registry: expected 8, found ${effective.length}`);
+verify(effective.length === 10, `Construction SEO registry: expected 10, found ${effective.length}`);
 verify(new Set(effective.map((p) => p.slug)).size === effective.length, 'Duplicate SEO slugs');
-verify(sitemap.length === 12 && new Set(sitemap).size === 12, `Construction sitemap: expected 12 distinct URLs, found ${sitemap.length}`);
+verify(sitemap.length === 14 && new Set(sitemap).size === 14, `Construction sitemap: expected 14 distinct URLs, found ${sitemap.length}`);
 verify(JSON.stringify(sitemap) === JSON.stringify(routes), 'Sitemap differs from actual source registry/order');
 verify([...overrides.keys()].filter((slug) => !/banya|mobilnaya-banya|karkasnaya-banya|guides\/bani/.test(slug)).every((slug) => effective.some((p) => p.slug === slug)), 'Orphan construction override slug');
 verify(!/подбор по пяти вопросам/iu.test(JSON.stringify(effective)), 'Obsolete five-question FAQ contradicts two-answer quiz');
@@ -179,4 +180,4 @@ warn(imageLinks.length > 0, 'No actual bundled photography checked');
 const outcome = { checked: { canonical: routeRows.length, aliases: legacy.length, printable: printPages.length, internalLinks: links.length, localImages: imageLinks.length }, errors, warnings, routes: routeRows };
 console.log('R10 ACCEPTANCE AUDIT:', JSON.stringify(outcome, null, 2));
 assert.equal(errors.length, 0, `${errors.length} acceptance failures; see R10 ACCEPTANCE AUDIT above`);
-console.log('R10 PASS: 12 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
+console.log('R10 PASS: 14 construction canonical static pages, 3 service aliases, no archived sauna routes, live registry SEO parity, internal links, photos, source-based CTAs and structured data. Browser journeys and external HTTP are separate checks.');
