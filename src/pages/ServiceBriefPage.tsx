@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowIcon, LogoMark, PhoneIcon } from "../components/Brand";
-import { company, whatsappUrl } from "../data/products";
+import { company, contactDraftUrl } from "../data/products";
 import { offerContexts, type OfferCode } from "../data/offerContext";
 import { Link, useRouter } from "../lib/router";
 import { track, useDocumentTitle } from "../lib/utils";
@@ -8,7 +8,7 @@ import { track, useDocumentTitle } from "../lib/utils";
 const services = Object.entries(offerContexts) as [OfferCode, (typeof offerContexts)[OfferCode]][];
 
 /**
- * Campaign attribution is a HUMAN-READABLE tag in an opt-in WhatsApp draft.
+ * Campaign attribution stays inside the opt-in contact draft.
  * Only allow published channel labels and short non-personal campaign slugs.
  * No persistent identity, IP, referral URL, message body or phone stored.
  */
@@ -94,7 +94,7 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
                 {name} <span className="text-cedar-300">в Омске</span>
               </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-cream-200/90">
-                {service?.subtitle ?? "Выберите нужные работы, коротко опишите объект и откройте готовое сообщение в WhatsApp. Можно обсудить отдельный этап или комплекс работ."}
+                {service?.subtitle ?? "Выберите работы и опишите объект. Подготовим сообщение для MAX или звонка. Можно обсудить отдельный этап или комплекс работ."}
               </p>
               <div className="mt-7 rounded-2xl border border-cream-50/10 bg-bark-900/70 p-5">
                 <h2 className="font-display text-base font-medium text-cream-50">Как это работает</h2>
@@ -165,11 +165,11 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
                 <p data-qa="brief-message-preview" className="mt-3 whitespace-pre-line break-words text-sm leading-relaxed text-bark-700">{message}</p>
               </details>
 
-              <a data-qa="brief-whatsapp" href={whatsappUrl(message)} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_click", { type: "whatsapp", where: "social-brief", service: code ?? "all", campaignSource: campaign?.source ?? "unattributed", campaignMedium: campaign?.medium ?? undefined, campaignName: campaign?.campaign ?? undefined })} className="mt-6 inline-flex min-h-13 w-full touch-manipulation items-center justify-center gap-3 rounded-full bg-cedar-500 px-6 py-3 text-center text-base font-semibold text-bark-950 shadow-[0_10px_25px_-15px_rgba(90,46,6,.6)] transition-colors hover:bg-cedar-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bark-950">
-                Открыть сообщение в WhatsApp <ArrowIcon />
+              <a data-qa="brief-whatsapp" href={contactDraftUrl(message)} target="_blank" rel="noopener noreferrer" onClick={() => track("cta_click", { type: "contact_choice", where: "social-brief", service: code ?? "all", campaignSource: campaign?.source ?? "unattributed", campaignMedium: campaign?.medium ?? undefined, campaignName: campaign?.campaign ?? undefined })} className="mt-6 inline-flex min-h-13 w-full touch-manipulation items-center justify-center gap-3 rounded-full bg-cedar-500 px-6 py-3 text-center text-base font-semibold text-bark-950 shadow-[0_10px_25px_-15px_rgba(90,46,6,.6)] transition-colors hover:bg-cedar-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bark-950">
+                Выбрать способ связи <ArrowIcon />
               </a>
               <p className="mt-3 text-center text-xs leading-relaxed text-bark-700">
-                Откроется WhatsApp с подготовленным текстом. Отправка — только после вашего подтверждения. Данные из полей не сохраняются на этом сайте.
+                Подготовленный текст можно скопировать и самостоятельно отправить в MAX. На сайте данные не сохраняются на сервере.
               </p>
               <a href={`tel:${company.phonePrimary.tel}`} onClick={() => track("cta_click", { type: "call", where: "social-brief", service: code ?? "all", campaignSource: campaign?.source ?? "unattributed", campaignMedium: campaign?.medium ?? undefined, campaignName: campaign?.campaign ?? undefined })} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-bark-950/20 px-5 text-sm font-semibold text-bark-950 hover:bg-bark-950/[0.05]">
                 <PhoneIcon /> Позвонить: {company.phonePrimary.display}
