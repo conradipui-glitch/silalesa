@@ -97,6 +97,21 @@ try {
         assert.ok((await page.locator('[data-qa="plaster-bags"]').innerText()).includes('21 мешок'), 'Shared URL restores package configuration');
 
       }
+      const guideToolPaths = {
+        "/silalesa/guides/remont/shtukaturka-ili-styazhka-chto-snachala/": ["kalkulyator-shtukaturki-sten", "kalkulyator-styazhki-pola"],
+        "/silalesa/guides/remont/polusuhaya-ili-mokraya-styazhka/": ["kalkulyator-styazhki-pola"],
+        "/silalesa/guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka/": ["kalkulyator-shtukaturki-sten"],
+        "/silalesa/guides/remont/gipsovaya-ili-tsementnaya-shtukaturka/": ["kalkulyator-shtukaturki-sten"],
+      };
+      if (guideToolPaths[pathname]) {
+        const links = page.locator('[data-qa="guide-estimate-link"]');
+        assert.equal(await page.locator('[data-qa="guide-estimate-links"]').count(), 1, 'Guide needs an early calculation choice: ' + pathname);
+        assert.equal(await links.count(), guideToolPaths[pathname].length, 'Correct calculator choices: ' + pathname);
+        for (const calculator of guideToolPaths[pathname]) {
+          assert.equal(await links.filter({ has: page.locator(`a[href$="/${calculator}/"]`) }).count(), 0, 'No nested links');
+          assert.equal(await links.evaluateAll((els, path) => els.filter((x) => x.getAttribute("href")?.endsWith("/" + path + "/")).length, calculator), 1, 'Calculator link missing: ' + calculator);
+        }
+      }
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;
     }
