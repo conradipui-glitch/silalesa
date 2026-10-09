@@ -63,6 +63,7 @@ export function ForestLeadAssistant({ source }: Props) {
     if (dismissed || matchMedia("(max-width: 767px)").matches) return;
     let hasWaited = false;
     const maybeShow = () => {
+      try { if (sessionStorage.getItem(dismissedKey) === "1") return; } catch { /* unavailable */ }
       if (hasWaited && window.scrollY > Math.min(700, window.innerHeight * .7) && !document.hidden) {
         setShowHint(true);
         window.removeEventListener("scroll", maybeShow);
@@ -106,6 +107,7 @@ export function ForestLeadAssistant({ source }: Props) {
 
   const open = () => {
     setShowHint(false);
+    try { sessionStorage.setItem(dismissedKey, "1"); } catch { /* unavailable */ }
     setIsOpen(true);
     track("quiz_start", { type: "forest_lead_helper", service, source: "floating" });
   };
