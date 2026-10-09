@@ -1,6 +1,6 @@
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon, SectionHead } from "../components/Brand";
 import { BeforeAfter } from "../components/BeforeAfter";
-import { company, whatsappUrl } from "../data/products";
+import { company, contactDraftUrl } from "../data/products";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 import { getHomepageOffer } from "../data/offerContext";
@@ -125,12 +125,12 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                         </Link>
                       ) : (
                         <a
-                          href={whatsappUrl(`Здравствуйте! Интересует направление «${service.title}». Хочу обсудить объём работ и предварительный расчёт. Для начала могу уточнить: ${service.requestHint}. Подскажите, какие данные ещё пригодятся.`)}
+                          href={contactDraftUrl(`Здравствуйте! Интересует направление «${service.title}». Хочу обсудить объём работ и предварительный расчёт. Для начала могу уточнить: ${service.requestHint}. Подскажите, какие данные ещё пригодятся.`)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-md text-sm font-medium text-cedar-300 transition-colors hover:text-cedar-200"
                           aria-label={`Обсудить работы: ${service.title}`}
-                          onClick={() => track("cta_click", { type: "whatsapp", service: service.title, where: standalone ? "services-page" : "services-grid" })}
+                          onClick={() => track("cta_click", { type: "contact_choice", service: service.title, where: standalone ? "services-page" : "services-grid" })}
                         >
                           Обсудить работы <ArrowIcon />
                         </a>
@@ -156,10 +156,10 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
             </p>
           </div>
           <LinkButton
-            to={whatsappUrl("Здравствуйте! Нужен комплекс строительных работ. Хочу прислать данные объекта для предварительного расчёта.")}
+            to={contactDraftUrl("Здравствуйте! Нужен комплекс строительных работ. Хочу прислать данные объекта для предварительного расчёта.")}
             external
             className="shrink-0"
-            onClick={() => track("cta_click", { type: "whatsapp", where: standalone ? "services-page" : "services-grid" })}
+            onClick={() => track("cta_click", { type: "contact_choice", where: standalone ? "services-page" : "services-grid" })}
           >
             Отправить задачу <ArrowIcon />
           </LinkButton>
@@ -203,10 +203,10 @@ export function ConstructionHome() {
 
               <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "210ms" }}>
                 <LinkButton
-                  to={whatsappUrl(ctaMessage)}
+                  to={contactDraftUrl(ctaMessage)}
                   external
                   size="lg"
-                  onClick={() => track("cta_click", { type: "whatsapp", where: "construction-hero", offerMode: offer.mode, service: offer.code ?? "all" })}
+                  onClick={() => track("cta_click", { type: "contact_choice", where: "construction-hero", offerMode: offer.mode, service: offer.code ?? "all" })}
                 >
                   {offer.code ? "Обсудить эту услугу" : "Запросить расчёт работ"} <ArrowIcon />
                 </LinkButton>
@@ -353,10 +353,10 @@ export function ConstructionHome() {
               </p>
             </div>
             <LinkButton
-              to={whatsappUrl("Здравствуйте! Хочу предварительный расчёт. Подскажите, какие работы и расходы войдут в смету, что оплачивается отдельно и какие данные объекта вам нужны.")}
+              to={contactDraftUrl("Здравствуйте! Хочу предварительный расчёт. Подскажите, какие работы и расходы войдут в смету, что оплачивается отдельно и какие данные объекта вам нужны.")}
               external
               className="shrink-0"
-              onClick={() => track("cta_click", { type: "whatsapp", where: "construction-estimate" })}
+              onClick={() => track("cta_click", { type: "contact_choice", where: "construction-estimate" })}
             >
               Обсудить состав сметы <ArrowIcon />
             </LinkButton>
@@ -383,14 +383,14 @@ export function ConstructionHome() {
               <div>
                 <span className="font-display text-sm font-semibold">Начнём с вашего объекта</span>
                 <h3 className="mt-6 font-display text-lg font-medium leading-tight">Уже есть план или описание?</h3>
-                <p className="mt-3 text-base leading-relaxed">Отправьте данные в WhatsApp. Обсудим объём и что нужно уточнить для расчёта.</p>
+                <p className="mt-3 text-base leading-relaxed">Опишите объект — подготовим текст для MAX. Можно также позвонить мастеру.</p>
               </div>
               <a
-                href={whatsappUrl("Здравствуйте! Хочу прислать план или описание объекта, чтобы обсудить состав и предварительный расчёт строительных работ.")}
+                href={contactDraftUrl("Здравствуйте! Хочу прислать план или описание объекта, чтобы обсудить состав и предварительный расчёт строительных работ.")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 inline-flex min-h-11 items-center justify-between gap-3 rounded-md border-b border-bark-950/25 text-sm font-semibold transition-colors hover:border-bark-950"
-                onClick={() => track("cta_click", { type: "whatsapp", where: "construction-process" })}
+                onClick={() => track("cta_click", { type: "contact_choice", where: "construction-process" })}
               >
                 Передать данные <ArrowIcon />
               </a>
@@ -474,10 +474,10 @@ export function ConstructionHome() {
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <LinkButton
-                  to={whatsappUrl("Здравствуйте! Хочу отправить данные строительного объекта для предварительного расчёта.")}
+                  to={contactDraftUrl("Здравствуйте! Хочу отправить данные строительного объекта для предварительного расчёта.")}
                   external
                   size="lg"
-                  onClick={() => track("cta_click", { type: "whatsapp", where: "construction-contact" })}
+                  onClick={() => track("cta_click", { type: "contact_choice", where: "construction-contact" })}
                 >
                   Отправить объект <ArrowIcon />
                 </LinkButton>
