@@ -3,7 +3,12 @@ import { company, openContactChoice } from "../data/products";
 import { track } from "../lib/utils";
 
 const dismissedKey = "silalesa-forest-master-prompt-dismissed-v1";
-const visual = `${import.meta.env.BASE_URL}assets/forest-master-mascot.svg`;
+const visual = `${import.meta.env.BASE_URL}assets/forest-master-chibi.webp`;
+type MascotPose = "wave" | "tip" | "estimate" | "success";
+const mascotPosition: Record<MascotPose, string> = { wave: "0% 0%", tip: "100% 0%", estimate: "0% 100%", success: "100% 100%" };
+function MascotSprite({ pose, className = "" }: { pose: MascotPose; className?: string }) {
+  return <span aria-hidden="true" className={`block shrink-0 bg-no-repeat ${className}`} style={{ backgroundImage: `url("${visual}")`, backgroundSize: "200% 200%", backgroundPosition: mascotPosition[pose] }} />;
+}
 const services = ["Строительные работы", "Механизированная штукатурка", "Полусухая стяжка", "Кладочные работы", "Демонтажные работы", "Монолитные работы", "Кровля и фасады", "Другой вид работ"];
 const fieldStyle = "mt-1.5 block w-full min-w-0 rounded-xl border border-bark-700/20 bg-white px-3.5 py-3 text-base text-bark-950 placeholder:text-bark-500/70 focus-visible:border-moss-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-moss-500";
 const buttonStyle = "min-h-11 rounded-xl border border-bark-700/20 px-4 py-2 text-sm font-medium text-bark-950 transition hover:bg-cream-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-moss-500";
@@ -136,11 +141,12 @@ export function ForestLeadAssistant({ source }: Props) {
 
   return (
     <>
-      <div data-qa="forest-lead-assistant" className="pointer-events-none fixed bottom-[80px] right-3 z-[44] flex flex-col items-end gap-3 sm:bottom-5 sm:right-5">
+      <div data-qa="forest-lead-assistant" className="pointer-events-none fixed bottom-[80px] right-3 z-[44] flex flex-col items-end gap-3 md:bottom-1 md:right-4 lg:right-6">
         {showHint && !isOpen && (
           <div role="status" data-qa="forest-lead-hint" className="pointer-events-auto hidden max-w-[260px] rounded-2xl border border-cedar-400/40 bg-bark-900 p-4 text-cream-50 shadow-card md:block">
             <div className="flex items-start gap-2">
-              <div className="flex-1">
+              <MascotSprite pose="tip" className="mt-1 h-10 w-10" />
+              <div className="min-w-0 flex-1">
                 <strong className="block font-display text-sm">Нужно прикинуть объём работ?</strong>
                 <p className="mt-1 text-xs leading-relaxed text-cream-200">Подскажем, что указать в запросе на расчёт.</p>
                 <button type="button" className="mt-2 min-h-9 text-sm font-semibold text-cedar-300 underline underline-offset-4 hover:text-cream-50" onClick={open}>Подготовить запрос →</button>
@@ -152,9 +158,10 @@ export function ForestLeadAssistant({ source }: Props) {
         {!isOpen && (
           <button ref={triggerRef} type="button" onClick={open} aria-label="Помощник Силы Леса: подготовить запрос на расчёт"
             aria-haspopup="dialog" aria-expanded={false} data-qa="forest-lead-trigger"
-            className="pointer-events-auto group relative flex h-[64px] w-[64px] items-center justify-center rounded-full border-[3px] border-cedar-300 bg-bark-800 shadow-[0_9px_35px_rgba(0,0,0,.38)] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cedar-300 sm:h-[76px] sm:w-[76px]">
-            <img src={visual} width="69" height="75" loading="lazy" decoding="async" alt="" className="h-[62px] w-[59px] object-contain object-bottom sm:h-[73px] sm:w-[69px]" />
-            <span aria-hidden="true" className="absolute -left-2 -top-1 h-3 w-3 rounded-full border-2 border-bark-900 bg-moss-400"/>
+            className="pointer-events-auto group relative flex h-[64px] w-[64px] items-center justify-center rounded-full border-[3px] border-cedar-300 bg-bark-800 shadow-[0_9px_35px_rgba(0,0,0,.38)] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cedar-300 md:h-[150px] md:w-[150px] md:rounded-none md:border-0 md:bg-transparent md:shadow-none md:hover:-translate-y-1 md:hover:scale-100">
+            <MascotSprite pose="wave" className="h-[58px] w-[58px] md:h-[146px] md:w-[146px] forest-master-idle" />
+            <span aria-hidden="true" className="pointer-events-none absolute bottom-7 right-[125px] hidden whitespace-nowrap rounded-xl border border-cedar-400/35 bg-bark-900/95 px-3 py-2 text-xs font-semibold text-cream-100 shadow-card transition-colors md:block group-hover:border-cedar-300">Нужен расчёт?</span>
+            <span aria-hidden="true" className="absolute -left-2 -top-1 h-3 w-3 rounded-full border-2 border-bark-900 bg-moss-400 md:hidden"/>
           </button>
         )}
       </div>
@@ -164,7 +171,7 @@ export function ForestLeadAssistant({ source }: Props) {
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} data-qa="forest-lead-dialog"
             className="relative flex max-h-[min(88dvh,760px)] w-full max-w-[480px] flex-col overflow-hidden rounded-t-[28px] border border-cream-300/25 bg-cream-50 text-bark-950 shadow-2xl sm:rounded-[28px]">
             <div className="relative flex min-h-[142px] items-center gap-3 overflow-hidden bg-bark-900 px-5 py-5 text-cream-50 sm:px-7">
-              <img src={visual} alt="" width="120" height="139" className="h-[115px] w-[104px] shrink-0 object-contain object-bottom" />
+              <MascotSprite pose={copied ? "success" : "estimate"} className="h-[112px] w-[112px]" />
               <div className="min-w-0 pr-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cedar-300">Лесной мастер · Сила Леса</p>
                 <h2 id={titleId} className="mt-2 font-display text-lg leading-snug sm:text-xl">Помогу подготовить расчёт</h2>

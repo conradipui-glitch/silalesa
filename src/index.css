@@ -431,3 +431,13 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Subtle pixel mascot idle animation; never animate for reduced-motion visitors. */
+@keyframes forest-master-idle {
+  0%, 80%, 100% { transform: translateY(0); }
+  90% { transform: translateY(-5px); }
+}
+.forest-master-idle { animation: forest-master-idle 5.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .forest-master-idle { animation: none; }
+}
