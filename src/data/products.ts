@@ -29,9 +29,8 @@ export const company = {
   city: "Омск",
   phonePrimary: { display: "+7 (913) 688-45-33", tel: "+79136884533" },
   phoneSecondary: { display: "+7 (999) 456-33-64", tel: "+79994563364", person: "Евгений" },
-  // Set only after the company supplies a verified personal MAX share link (max.ru/u/...).
-  // An empty string keeps the honest number-search fallback rather than inventing a chat URL.
-  maxProfileUrl: "",
+  // Direct MAX profile link provided by the company owner on 2026-10-10.
+  maxProfileUrl: "https://max.ru/u/f9LHodD0cOITborFOc2C7PUjGtk7hwv5OYmOOq-SKDdO3ZD1lJy1rc6ll9M",
   showroom: "Омск, ул. Нефтезаводская, 49/1",
   vk: "https://vk.com/silalesa55",
   site: "https://silalesa55.ru/",

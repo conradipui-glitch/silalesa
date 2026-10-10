@@ -54,8 +54,11 @@ const pages = basePages
   .filter((page) => page.kind === "service" || (page.kind === "guide" && !page.slug.startsWith("guides/bani/")))
   .map((page) => ({ ...page, ...(overrideBySlug.get(page.slug) ?? {}) }));
 const servicePages = pages.filter((page) => page.kind === "service");
-const phoneMatch = (await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8")).match(/phonePrimary:\s*\{[^}]*tel:\s*"([^"]+)"/);
-if (!phoneMatch) throw new Error("Canonical phone contact missing");
+const contactSource = await fs.readFile(path.join(ROOT, "src/data/products.ts"), "utf8");
+const phoneMatch = contactSource.match(/phonePrimary:\s*\{[^}]*tel:\s*"([^"]+)"/);
+const maxProfileMatch = contactSource.match(/maxProfileUrl:\s*"(https:\/\/max\.ru\/u\/[^"]+)"/);
+if (!phoneMatch || !maxProfileMatch) throw new Error("Canonical phone or direct MAX profile missing");
+const maxProfileUrl = maxProfileMatch[1];
 const template = await fs.readFile(path.join(DIST, "index.html"), "utf8");
 
 const calculatorPage = {
@@ -423,8 +426,8 @@ for (const page of pages.filter((entry) => entry.productId)) {
       : "Выберите строительные работы, укажите данные объекта и выберите звонок или MAX. Без регистрации и отправки данных в фоне.";
     let html = applyPageMeta(template, { title, description, canonical });
     html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
-    const wa = "https://max.ru/"; // Homepage only; customer MAX profile not verified.
-    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${wa}">Открыть MAX (найти контакт по номеру)</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
+    const maxLink = maxProfileUrl;
+    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${maxLink}">Написать в MAX</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
     html = html.replace(/<div id="root"><\/div>/i, snapshot);
     const targetDir = path.join(DIST, slug);
     await fs.mkdir(targetDir, { recursive: true });
@@ -434,7 +437,7 @@ for (const page of pages.filter((entry) => entry.productId)) {
 
 // Give the construction-first home page a meaningful no-JS first answer.
 {
-  const home = constructionHomeFallback(SITE_URL, phoneMatch[1], "+79136884533", constructionCatalog);
+  const home = constructionHomeFallback(SITE_URL, maxProfileUrl, phoneMatch[1], constructionCatalog);
   if (!template.includes('<div id="root"></div>')) throw new Error('Home root placeholder missing');
   await fs.writeFile(path.join(DIST, "index.html"), template.replace('<div id="root"></div>', home), "utf8");
 }

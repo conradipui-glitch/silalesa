@@ -5,6 +5,8 @@ import assert from "node:assert/strict";
 const ROOT=process.cwd();
 const dist=path.join(ROOT,"dist");
 const offers=JSON.parse(fs.readFileSync(path.join(ROOT,"src/data/offer-contexts.json"),"utf8"));
+const maxProfileUrl = fs.readFileSync("src/data/products.ts","utf8").match(/maxProfileUrl:\s*"(https:\/\/max\.ru\/u\/[^"]+)"/)?.[1];
+assert.ok(maxProfileUrl, "Direct MAX profile must be configured");
 assert.equal(Object.keys(offers).length,14,"Social microsites must cover 14 real services");
 
 const sitemap=fs.readFileSync(path.join(dist,"sitemap.xml"),"utf8");
@@ -19,6 +21,7 @@ for(const code of ["",...Object.keys(offers)]){
   assert.ok(html.includes(`property="og:title" content="${name} в Омске`),`Social OG title matches service: ${slug}`);
   assert.ok(html.includes(`property="og:url" content="https://conradipui-glitch.github.io/silalesa/${slug}/"`),`Social OG URL uses static route: ${slug}`);
   assert.ok(html.includes('tel:+79136884533')&&html.includes('Для предварительной оценки'),`No JS consultation link works: ${slug}`);
+  assert.ok(html.includes(`href="${maxProfileUrl}"`) && !html.includes('href="https://max.ru/"'), `No-JS MAX entry must open owner profile: ${slug}`);
   assert.ok(!sitemap.includes(`/silalesa/${slug}/`),`Social campaign links are excluded from SEO sitemap: ${slug}`);
 }
 console.log("SOCIAL BRIEFS STATIC PASS: 15 direct 200 URLs, indexable content excluded, OG parity, no-JS phone and MAX");
