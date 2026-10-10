@@ -22,6 +22,7 @@ assert.ok(ui.includes('pose={copied ? "success" : "estimate"}') && ui.includes('
 assert.ok(ui.includes('forest-lead-trigger') && ui.includes('forest-lead-dialog') && ui.includes('forest-lead-hint'), "Controlled launcher, panel and a dismissible hint");
 assert.ok(ui.includes("window.scrollY") && ui.includes("18000") && ui.includes('matchMedia("(max-width: 767px)")'), "No immediate disruptive popup and no unsolicited mobile prompt");
 assert.ok(ui.includes('role="dialog"') && ui.includes('aria-modal="true"') && ui.includes('event.key === "Escape"'), "Keyboard-accessible dialog");
+assert.ok(ui.includes('data-qa="forest-lead-dialog-header"') && ui.includes("min-h-[142px] shrink-0") && ui.includes("px-5 py-7"), "Lead dialog header keeps its natural content height and generous vertical padding");
 assert.ok(ui.includes("buildForestLeadMessage") && ui.includes("Выбрать способ связи") && ui.includes("Скопировать запрос") && ui.includes("openContactChoice(message)"), "Honest optional message handoff");
 assert.ok(ui.includes('sessionStorage.setItem(dismissedKey') && !ui.includes('localStorage.setItem('), "Only harmless prompt dismissal stored temporarily");
 assert.ok(ui.includes("track(\"quiz_start\"") && ui.includes("track(\"quiz_complete\""), "Behavior observable without personal data in analytics");

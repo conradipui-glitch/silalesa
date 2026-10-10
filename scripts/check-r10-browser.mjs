@@ -307,6 +307,35 @@ async function checkSocialServiceBriefs() {
   await desk.close();
 }
 
+async function checkForestHelperHeaderSpacing() {
+  for (const viewport of [{ width: 320, height: 568 }, { width: 375, height: 812 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    const page = await context.newPage();
+    await visit(page, '', `forest header ${viewport.width}x${viewport.height}`);
+    await page.locator('[data-qa="forest-lead-trigger"]').click();
+    const dialog = page.locator('[data-qa="forest-lead-dialog"]');
+    await dialog.waitFor({ state: 'visible' });
+    const geometry = await page.locator('[data-qa="forest-lead-dialog-header"]').evaluate((header) => {
+      const outer = header.getBoundingClientRect();
+      const eyebrow = header.querySelector('[data-qa="forest-lead-dialog-eyebrow"]').getBoundingClientRect();
+      const subtitle = header.querySelector('[data-qa="forest-lead-dialog-subtitle"]').getBoundingClientRect();
+      return {
+        topGap: eyebrow.top - outer.top,
+        bottomGap: outer.bottom - subtitle.bottom,
+        shrink: getComputedStyle(header).flexShrink,
+      };
+    });
+    assert.equal(geometry.shrink, '0', 'Mascot modal header must not collapse when form is tall');
+    assert.ok(geometry.topGap >= 20 && geometry.bottomGap >= 20, `Mobile mascot header text needs vertical breathing room at ${viewport.width}x${viewport.height}: ${JSON.stringify(geometry)}`);
+    const form = dialog.locator('form');
+    const formFit = await form.evaluate((el) => ({ height: el.clientHeight, scrollHeight: el.scrollHeight }));
+    assert.ok(formFit.height > 0, 'Scrollable form keeps usable height below the fixed-size header');
+    assert.ok(await dialog.getByRole('button', { name: 'Закрыть помощника' }).isVisible(), 'Close action stays visible');
+    console.log('CHROMIUM_FOREST_HEADER_PASS', viewport, geometry, formFit);
+    await context.close();
+  }
+}
+
 async function checkReducedMotion() {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
   const page = await context.newPage();
@@ -492,6 +521,7 @@ try {
   await checkHomepageViewport('tablet', { viewport: { width: 1024, height: 800 } });
   await run('desktop', { viewport: { width: 1440, height: 900 } });
   await run('mobile', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+  await checkForestHelperHeaderSpacing();
   await checkConstructionKeyboard();
   await checkIntentAwareHomepage();
   await checkSocialServiceBriefs();
