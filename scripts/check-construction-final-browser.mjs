@@ -5,6 +5,8 @@ import { chromium } from 'playwright';
 const origin = 'http://127.0.0.1:4173';
 const site = 'https://conradipui-glitch.github.io/silalesa/';
 const sitemap = fs.readFileSync('dist/sitemap.xml', 'utf8');
+const maxProfileUrl = fs.readFileSync("src/data/products.ts","utf8").match(/maxProfileUrl:\s*"(https:\/\/max\.ru\/u\/[^"]+)"/)?.[1];
+assert.ok(maxProfileUrl, "Real MAX profile must be available to browser");
 const routes = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
 assert.equal(routes.length, 14, 'The construction release has 14 canonical pages');
 
@@ -147,7 +149,8 @@ try {
     const draft = await chooser.getByRole('textbox', { name: 'Подготовленный текст обращения' }).inputValue();
     assert.ok(draft.includes('Кладочные работы') && draft.includes('Стенка 20 м²') && draft.includes('+7 999 100-00-00'), 'Contact chooser preserves the user-approved draft');
     assert.equal(await chooser.locator('[data-qa="contact-choice-call"]').getAttribute('href'), 'tel:+79136884533', 'Call channel is ready');
-    assert.ok((await chooser.locator('[data-qa="contact-choice-max"]').getAttribute('href')).startsWith('https://max.ru/'), 'MAX channel exists without inventing owner profile');
+    assert.equal(await chooser.locator('[data-qa="contact-choice-max"]').getAttribute('href'), maxProfileUrl, 'MAX button links to owner-provided profile');
+    assert.equal(await chooser.getByText('Как найти мастера в MAX').count(), 0, 'Unnecessary number-search hint is hidden once direct profile is configured');
     assert.equal(await page.evaluate(() => JSON.stringify(window.__silalesaEvents ?? []).includes('+7 999 100-00-00')), false, 'Never send visitor contact details to analytics');
     await page.keyboard.press('Escape');
     assert.equal(await chooser.count(), 0, 'Escape closes contact chooser');
