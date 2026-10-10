@@ -170,12 +170,12 @@ export function ForestLeadAssistant({ source }: Props) {
           onMouseDown={(e) => { if (e.target === e.currentTarget) setIsOpen(false); }}>
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} data-qa="forest-lead-dialog"
             className="relative flex max-h-[min(88dvh,760px)] w-full max-w-[480px] flex-col overflow-hidden rounded-t-[28px] border border-cream-300/25 bg-cream-50 text-bark-950 shadow-2xl sm:rounded-[28px]">
-            <div className="relative flex min-h-[142px] items-center gap-3 overflow-hidden bg-bark-900 px-5 py-5 text-cream-50 sm:px-7">
+            <div data-qa="forest-lead-dialog-header" className="relative flex min-h-[142px] shrink-0 items-center gap-3 overflow-hidden bg-bark-900 px-5 py-7 text-cream-50 sm:px-7">
               <MascotSprite pose={copied ? "success" : "estimate"} className="h-[112px] w-[112px]" />
               <div className="min-w-0 pr-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cedar-300">Лесной мастер · Сила Леса</p>
+                <p data-qa="forest-lead-dialog-eyebrow" className="text-[11px] font-semibold uppercase tracking-[0.16em] text-cedar-300">Лесной мастер · Сила Леса</p>
                 <h2 id={titleId} className="mt-2 font-display text-lg leading-snug sm:text-xl">Помогу подготовить расчёт</h2>
-                <p className="mt-2 text-xs leading-relaxed text-cream-200">Немного об объекте — и сообщение для мастера готово.</p>
+                <p data-qa="forest-lead-dialog-subtitle" className="mt-2 text-xs leading-relaxed text-cream-200">Немного об объекте — и сообщение для мастера готово.</p>
               </div>
               <button type="button" aria-label="Закрыть помощника" onClick={() => setIsOpen(false)}
                 className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-cream-50/15 text-xl text-cream-100 hover:bg-bark-800 focus-visible:outline-2 focus-visible:outline-cedar-300">×</button>
