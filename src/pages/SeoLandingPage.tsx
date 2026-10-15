@@ -1,5 +1,5 @@
 import { SITE_URL as SITE_BASE } from "../config/site";
-import { serviceBySlug, serviceAvailabilityText } from "../data/commercialRegistry";
+import { serviceBySlug, serviceAvailabilityText, servicePriceLabel } from "../data/commercialRegistry";
 import { lazy, Suspense, useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { BeforeAfter } from "../components/BeforeAfter";
@@ -101,6 +101,13 @@ export function SeoLandingPage({ slug }: { slug: string }) {
   const isService = page.kind === "service";
   const serviceOffer = isService ? serviceBySlug(page.slug) : undefined;
   const servicePaused = serviceOffer?.status === "paused";
+  useEffect(() => {
+    const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!robots) return;
+    const previous = robots.content;
+    robots.content = servicePaused ? "noindex, follow" : "index, follow";
+    return () => { robots.content = previous; };
+  }, [servicePaused]);
   const isCategory = page.kind === "category";
   const isGuide = page.kind === "guide";
   const isSaunaChoiceGuide = Boolean(page.choiceModels?.length);
@@ -200,6 +207,18 @@ export function SeoLandingPage({ slug }: { slug: string }) {
     })),
   };
 
+  if (servicePaused) {
+    return (
+      <div ref={root} className="min-h-[68vh] bg-bark-900 px-5 pb-20 pt-36 text-cream-50">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-cedar-300">Временно приостановлено</p>
+          <h1 className="mt-5 font-display text-3xl font-semibold leading-tight sm:text-5xl">{page.h1}</h1>
+          <p className="mt-6 text-base leading-relaxed text-cream-200">Приём новых обращений по этому направлению временно приостановлен. Информация об услуге сохранена; доступные направления можно посмотреть в каталоге.</p>
+          <Link to="/services/" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-cedar-400 px-6 text-sm font-semibold text-bark-950">Посмотреть доступные работы →</Link>
+        </div>
+      </div>
+    );
+  }
   return (
     <div ref={root} className="bg-bark-900 pt-24 text-cream-50 sm:pt-28">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -229,7 +248,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
 
             {isPlasterGuide && (
               <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
-                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">от 550 ₽/м²</strong>. Стоимость уточним по площади и условиям работ.</p>
+                <p className="text-sm leading-relaxed text-cream-100">Механизированная штукатурка — <strong className="font-display text-2xl text-cedar-300">{servicePriceLabel(serviceBySlug("mehanizirovannaya-shtukaturka-omsk")) ?? "по запросу"}</strong>. Стоимость уточним по площади и условиям работ.</p>
                 <p className="mt-2 text-sm text-cream-200">Пришлите площадь и фото стен. <Link to="/mehanizirovannaya-shtukaturka-omsk/" className="font-semibold text-cedar-300 underline underline-offset-4">Состав услуги и условия</Link>.</p>
               </div>
             )}

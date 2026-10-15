@@ -113,6 +113,9 @@ function applyPageMeta(html, { title, description, canonical }) {
 }
 
 function staticSnapshot(page) {
+  if (page.kind === "service" && offerForSlug(page.slug)?.status === "paused") {
+    return `<div id="root" data-prerendered="true"><main><article><h1>${escapeHtml(page.h1)}</h1><p><strong>Приём новых обращений временно приостановлен.</strong></p><p>Информация сохранена, но услуга сейчас недоступна для заказа.</p><p><a href="${SITE_URL}services/">Другие строительные направления</a></p></article></main></div>`;
+  }
   const canonical = `${SITE_URL}${page.slug}/`;
   const keyPoints = page.summary ?? page.points;
   const points = keyPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("");
@@ -142,8 +145,10 @@ function staticSnapshot(page) {
     : "";
   const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_URL}${page.slug}/`;
   const plasterCta = isPlasterGuide ? `<section><h2>Хотите рассчитать механизированную штукатурку?</h2><p>Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p><p><a href="tel:${phoneMatch[1]}">Позвонить и обсудить расчёт</a></p></section>` : "";
+  const plasterBaseOffer = offerForSlug("mehanizirovannaya-shtukaturka-omsk");
+  const plasterPriceLabel = plasterBaseOffer?.priceFrom != null ? `от ${Number(plasterBaseOffer.priceFrom).toLocaleString("ru-RU")} ₽/${plasterBaseOffer.priceUnit}` : "по запросу";
   const plasterFirstAnswer = isPlasterGuide
-    ? `<section aria-label="Короткий ответ о штукатурке"><p><strong>Механизированная штукатурка — от 550 ₽/м².</strong> Для большого доступного объёма запросите расчёт со станцией; для локального ремонта сравните ручной способ. Это ориентир, не окончательная смета.</p><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Условия услуги</a> · <a href="tel:${phoneMatch[1]}">Пришлите площадь и фото стен — обсудим расчёт</a></p></section>`
+    ? `<section aria-label="Короткий ответ о штукатурке"><p><strong>Механизированная штукатурка — ${escapeHtml(plasterPriceLabel)}.</strong> Для большого доступного объёма запросите расчёт со станцией; для локального ремонта сравните ручной способ. Это ориентир, не окончательная смета.</p><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Условия услуги</a> · <a href="tel:${phoneMatch[1]}">Пришлите площадь и фото стен — обсудим расчёт</a></p></section>`
     : "";
   const screedVisual = isScreedGuide
     ? `<section aria-label="Визуальное сравнение полусухой и мокрой стяжки"><h2>Полусухая и мокрая стяжка: что сравнивать</h2><p>Полусухая смесь содержит меньше воды, требует распределения и уплотнения; мокрый раствор более подвижен и укладывается по инструкции выбранного материала. Ни один метод сам по себе не гарантирует сроки или качество.</p><table><caption>Критерии выбора стяжки</caption><thead><tr><th>Критерий</th><th>Полусухая</th><th>Мокрая</th></tr></thead><tbody><tr><th>Укладка</th><td>Распределение, уплотнение, выравнивание</td><td>Укладка, выравнивание по техкарте</td></tr><tr><th>Слои и нагрузка</th><td>По проекту конструкции</td><td>По проекту конструкции</td></tr><tr><th>Готовность к покрытию</th><td>Проверка влажности и требований покрытия</td><td>Проверка влажности и требований покрытия</td></tr><tr><th>Смета</th><td>Полный состав и условия объекта</td><td>Тот же полный состав и условия объекта</td></tr></tbody></table><h3>Условная схема слоёв</h3><ol><li>Основание / перекрытие</li><li>Разделительный или изоляционный слой, если предусмотрен проектом</li><li>Стяжка выбранной технологии</li><li>Совместимое финишное покрытие</li></ol><p>Схема не в масштабе. Для тёплого пола, мокрой зоны и ограниченной несущей способности решение определяют отдельно. Интерактивная проверка условий доступна при включённом JavaScript.</p></section>`
