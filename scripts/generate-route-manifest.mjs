@@ -5,7 +5,7 @@ const root = process.cwd();
 const registry = JSON.parse(await fs.readFile(path.join(root, "src/data/commercialRegistry.json"), "utf8"));
 const pricingBySlug = new Map([...registry.services, ...registry.standalonePages]
   .filter((service) => service.landingSlug && service.priceFrom != null && service.priceUnit)
-  .map((service) => [service.landingSlug, `от ${Number(service.priceFrom).toLocaleString("ru-RU")} ₽/${service.priceUnit}`]));
+  .map((service) => [service.landingSlug, `от ${Number(service.priceFrom).toLocaleString("ru-RU").replace(/\s/g, " ")} ₽/${service.priceUnit}`]));
 const seoData = [
   'seo-pages.json',
   'seo-page-guides.json',

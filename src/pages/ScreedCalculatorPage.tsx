@@ -1,9 +1,10 @@
+import { siteUrl } from "../config/site";
 import { useEffect } from "react";
 import { ScreedCalculator } from "../components/ScreedCalculator";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 
-const url = "https://conradipui-glitch.github.io/silalesa/kalkulyator-styazhki-pola/";
+const url = siteUrl("kalkulyator-styazhki-pola/");
 const title = "Калькулятор стяжки пола онлайн: площадь, объём, цена — Сила Леса";
 const description = "Рассчитайте площадь, толщину и объём стяжки по нескольким помещениям. Ориентир стоимости в Омске, четыре точки замера, запас и результат без регистрации.";
 

@@ -1,9 +1,10 @@
+import { SITE_URL } from "../config/site";
 import { useEffect } from "react";
 import { Link } from "../lib/router";
 import { PlasterCalculator } from "../components/PlasterCalculator";
 import { track } from "../lib/utils";
 
-const site = "https://conradipui-glitch.github.io/silalesa/";
+const site = SITE_URL;
 const title = "Калькулятор штукатурки стен онлайн: площадь, проёмы, цена — Сила Леса";
 const description = "Посчитайте штукатурку стен онлайн: комнаты, окна, двери, толщина слоя, площадь, объём и ориентир цены в Омске. Расход мешков — по данным с упаковки.";
 
