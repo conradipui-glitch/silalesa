@@ -29,3 +29,13 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Production domain build simulation (not deployed)
+        env:
+          SITE_TARGET: production
+          SITE_ORIGIN: https://example.ru
+        run: |
+          npx vite build
+          node scripts/prerender.mjs
+          node scripts/prune-archived-assets.mjs
+          node scripts/check-production-build.mjs
