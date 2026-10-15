@@ -1,3 +1,4 @@
+import { SITE_URL } from "../config/site";
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { company, openContactChoice } from "../data/products";
 import { track } from "../lib/utils";
@@ -54,7 +55,7 @@ export function ForestLeadAssistant({ source }: Props) {
     try {
       const u = new URL(source, window.location.origin);
       return u.origin + u.pathname;
-    } catch { return "https://conradipui-glitch.github.io/silalesa/"; }
+    } catch { return SITE_URL; }
   }, [source]);
 
   const message = useMemo(() => buildForestLeadMessage(service, notes, phone, email, url), [service, notes, phone, email, url]);

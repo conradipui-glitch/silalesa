@@ -1,3 +1,4 @@
+import { SITE_URL } from "../config/site";
 import { useMemo, useState } from "react";
 import {
   calculateScreed, describeScreedEstimate, formatScreedNumber, initialScreedRooms,
@@ -63,7 +64,7 @@ export function ScreedCalculator({ compact = false }: Props) {
   }
 
   function shareLink() {
-    const url = new URL("kalkulyator-styazhki-pola/", "https://conradipui-glitch.github.io/silalesa/");
+    const url = new URL("kalkulyator-styazhki-pola/", SITE_URL);
     url.searchParams.set("rooms", JSON.stringify(rooms.map(({ name, length, width, thickness, mode, corners }) => ({ name, length, width, thickness, mode, corners }))));
     return url.toString();
   }

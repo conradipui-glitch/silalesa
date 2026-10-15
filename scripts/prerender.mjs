@@ -8,8 +8,11 @@ import { saunaOfferFallback } from "./sauna-offer-fallback.mjs";
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, "dist");
-const SITE_ORIGIN = "https://conradipui-glitch.github.io";
-const BASE_PATH = "/silalesa/";
+const siteTargets = JSON.parse(await fs.readFile(path.join(ROOT, "config/site.json"), "utf8"));
+const isProduction = process.env.SITE_TARGET === "production";
+const SITE_ORIGIN = isProduction ? process.env.SITE_ORIGIN?.replace(/\/$/, "") : siteTargets.preview.origin;
+if (!SITE_ORIGIN || !/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(SITE_ORIGIN)) throw new Error("Set verified SITE_ORIGIN for SITE_TARGET=production");
+const BASE_PATH = isProduction ? siteTargets.production.basePath : siteTargets.preview.basePath;
 const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
 const REPAIR_GUIDE_SLUG = "guides/remont/shtukaturka-ili-styazhka-chto-snachala";
 const SCREED_GUIDE_SLUG = "guides/remont/polusuhaya-ili-mokraya-styazhka";
@@ -472,6 +475,7 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://w
   .map((url) => `  <url><loc>${url}</loc></url>`)
   .join("\n")}\n</urlset>\n`;
 await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
+await fs.writeFile(path.join(DIST, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}sitemap.xml\n`, "utf8");
 
 // Optional machine-readable index for AI tools that choose to consume llms.txt.
 // It is generated from the same source registry so it cannot silently drift from the site.

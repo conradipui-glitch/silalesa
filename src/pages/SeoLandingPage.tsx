@@ -1,3 +1,4 @@
+import { SITE_URL as SITE_BASE } from "../config/site";
 import { serviceBySlug, serviceAvailabilityText } from "../data/commercialRegistry";
 import { lazy, Suspense, useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
@@ -16,7 +17,6 @@ import { seoPageBySlug, seoPages } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track, useRevealRoot } from "../lib/utils";
 
-const SITE_BASE = "https://conradipui-glitch.github.io/silalesa/";
 const REPAIR_GUIDE_SLUG = "guides/remont/shtukaturka-ili-styazhka-chto-snachala";
 const SCREED_GUIDE_SLUG = "guides/remont/polusuhaya-ili-mokraya-styazhka";
 const PLASTER_GUIDE_SLUG = "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka";

@@ -1,3 +1,4 @@
+import { SITE_URL } from "../config/site";
 import { useMemo, useState } from "react";
 import {
   calculatePlaster, describePlasterEstimate, initialPlasterMaterial, initialPlasterRooms,
@@ -79,7 +80,7 @@ export function PlasterCalculator({ compact = false }: Props) {
     } catch { setCopied(null); }
   }
   function sharedLink() {
-    const u = new URL("kalkulyator-shtukaturki-sten/", "https://conradipui-glitch.github.io/silalesa/");
+    const u = new URL("kalkulyator-shtukaturki-sten/", SITE_URL);
     u.searchParams.set("walls", JSON.stringify(rooms.map(({ name, length, width, height, thickness, openings }) => ({
       name, length, width, height, thickness,
       openings: openings.map(({ label, width: openingWidth, height: openingHeight, count }) => ({ label, width: openingWidth, height: openingHeight, count })),
