@@ -23,6 +23,8 @@ export type AnalyticsEvent =
   | "tel_click"
   | "messenger_click"
   | "calc_submit"
+  | "calc_interact"
+  | "calc_complete"
   | "lead_intent"
   | "copy";
 
@@ -79,7 +81,7 @@ export function track(name: AnalyticsEvent, payload: Payload = {}) {
     }
 
     // Клик по каналу связи — это только намерение обратиться, а не подтверждённая заявка.
-    if (["call", "call2", "contact_choice", "max"].includes(type)) {
+    if (["call", "call2", "contact_choice", "max", "calculator_contact_choice", "plaster_calculator_contact_choice"].includes(type)) {
       emit("lead_intent", { ...payload, channel: type.replace("call2", "call") });
     }
   }

@@ -22,7 +22,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    { name: "site-origin", transformIndexHtml(html: string) { return html.replaceAll("__SITE_URL__", siteUrl); } },
+    { name: "site-origin", transformIndexHtml(html: string) { return html.split("__SITE_URL__").join(siteUrl); } },
   ],
   define: {
     "import.meta.env.VITE_SITE_ORIGIN": JSON.stringify(siteOrigin),

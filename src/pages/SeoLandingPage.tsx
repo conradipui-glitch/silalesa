@@ -217,6 +217,15 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             <p className="text-xs uppercase tracking-[0.22em] text-cedar-300">{page.eyebrow}</p>
             <h1 className={`mt-4 max-w-3xl font-display font-semibold leading-[1.06] tracking-tight [overflow-wrap:anywhere] [hyphens:auto] ${isPlasterGuide ? "text-[clamp(25px,7vw,34px)] sm:text-[44px] lg:text-[clamp(34px,3.4vw,46px)]" : isWave3Guide ? "text-[clamp(27px,7.4vw,34px)] sm:text-[44px] lg:text-[clamp(38px,3.7vw,51px)]" : "text-[34px] sm:text-5xl lg:text-[58px]"}`}>{page.h1}</h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg">{page.lead}</p>
+            {serviceOffer && (
+              <p data-qa="service-status" className="mt-4 rounded-xl border border-cedar-300/30 bg-bark-800 px-4 py-3 text-sm text-cream-100">
+                {serviceAvailabilityText(serviceOffer.status)}. {servicePaused
+                  ? "Новые обращения по этому направлению временно не принимаются."
+                  : serviceOffer.status === "consultation"
+                    ? "Возможность выполнения и условия уточняются под ваш объект."
+                    : "Пришлите исходные данные для предварительного расчёта."}
+              </p>
+            )}
 
             {isPlasterGuide && (
               <div className="mt-6 rounded-2xl border border-cedar-300/30 bg-bark-800 p-4 sm:p-5">
@@ -249,7 +258,7 @@ export function SeoLandingPage({ slug }: { slug: string }) {
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
-              {isService ? (
+              {isService && !servicePaused ? (
                 <LinkButton to={contactDraftUrl(waText)} size="lg" external onClick={() => track("cta_click", { type: "contact_choice", where: "seo-landing", slug })}>
                   Отправить данные для расчёта <ArrowIcon />
                 </LinkButton>
