@@ -5,25 +5,19 @@ import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 import { getHomepageOffer } from "../data/offerContext";
 import { serviceComparisonBySlug } from "../data/serviceMedia";
-import rawConstructionServices from "../data/construction-services.json";
+import { availableCommercialServices, serviceAvailabilityText, servicePriceLabel } from "../data/commercialRegistry";
 const heroConstruction = `${import.meta.env.BASE_URL}assets/construction-hero-mixed.webp`;
 const plasterComparison = serviceComparisonBySlug["mehanizirovannaya-shtukaturka-omsk"];
 const screedComparison = serviceComparisonBySlug["polusuhaya-styazhka-omsk"];
 
 type ServiceGroup = "Генподряд" | "Конструктив" | "Отделка и полы" | "Спецработы";
 
-type ConstructionService = {
-  title: string;
-  group: ServiceGroup;
-  text: string;
-  accent?: string;
-  requestHint: string;
-};
-
-// One source powers the visual catalogue and static SEO/JS-disabled pages.
-export const constructionServices: ConstructionService[] = rawConstructionServices.map((service) => ({
+// One commercial registry powers the visual catalogue and the static SEO fallback.
+export const constructionServices = availableCommercialServices.map((service) => ({
   ...service,
   group: service.group as ServiceGroup,
+  text: service.text ?? "",
+  requestHint: service.requestHint ?? "",
 }));
 
 const serviceGroups: { title: ServiceGroup; id: string; intro: string }[] = [
@@ -33,10 +27,9 @@ const serviceGroups: { title: ServiceGroup; id: string; intro: string }[] = [
   { title: "Спецработы", id: "services-special", intro: "Кровля, фасады и подготовка объекта к следующему этапу." },
 ];
 
-const detailedServicePages: Partial<Record<string, string>> = {
-  "Механизированная штукатурка": "/mehanizirovannaya-shtukaturka-omsk/",
-  "Полусухая стяжка": "/polusuhaya-styazhka-omsk/",
-};
+const detailedServicePages: Partial<Record<string, string>> = Object.fromEntries(
+  availableCommercialServices.filter((service) => service.landingSlug).map((service) => [service.title, `/${service.landingSlug}/`]),
+);
 
 const processSteps = [
   { n: "01", title: "Задача и исходные данные", text: "Получаем проект, объёмы, адрес объекта и желаемые сроки. Если проект ещё формируется — фиксируем, что нужно уточнить до сметы." },
@@ -99,10 +92,11 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                   >
                     <div className="flex min-h-6 items-start justify-between gap-3">
                       <span className="font-display text-xs text-cream-300/75">{String(index + 1).padStart(2, "0")}</span>
-                      {service.accent && <span className="rounded-full bg-cedar-500/12 px-3 py-1 text-xs text-cedar-300">{service.accent}</span>}
+                      <span className="rounded-full bg-cedar-500/12 px-3 py-1 text-xs text-cedar-300">{serviceAvailabilityText(service.status)}</span>
                     </div>
                     <h4 className="mt-4 font-display text-lg font-medium leading-snug text-cream-50 sm:text-xl">{service.title}</h4>
                     <p className="mt-3 flex-1 text-base leading-relaxed text-cream-300/80">{service.text}</p>
+                    {servicePriceLabel(service) && <p className="mt-3 font-semibold text-cedar-300">{servicePriceLabel(service)} <span className="text-xs font-normal text-cream-300">· предварительный ориентир</span></p>}
                     <p data-qa="service-request-hint" className="mt-4 border-t border-cream-50/10 pt-4 text-base leading-relaxed text-cream-300/85">
                       <span className="font-medium text-cream-50">Для первого расчёта:</span> {service.requestHint}.
                     </p>
@@ -195,10 +189,10 @@ export function ConstructionHome() {
                 Омск · строительные работы · отдельные этапы и комплекс
               </p>
               <h1 id="construction-hero-title" className="reveal mt-6 text-balance font-display text-[36px] font-semibold leading-[1.03] tracking-tight text-cream-50 sm:text-5xl lg:text-[54px] xl:text-[62px]" style={{ ["--reveal-delay" as string]: "70ms" }}>
-                <span data-qa="hero-offer-title">{serviceName}</span> <span className="text-cedar-400">в Омске</span>
+                <span data-qa="hero-offer-title">{offer.code ? serviceName : "Строительные работы"}</span> <span className="text-cedar-400">в Омске</span>
               </h1>
               <p className="reveal mt-6 max-w-2xl text-base leading-relaxed text-cream-200/85 sm:text-lg" style={{ ["--reveal-delay" as string]: "140ms" }}>
-                {offer.subtitle}
+                {offer.code ? offer.subtitle : "От отдельных видов работ до комплексных строительных задач. Расскажите о вашем объекте — уточним объёмы, условия и возможность выполнения, подготовим предложение."}
               </p>
 
               <div className="reveal mt-8 flex flex-wrap items-center gap-3" style={{ ["--reveal-delay" as string]: "210ms" }}>

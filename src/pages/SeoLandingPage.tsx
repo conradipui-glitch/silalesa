@@ -1,3 +1,4 @@
+import { serviceBySlug, serviceAvailabilityText } from "../data/commercialRegistry";
 import { lazy, Suspense, useEffect } from "react";
 import { ArrowIcon, CheckIcon, LinkButton, PhoneIcon } from "../components/Brand";
 import { BeforeAfter } from "../components/BeforeAfter";
@@ -98,6 +99,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         : product?.imageAlt ?? "Мобильная кедровая баня Сила Леса в Омске";
   const price = product?.price ?? Math.min(...saunas.map((item) => item.price));
   const isService = page.kind === "service";
+  const serviceOffer = isService ? serviceBySlug(page.slug) : undefined;
+  const servicePaused = serviceOffer?.status === "paused";
   const isCategory = page.kind === "category";
   const isGuide = page.kind === "guide";
   const isSaunaChoiceGuide = Boolean(page.choiceModels?.length);

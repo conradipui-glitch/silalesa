@@ -27,7 +27,10 @@ const basePages = [
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
-const constructionCatalog = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/construction-services.json"), "utf8"));
+const commercialRegistry = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/commercialRegistry.json"), "utf8"));
+const allServiceOffers = [...commercialRegistry.services, ...commercialRegistry.standalonePages];
+const offerForSlug = (slug) => allServiceOffers.find((service) => service.landingSlug === slug);
+const constructionCatalog = commercialRegistry.services.filter((service) => service.status !== "paused");
 const assets = await fs.readdir(path.join(DIST, "assets"));
 const modelAssets = Object.fromEntries([
   ["k2", "kvadro-2x2-"], ["k3", "kvadro-3x2-"], ["k4", "kvadro-4x2-"], ["f55", "karkasnaya-5-5-"],
@@ -114,6 +117,10 @@ function staticSnapshot(page) {
     .map(([question, answer]) => `<section><h2>${escapeHtml(question)}</h2><p>${escapeHtml(answer)}</p></section>`)
     .join("");
   const isGuide = page.kind === "guide";
+  const availabilityNotice = page.kind === "service" && offerForSlug(page.slug)?.status === "paused"
+    ? '<p><strong>Приём новых обращений по этой услуге временно приостановлен.</strong> Информация сохранена для ознакомления.</p>'
+    : page.kind === "service" && offerForSlug(page.slug)?.status === "consultation"
+      ? '<p>Возможность выполнения и стоимость работ уточняются после получения данных об объекте.</p>' : "";
   const isRepairGuide = page.slug === REPAIR_GUIDE_SLUG;
   const isScreedGuide = page.slug === SCREED_GUIDE_SLUG;
   const isPlasterGuide = page.slug === PLASTER_GUIDE_SLUG;
@@ -209,6 +216,8 @@ function staticSnapshot(page) {
     ? `<p><a href="${SITE_URL}${page.printChecklistPath}/">Открыть чек-лист для печати</a></p>`
     : "";
 
+  const registeredPrice = offerForSlug(page.slug);
+  if (registeredPrice?.priceFrom != null && registeredPrice.priceUnit) page.priceLabel = `от ${Number(registeredPrice.priceFrom).toLocaleString("ru-RU")} ₽/${registeredPrice.priceUnit}`;
   const serviceBlock = page.kind === "service" && page.priceLabel && page.requestChecklist && page.serviceResults && page.requestPrompt
     ? `<section aria-label="Стоимость и расчёт услуги"><h2>Цена и условия</h2><p><strong>${escapeHtml(page.priceLabel)}</strong> — ${escapeHtml(page.priceNote ?? "Стоимость уточняется по объекту.")}</p><h2>Что получит клиент</h2><ul>${page.serviceResults.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><h2>Что прислать для расчёта</h2><ol>${page.requestChecklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol><p><a href="tel:${phoneMatch[1]}">Позвонить для предварительного расчёта</a></p></section>`
     : "";
@@ -255,7 +264,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${twoStageCalculatorLinks}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${availabilityNotice}${plasterFirstAnswer}${twoStageCalculatorLinks}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
@@ -317,6 +326,10 @@ for (const page of pages) {
     description: page.description,
     canonical,
   });
+  const offer = page.kind === "service" ? offerForSlug(page.slug) : null;
+  if (offer?.status === "paused") {
+    html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
+  }
   html = html.replace(/<div id="root"><\/div>/i, staticSnapshot(page));
 
   const dir = path.join(DIST, page.slug);
@@ -454,7 +467,7 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
 }
 
-const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`, `${SITE_URL}${plasterCalculatorPage.slug}/`];
+const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.filter((page) => !(page.kind === "service" && offerForSlug(page.slug)?.status === "paused")).map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`, `${SITE_URL}${plasterCalculatorPage.slug}/`];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls
   .map((url) => `  <url><loc>${url}</loc></url>`)
   .join("\n")}\n</urlset>\n`;
@@ -462,7 +475,7 @@ await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
 
 // Optional machine-readable index for AI tools that choose to consume llms.txt.
 // It is generated from the same source registry so it cannot silently drift from the site.
-const pageList = pages
+const pageList = pages.filter((page) => !(page.kind === "service" && offerForSlug(page.slug)?.status === "paused"))
   .map((page) => `- [${page.h1}](${SITE_URL}${page.slug}/): ${page.description}`)
   .join("\n");
 const llms = `# Сила Леса
