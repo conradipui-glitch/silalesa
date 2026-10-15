@@ -1,3 +1,4 @@
+import { canAcceptOfferCode } from "../data/commercialRegistry";
 import { useState } from "react";
 import { ArrowIcon, LogoMark, PhoneIcon } from "../components/Brand";
 import { company, contactDraftUrl } from "../data/products";
@@ -5,7 +6,8 @@ import { offerContexts, type OfferCode } from "../data/offerContext";
 import { Link, useRouter } from "../lib/router";
 import { track, useDocumentTitle } from "../lib/utils";
 
-const services = Object.entries(offerContexts) as [OfferCode, (typeof offerContexts)[OfferCode]][];
+const services = (Object.entries(offerContexts) as [OfferCode, (typeof offerContexts)[OfferCode]][])
+  .filter(([code]) => canAcceptOfferCode(code));
 
 /**
  * Campaign attribution stays inside the opt-in contact draft.
@@ -73,6 +75,17 @@ export function ServiceBriefPage({ code }: { code: OfferCode | null }) {
     "Подскажите, какие данные нужны для предварительного расчёта и что будет входить в смету.",
   ].filter(Boolean).join("\n");
 
+  if (code && !canAcceptOfferCode(code)) {
+    return (
+      <main className="min-h-dvh bg-bark-950 px-5 py-32 text-cream-50">
+        <div className="mx-auto max-w-3xl">
+          <h1 className="font-display text-3xl font-semibold">Приём новых обращений временно приостановлен</h1>
+          <p className="mt-6 max-w-xl leading-relaxed text-cream-200">По направлению «{name}» сейчас не принимаем новые обращения. Посмотрите другие доступные строительные работы.</p>
+          <Link to="/services/" className="mt-8 inline-flex rounded-full bg-cedar-400 px-6 py-4 font-semibold text-bark-950">Другие строительные работы</Link>
+        </div>
+      </main>
+    );
+  }
   return (
     <div className="min-h-dvh bg-bark-950 text-cream-50" data-qa="social-brief" data-service-code={code ?? "all"}>
       <div className="mx-auto max-w-5xl px-4 pb-14 pt-5 sm:px-6 sm:pt-8">

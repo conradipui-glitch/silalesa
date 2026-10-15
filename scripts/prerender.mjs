@@ -30,6 +30,8 @@ const basePages = [
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
+const offerIdAliases = { topping: "industrial-floors", metalworks: "steel", multistory: "multistorey" };
+const offerIsPaused = (code) => commercialRegistry.services.some((service) => service.id === (offerIdAliases[code] ?? code) && service.status === "paused");
 const commercialRegistry = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/commercialRegistry.json"), "utf8"));
 const allServiceOffers = [...commercialRegistry.services, ...commercialRegistry.standalonePages];
 const offerForSlug = (slug) => allServiceOffers.find((service) => service.landingSlug === slug);
@@ -442,13 +444,16 @@ for (const page of pages.filter((entry) => entry.productId)) {
     const slug = code ? `brief/${code}` : "brief";
     const canonical = `${SITE_URL}${slug}/`;
     const title = `${offer.title} в Омске — отправить задачу | Сила Леса`;
-    const description = code
-      ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем выберите звонок или MAX и подготовьте обращение.`
+    const disabled = Boolean(code) && offerIsPaused(code);
+    const description = disabled ? `Новые обращения по направлению «${offer.title}» временно приостановлены.`
+      : code ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем выберите звонок или MAX и подготовьте обращение.`
       : "Выберите строительные работы, укажите данные объекта и выберите звонок или MAX. Без регистрации и отправки данных в фоне.";
     let html = applyPageMeta(template, { title, description, canonical });
     html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
     const maxLink = maxProfileUrl;
-    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${maxLink}">Написать в MAX</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
+    const snapshot = disabled
+      ? `<div id="root" data-prerendered="true"><main><h1>${escapeHtml(offer.title)} — приём обращений приостановлен</h1><p>Новые обращения по этой услуге временно не принимаются.</p><p><a href="${SITE_URL}services/">Другие строительные работы</a></p></main></div>`
+      : `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${maxLink}">Написать в MAX</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
     html = html.replace(/<div id="root"><\/div>/i, snapshot);
     const targetDir = path.join(DIST, slug);
     await fs.mkdir(targetDir, { recursive: true });

@@ -1,3 +1,4 @@
+import { canAcceptOfferCode } from "./commercialRegistry";
 import demandFile from "./seasonal-demand.json";
 import offerContextsData from "./offer-contexts.json";
 
@@ -34,7 +35,7 @@ function isOfferCode(value: string | null): value is OfferCode {
 /** Client's local calendar month, only when regional data is explicitly verified. */
 export function getHomepageOffer(search: string, date: Date = new Date()): HomepageOffer {
   const code = new URLSearchParams(search).get("service");
-  if (isOfferCode(code)) {
+  if (isOfferCode(code) && canAcceptOfferCode(code)) {
     const item = offerContexts[code];
     return { mode: "direct", code, title: item.title + " в Омске", subtitle: item.subtitle };
   }
@@ -50,7 +51,7 @@ export function getHomepageOffer(search: string, date: Date = new Date()): Homep
     const monthly = demand.leaderByMonth as Record<string, string>;
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const seasonalCode = monthly[month] ?? null;
-    if (isOfferCode(seasonalCode)) {
+    if (isOfferCode(seasonalCode) && canAcceptOfferCode(seasonalCode)) {
       const item = offerContexts[seasonalCode];
       return { mode: "verified-season", code: seasonalCode, title: item.title + " в Омске", subtitle: item.subtitle };
     }

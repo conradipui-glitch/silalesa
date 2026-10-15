@@ -29,3 +29,15 @@ export function serviceAvailabilityText(status: ServiceStatus) {
   if (status === "consultation") return "По согласованию";
   return "Приём обращений приостановлен";
 }
+
+/** Existing direct-campaign codes are preserved as public URLs; several historic IDs differ from registry keys. */
+export const offerCodeToServiceId: Record<string, string> = {
+  topping: "industrial-floors", metalworks: "steel", multistory: "multistorey",
+};
+export function commercialServiceByOfferCode(code: string | null | undefined) {
+  if (!code) return undefined;
+  return commercialServices.find((service) => service.id === (offerCodeToServiceId[code] ?? code));
+}
+export function canAcceptOfferCode(code: string | null | undefined): boolean {
+  return commercialServiceByOfferCode(code)?.status !== "paused";
+}
