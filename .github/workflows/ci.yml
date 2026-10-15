@@ -39,3 +39,9 @@ jobs:
           node scripts/prerender.mjs
           node scripts/prune-archived-assets.mjs
           node scripts/check-production-build.mjs
+
+      - name: Verify paused-service production scenario
+        env:
+          SITE_TARGET: production
+          SITE_ORIGIN: https://example.ru
+        run: node scripts/check-paused-services.mjs
