@@ -1,3 +1,4 @@
+import { serviceBySlug, servicePriceLabel } from "./commercialRegistry";
 import rawPages from "./seo-pages.json";
 import rawGuides from "./seo-page-guides.json";
 import rawRepairGuides from "./seo-page-guides-remont.json";
@@ -77,6 +78,7 @@ export const seoPages = rawAllPages
   .map((page) => ({
     ...page,
     ...(overrideBySlug.get(page.slug) ?? {}),
+    ...(page.kind === "service" && serviceBySlug(page.slug) ? { priceLabel: servicePriceLabel(serviceBySlug(page.slug)) ?? undefined } : {}),
   })) as SeoPage[];
 
 export const seoSlugs = seoPages.map((page) => page.slug);

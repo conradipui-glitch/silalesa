@@ -1,10 +1,11 @@
+import { SITE_URL } from "../config/site";
 import { ArrowIcon, LinkButton } from "./Brand";
 import { formatPrice, saunas, contactDraftUrl } from "../data/products";
 import { seoPageBySlug, type SeoPage } from "../data/seoPages";
 import { Link } from "../lib/router";
 import { track } from "../lib/utils";
 
-const SITE_BASE = "https://conradipui-glitch.github.io/silalesa/";
+const SITE_BASE = SITE_URL;
 
 export function OperationalGuide({ page }: { page: SeoPage }) {
   if (!page.operationSteps?.length || !page.operationPrompt || !page.operationHeading) return null;

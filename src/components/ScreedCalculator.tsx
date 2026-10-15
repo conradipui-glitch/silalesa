@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { SITE_URL } from "../config/site";
+import { useMemo, useRef, useState } from "react";
 import {
   calculateScreed, describeScreedEstimate, formatScreedNumber, initialScreedRooms,
   MAX_ROOMS, SCREED_START_PRICE, type ScreedRoom,
@@ -37,9 +38,19 @@ type Props = { compact?: boolean };
 export function ScreedCalculator({ compact = false }: Props) {
   const [rooms, setRooms] = useState<ScreedRoom[]>(() => typeof window === "undefined" ? initialScreedRooms : validSharedRooms() ?? initialScreedRooms);
   const [reserve, setReserve] = useState(5);
-  const [copied, setCopied] = useState<"summary" | "link" | null>(null);
+  const [copied, setCopied] = useState<"summary" | "link" | "technical" | null>(null);
+  const hasInteracted = useRef(false);
   const total = useMemo(() => calculateScreed(rooms, reserve), [rooms, reserve]);
   const report = useMemo(() => describeScreedEstimate(rooms, reserve), [rooms, reserve]);
+  // Technical handoff is deliberately made only from numeric inputs: no names, phone numbers, addresses or user notes.
+  const technicalBrief = useMemo(() => [
+    "ТЕХНИЧЕСКАЯ КАРТОЧКА · ПОЛУСУХАЯ СТЯЖКА · ОМСК",
+    "Предварительные исходные данные, не готовая смета и не спецификация материалов.",
+    ...rooms.map((room, i) => `Помещение №${i + 1}: ${formatScreedNumber(room.length, 2)} × ${formatScreedNumber(room.width, 2)} м; толщина ${formatScreedNumber(room.thickness, 0)} мм${room.mode === "corners" ? "; по четырём замерам" : ""}.`),
+    total.valid ? `Общая площадь: ${formatScreedNumber(total.area, 2)} м²; геометрический объём: ${formatScreedNumber(total.volume, 3)} м³; запас: ${reserve}%; ориентир работ: от ${formatScreedNumber(total.budgetFrom, 0)} ₽.` : "Проверьте размеры помещений.",
+    "Уточнить у исполнителя: основание, этаж, доступ, транспортировку смеси, требования покрытия, состав и срок работ.",
+    "Контактные данные и адрес объекта в эту карточку не включены.",
+  ].join("\n"), [rooms, reserve, total]);
 
   function updateRoom(id: number, patch: Partial<ScreedRoom>) {
     setCopied(null);
@@ -52,25 +63,26 @@ export function ScreedCalculator({ compact = false }: Props) {
     updateRoom(room.id, { corners });
   }
 
-  async function copy(text: string, type: "summary" | "link") {
+  async function copy(text: string, type: "summary" | "link" | "technical") {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(type);
       track("cta_click", { type: `calculator_copy_${type}`, where: "screed-calculator" });
+      if (type === "technical") track("calc_complete", { type: "screed", action: "copy_technical" });
     } catch {
       setCopied(null);
     }
   }
 
   function shareLink() {
-    const url = new URL("kalkulyator-styazhki-pola/", "https://conradipui-glitch.github.io/silalesa/");
+    const url = new URL("kalkulyator-styazhki-pola/", SITE_URL);
     url.searchParams.set("rooms", JSON.stringify(rooms.map(({ name, length, width, thickness, mode, corners }) => ({ name, length, width, thickness, mode, corners }))));
     return url.toString();
   }
 
   const missing = !total.valid;
   return (
-    <div data-qa="screed-calculator" className="overflow-hidden rounded-[28px] border border-cream-50/15 bg-bark-900 text-cream-50 shadow-2xl">
+    <div data-qa="screed-calculator" onChangeCapture={() => { if (!hasInteracted.current) { hasInteracted.current = true; track("calc_interact", { type: "screed" }); } }} className="overflow-hidden rounded-[28px] border border-cream-50/15 bg-bark-900 text-cream-50 shadow-2xl">
       <div className="border-b border-cream-50/10 bg-gradient-to-r from-bark-900 via-bark-800 to-bark-900 px-4 py-6 sm:px-7 sm:py-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cedar-300">Интерактивный расчёт · Омск</p>
         <h2 className="mt-3 font-display text-2xl leading-tight sm:text-3xl">{compact ? "Рассчитайте свою стяжку" : "Ваш пол — в цифрах"}</h2>
@@ -197,7 +209,7 @@ export function ScreedCalculator({ compact = false }: Props) {
             <div className="mt-6 space-y-3">
               <a data-qa="calculator-contact" href={missing ? undefined : contactDraftUrl(report)} aria-disabled={missing}
                 tabIndex={missing ? -1 : undefined} target="_blank" rel="noopener noreferrer"
-                onClick={(event) => { if (missing) { event.preventDefault(); return; } track("cta_click", { type: "calculator_contact_choice", where: "screed-calculator", rooms: rooms.length }); }}
+                onClick={(event) => { if (missing) { event.preventDefault(); return; } track("cta_click", { type: "calculator_contact_choice", where: "screed-calculator", rooms: rooms.length }); track("calc_complete", { type: "screed", action: "contact" }); }}
                 className={`flex min-h-12 w-full items-center justify-center rounded-full bg-cedar-400 px-5 py-3 text-center font-semibold text-bark-950 shadow-lg transition hover:bg-cedar-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cedar-300 ${missing ? "pointer-events-none opacity-45" : ""}`}>
                 Обсудить расчёт с мастером ↗
               </a>
@@ -205,7 +217,13 @@ export function ScreedCalculator({ compact = false }: Props) {
                 <button type="button" disabled={missing} className={secondaryButton+" disabled:opacity-40"} onClick={() => { void copy(report, "summary"); }}>Скопировать итог</button>
                 <button type="button" disabled={missing} className={secondaryButton+" disabled:opacity-40"} onClick={() => { void copy(shareLink(), "link"); }}>Ссылка на расчёт</button>
               </div>
-              <p role="status" aria-live="polite" className="min-h-5 text-center text-xs text-cedar-300">{copied === "summary" ? "Результат скопирован" : copied === "link" ? "Ссылка скопирована: размеры можно открыть на другом устройстве" : ""}</p>
+              <details className="rounded-2xl border border-cream-50/15 bg-bark-800 p-4" data-qa="screed-technical-brief">
+                <summary className="cursor-pointer font-semibold text-cream-50">Техническая карточка без персональных данных</summary>
+                <p className="mt-2 text-xs leading-relaxed text-cream-300">Для предварительного обсуждения с исполнителем. Здесь только параметры работ; адрес и контакты не передаются.</p>
+                <pre className="my-3 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-bark-950 p-3 text-xs leading-relaxed text-cream-200">{technicalBrief}</pre>
+                <button type="button" disabled={missing} className={secondaryButton} onClick={() => { void copy(technicalBrief, "technical"); }}>Скопировать карточку для исполнителя</button>
+              </details>
+              <p role="status" aria-live="polite" className="min-h-5 text-center text-xs text-cedar-300">{copied === "summary" ? "Результат скопирован" : copied === "technical" ? "Обезличенная карточка скопирована" : copied === "link" ? "Ссылка скопирована: размеры можно открыть на другом устройстве" : ""}</p>
             </div>
             <p className="mt-4 text-xs leading-relaxed text-cream-300/70">Это расчёт геометрического объёма, не рецептура ЦПС. Четыре точки дают ориентировочное среднее. Реальную толщину, влажность и состав стяжки определяют по конструкции пола и требованиям материалов.</p>
           </div>

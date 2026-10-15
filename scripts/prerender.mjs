@@ -8,8 +8,11 @@ import { saunaOfferFallback } from "./sauna-offer-fallback.mjs";
 
 const ROOT = process.cwd();
 const DIST = path.join(ROOT, "dist");
-const SITE_ORIGIN = "https://conradipui-glitch.github.io";
-const BASE_PATH = "/silalesa/";
+const siteTargets = JSON.parse(await fs.readFile(path.join(ROOT, "config/site.json"), "utf8"));
+const isProduction = process.env.SITE_TARGET === "production";
+const SITE_ORIGIN = isProduction ? process.env.SITE_ORIGIN?.replace(/\/$/, "") : siteTargets.preview.origin;
+if (!SITE_ORIGIN || !/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(SITE_ORIGIN)) throw new Error("Set verified SITE_ORIGIN for SITE_TARGET=production");
+const BASE_PATH = isProduction ? siteTargets.production.basePath : siteTargets.preview.basePath;
 const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
 const REPAIR_GUIDE_SLUG = "guides/remont/shtukaturka-ili-styazhka-chto-snachala";
 const SCREED_GUIDE_SLUG = "guides/remont/polusuhaya-ili-mokraya-styazhka";
@@ -27,7 +30,12 @@ const basePages = [
 ];
 const saunaChoiceModels = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/sauna-choice-models.json"), "utf8"));
 const briefServices = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/offer-contexts.json"), "utf8"));
-const constructionCatalog = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/construction-services.json"), "utf8"));
+const offerIdAliases = { topping: "industrial-floors", metalworks: "steel", multistory: "multistorey" };
+const offerIsPaused = (code) => commercialRegistry.services.some((service) => service.id === (offerIdAliases[code] ?? code) && service.status === "paused");
+const commercialRegistry = JSON.parse(await fs.readFile(path.join(ROOT, "src/data/commercialRegistry.json"), "utf8"));
+const allServiceOffers = [...commercialRegistry.services, ...commercialRegistry.standalonePages];
+const offerForSlug = (slug) => allServiceOffers.find((service) => service.landingSlug === slug);
+const constructionCatalog = commercialRegistry.services.filter((service) => service.status !== "paused");
 const assets = await fs.readdir(path.join(DIST, "assets"));
 const modelAssets = Object.fromEntries([
   ["k2", "kvadro-2x2-"], ["k3", "kvadro-3x2-"], ["k4", "kvadro-4x2-"], ["f55", "karkasnaya-5-5-"],
@@ -107,6 +115,9 @@ function applyPageMeta(html, { title, description, canonical }) {
 }
 
 function staticSnapshot(page) {
+  if (page.kind === "service" && offerForSlug(page.slug)?.status === "paused") {
+    return `<div id="root" data-prerendered="true"><main><article><h1>${escapeHtml(page.h1)}</h1><p><strong>Приём новых обращений временно приостановлен.</strong></p><p>Информация сохранена, но услуга сейчас недоступна для заказа.</p><p><a href="${SITE_URL}services/">Другие строительные направления</a></p></article></main></div>`;
+  }
   const canonical = `${SITE_URL}${page.slug}/`;
   const keyPoints = page.summary ?? page.points;
   const points = keyPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("");
@@ -114,6 +125,10 @@ function staticSnapshot(page) {
     .map(([question, answer]) => `<section><h2>${escapeHtml(question)}</h2><p>${escapeHtml(answer)}</p></section>`)
     .join("");
   const isGuide = page.kind === "guide";
+  const availabilityNotice = page.kind === "service" && offerForSlug(page.slug)?.status === "paused"
+    ? '<p><strong>Приём новых обращений по этой услуге временно приостановлен.</strong> Информация сохранена для ознакомления.</p>'
+    : page.kind === "service" && offerForSlug(page.slug)?.status === "consultation"
+      ? '<p>Возможность выполнения и стоимость работ уточняются после получения данных об объекте.</p>' : "";
   const isRepairGuide = page.slug === REPAIR_GUIDE_SLUG;
   const isScreedGuide = page.slug === SCREED_GUIDE_SLUG;
   const isPlasterGuide = page.slug === PLASTER_GUIDE_SLUG;
@@ -132,8 +147,10 @@ function staticSnapshot(page) {
     : "";
   const plasterWaText = `Здравствуйте! Хочу обсудить расчёт механизированной штукатурки. Площадь и фото стен пришлю в чат. Страница: ${SITE_URL}${page.slug}/`;
   const plasterCta = isPlasterGuide ? `<section><h2>Хотите рассчитать механизированную штукатурку?</h2><p>Пришлите площадь и фотографии стен — обсудим расчёт механизированной штукатурки.</p><p><a href="tel:${phoneMatch[1]}">Позвонить и обсудить расчёт</a></p></section>` : "";
+  const plasterBaseOffer = offerForSlug("mehanizirovannaya-shtukaturka-omsk");
+  const plasterPriceLabel = plasterBaseOffer?.priceFrom != null ? `от ${Number(plasterBaseOffer.priceFrom).toLocaleString("ru-RU")} ₽/${plasterBaseOffer.priceUnit}` : "по запросу";
   const plasterFirstAnswer = isPlasterGuide
-    ? `<section aria-label="Короткий ответ о штукатурке"><p><strong>Механизированная штукатурка — от 550 ₽/м².</strong> Для большого доступного объёма запросите расчёт со станцией; для локального ремонта сравните ручной способ. Это ориентир, не окончательная смета.</p><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Условия услуги</a> · <a href="tel:${phoneMatch[1]}">Пришлите площадь и фото стен — обсудим расчёт</a></p></section>`
+    ? `<section aria-label="Короткий ответ о штукатурке"><p><strong>Механизированная штукатурка — ${escapeHtml(plasterPriceLabel)}.</strong> Для большого доступного объёма запросите расчёт со станцией; для локального ремонта сравните ручной способ. Это ориентир, не окончательная смета.</p><p><a href="${SITE_URL}mehanizirovannaya-shtukaturka-omsk/">Условия услуги</a> · <a href="tel:${phoneMatch[1]}">Пришлите площадь и фото стен — обсудим расчёт</a></p></section>`
     : "";
   const screedVisual = isScreedGuide
     ? `<section aria-label="Визуальное сравнение полусухой и мокрой стяжки"><h2>Полусухая и мокрая стяжка: что сравнивать</h2><p>Полусухая смесь содержит меньше воды, требует распределения и уплотнения; мокрый раствор более подвижен и укладывается по инструкции выбранного материала. Ни один метод сам по себе не гарантирует сроки или качество.</p><table><caption>Критерии выбора стяжки</caption><thead><tr><th>Критерий</th><th>Полусухая</th><th>Мокрая</th></tr></thead><tbody><tr><th>Укладка</th><td>Распределение, уплотнение, выравнивание</td><td>Укладка, выравнивание по техкарте</td></tr><tr><th>Слои и нагрузка</th><td>По проекту конструкции</td><td>По проекту конструкции</td></tr><tr><th>Готовность к покрытию</th><td>Проверка влажности и требований покрытия</td><td>Проверка влажности и требований покрытия</td></tr><tr><th>Смета</th><td>Полный состав и условия объекта</td><td>Тот же полный состав и условия объекта</td></tr></tbody></table><h3>Условная схема слоёв</h3><ol><li>Основание / перекрытие</li><li>Разделительный или изоляционный слой, если предусмотрен проектом</li><li>Стяжка выбранной технологии</li><li>Совместимое финишное покрытие</li></ol><p>Схема не в масштабе. Для тёплого пола, мокрой зоны и ограниченной несущей способности решение определяют отдельно. Интерактивная проверка условий доступна при включённом JavaScript.</p></section>`
@@ -209,6 +226,8 @@ function staticSnapshot(page) {
     ? `<p><a href="${SITE_URL}${page.printChecklistPath}/">Открыть чек-лист для печати</a></p>`
     : "";
 
+  const registeredPrice = offerForSlug(page.slug);
+  if (registeredPrice?.priceFrom != null && registeredPrice.priceUnit) page.priceLabel = `от ${Number(registeredPrice.priceFrom).toLocaleString("ru-RU")} ₽/${registeredPrice.priceUnit}`;
   const serviceBlock = page.kind === "service" && page.priceLabel && page.requestChecklist && page.serviceResults && page.requestPrompt
     ? `<section aria-label="Стоимость и расчёт услуги"><h2>Цена и условия</h2><p><strong>${escapeHtml(page.priceLabel)}</strong> — ${escapeHtml(page.priceNote ?? "Стоимость уточняется по объекту.")}</p><h2>Что получит клиент</h2><ul>${page.serviceResults.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><h2>Что прислать для расчёта</h2><ol>${page.requestChecklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol><p><a href="tel:${phoneMatch[1]}">Позвонить для предварительного расчёта</a></p></section>`
     : "";
@@ -255,7 +274,7 @@ function staticSnapshot(page) {
   }).replaceAll("<", "\\u003c");
 
   const faqTitle = isGuide ? "Частые вопросы" : "Вопросы перед заказом или расчётом";
-  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${plasterFirstAnswer}${twoStageCalculatorLinks}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
+  return `<div id="root" data-prerendered="true"><main><article><p>${escapeHtml(page.eyebrow)}</p><h1>${escapeHtml(page.h1)}</h1><p>${escapeHtml(page.lead)}</p>${availabilityNotice}${plasterFirstAnswer}${twoStageCalculatorLinks}${calculatorLink}${plasterCalculatorLink}${saunaChoice.first}${operation.first}${offer.first}<ul>${points}</ul>${serviceBlock}${saunaChoice.panel}${operation.panel}${offer.panel}${plasterCta}${comparison}${screedVisual}${repairVisual}${plasterVisual}${methodComparison}${detailedSections}${printLink}${guideLinks}${repairGuideLinks}${serviceGuideLink}${screedServiceLink}${plasterServiceLink}${materialServiceLink}<section><h2>${faqTitle}</h2>${faq}</section><p><a href="${BASE_PATH}">Сила Леса — главная</a></p></article></main><script type="application/ld+json">${jsonLd}</script><script type="application/ld+json">${faqLd}</script></div>`;
 }
 
 function servicesSnapshot() {
@@ -317,6 +336,10 @@ for (const page of pages) {
     description: page.description,
     canonical,
   });
+  const offer = page.kind === "service" ? offerForSlug(page.slug) : null;
+  if (offer?.status === "paused") {
+    html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
+  }
   html = html.replace(/<div id="root"><\/div>/i, staticSnapshot(page));
 
   const dir = path.join(DIST, page.slug);
@@ -421,13 +444,16 @@ for (const page of pages.filter((entry) => entry.productId)) {
     const slug = code ? `brief/${code}` : "brief";
     const canonical = `${SITE_URL}${slug}/`;
     const title = `${offer.title} в Омске — отправить задачу | Сила Леса`;
-    const description = code
-      ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем выберите звонок или MAX и подготовьте обращение.`
+    const disabled = Boolean(code) && offerIsPaused(code);
+    const description = disabled ? `Новые обращения по направлению «${offer.title}» временно приостановлены.`
+      : code ? `Короткая форма по направлению «${offer.title}» в Омске: укажите объект, объём и срок, затем выберите звонок или MAX и подготовьте обращение.`
       : "Выберите строительные работы, укажите данные объекта и выберите звонок или MAX. Без регистрации и отправки данных в фоне.";
     let html = applyPageMeta(template, { title, description, canonical });
     html = html.replace(/<meta name="robots" content="index, follow" \/>/i, '<meta name="robots" content="noindex, follow" />');
     const maxLink = maxProfileUrl;
-    const snapshot = `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${maxLink}">Написать в MAX</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
+    const snapshot = disabled
+      ? `<div id="root" data-prerendered="true"><main><h1>${escapeHtml(offer.title)} — приём обращений приостановлен</h1><p>Новые обращения по этой услуге временно не принимаются.</p><p><a href="${SITE_URL}services/">Другие строительные работы</a></p></main></div>`
+      : `<div id="root" data-prerendered="true"><main style="max-width:740px;margin:60px auto;padding:24px;color:#fff"><p>СИЛА ЛЕСА · Омск</p><h1>${escapeHtml(offer.title)} в Омске</h1><p>${escapeHtml(offer.subtitle)}</p><p>Для предварительной оценки уточним объём, место и условия объекта. Это не автоматическая смета и не бронирование бригады.</p><p><a href="${maxLink}">Написать в MAX</a> · <a href="tel:+79136884533">Позвонить</a> · <a href="${SITE_URL}services/">Все направления</a></p></main></div>`;
     html = html.replace(/<div id="root"><\/div>/i, snapshot);
     const targetDir = path.join(DIST, slug);
     await fs.mkdir(targetDir, { recursive: true });
@@ -454,15 +480,16 @@ for (const page of pages.filter((entry) => entry.productId)) {
   await fs.writeFile(path.join(DIST, "404.html"), notFoundHtml, "utf8");
 }
 
-const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`, `${SITE_URL}${plasterCalculatorPage.slug}/`];
+const sitemapUrls = [SITE_URL, `${SITE_URL}${servicesHub.slug}/`, ...pages.filter((page) => !(page.kind === "service" && offerForSlug(page.slug)?.status === "paused")).map((page) => `${SITE_URL}${page.slug}/`), `${SITE_URL}${calculatorPage.slug}/`, `${SITE_URL}${plasterCalculatorPage.slug}/`];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapUrls
   .map((url) => `  <url><loc>${url}</loc></url>`)
   .join("\n")}\n</urlset>\n`;
 await fs.writeFile(path.join(DIST, "sitemap.xml"), sitemap, "utf8");
+await fs.writeFile(path.join(DIST, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}sitemap.xml\n`, "utf8");
 
 // Optional machine-readable index for AI tools that choose to consume llms.txt.
 // It is generated from the same source registry so it cannot silently drift from the site.
-const pageList = pages
+const pageList = pages.filter((page) => !(page.kind === "service" && offerForSlug(page.slug)?.status === "paused"))
   .map((page) => `- [${page.h1}](${SITE_URL}${page.slug}/): ${page.description}`)
   .join("\n");
 const llms = `# Сила Леса

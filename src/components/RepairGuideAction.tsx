@@ -1,7 +1,8 @@
+import { SITE_URL } from "../config/site";
 import { contactDraftUrl } from "../data/products";
 import { track } from "../lib/utils";
 
-const SITE = "https://conradipui-glitch.github.io/silalesa/";
+const SITE = SITE_URL;
 
 type Props = {
   guide: "p02" | "s01" | "s04";

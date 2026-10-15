@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { SITE_URL } from "../config/site";
+import { useMemo, useRef, useState } from "react";
 import {
   calculatePlaster, describePlasterEstimate, initialPlasterMaterial, initialPlasterRooms,
   MAX_PLASTER_OPENINGS, MAX_PLASTER_ROOMS, PLASTER_START_PRICE, plasterNumber,
@@ -60,9 +61,18 @@ export function PlasterCalculator({ compact = false }: Props) {
   const [rooms, setRooms] = useState<PlasterRoom[]>(() =>
     typeof window === "undefined" ? initialPlasterRooms : sharedRooms() ?? initialPlasterRooms);
   const [material, setMaterial] = useState<PlasterMaterial>(() => typeof window === "undefined" ? initialPlasterMaterial : sharedMaterial() ?? initialPlasterMaterial);
-  const [copied, setCopied] = useState<"report" | "link" | null>(null);
+  const [copied, setCopied] = useState<"report" | "link" | "technical" | null>(null);
+  const hasInteracted = useRef(false);
   const result = useMemo(() => calculatePlaster(rooms, material), [rooms, material]);
   const summary = useMemo(() => describePlasterEstimate(rooms, material), [rooms, material]);
+  const technicalBrief = useMemo(() => [
+    "ТЕХНИЧЕСКАЯ КАРТОЧКА · ШТУКАТУРКА СТЕН · ОМСК",
+    "Предварительные данные, не готовая смета. Без адреса, имён и контактов.",
+    ...rooms.map((room, i) => `Помещение №${i + 1}: ${plasterNumber(room.length, 2)} × ${plasterNumber(room.width, 2)} м; высота ${plasterNumber(room.height, 2)} м; слой ${plasterNumber(room.thickness, 0)} мм; проёмов ${room.openings.reduce((sum, opening) => sum + opening.count, 0)}.`),
+    result.valid ? `Площадь без проёмов: ${plasterNumber(result.netArea, 2)} м²; объём: ${plasterNumber(result.volume, 4)} м³; ориентир работ: от ${plasterNumber(result.budgetFrom, 0)} ₽.` : "Проверьте параметры расчёта.",
+    material.enabled && result.materialValid && result.bags != null ? `По заявленным данным с упаковки: ${result.bags} мешков. Уточнить материал и норму расхода.` : "Расход материалов зависит от выбранной смеси и фактической геометрии.",
+    "Уточнить у исполнителя: материал основания, откосы, доступ, подготовку, качество поверхности и состав работ.",
+  ].join("\n"), [rooms, material, result]);
 
   function updateRoom(id: number, patch: Partial<PlasterRoom>) {
     setCopied(null);
@@ -71,15 +81,16 @@ export function PlasterCalculator({ compact = false }: Props) {
   function updateOpening(room: PlasterRoom, openingId: number, patch: Partial<PlasterOpening>) {
     updateRoom(room.id, { openings: room.openings.map((opening) => opening.id === openingId ? { ...opening, ...patch } : opening) });
   }
-  async function copy(text: string, kind: "report" | "link") {
+  async function copy(text: string, kind: "report" | "link" | "technical") {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(kind);
       track("cta_click", { type: `plaster_calculator_copy_${kind}`, where: "plaster-calculator" });
+      if (kind === "technical") track("calc_complete", { type: "plaster", action: "copy_technical" });
     } catch { setCopied(null); }
   }
   function sharedLink() {
-    const u = new URL("kalkulyator-shtukaturki-sten/", "https://conradipui-glitch.github.io/silalesa/");
+    const u = new URL("kalkulyator-shtukaturki-sten/", SITE_URL);
     u.searchParams.set("walls", JSON.stringify(rooms.map(({ name, length, width, height, thickness, openings }) => ({
       name, length, width, height, thickness,
       openings: openings.map(({ label, width: openingWidth, height: openingHeight, count }) => ({ label, width: openingWidth, height: openingHeight, count })),
@@ -89,7 +100,7 @@ export function PlasterCalculator({ compact = false }: Props) {
   }
   const invalid = !result.valid;
   return (
-    <div data-qa="plaster-calculator" className="overflow-hidden rounded-[28px] border border-cream-50/15 bg-bark-900 text-cream-50 shadow-2xl">
+    <div data-qa="plaster-calculator" onChangeCapture={() => { if (!hasInteracted.current) { hasInteracted.current = true; track("calc_interact", { type: "plaster" }); } }} className="overflow-hidden rounded-[28px] border border-cream-50/15 bg-bark-900 text-cream-50 shadow-2xl">
       <div className="border-b border-cream-50/10 bg-gradient-to-r from-bark-900 via-bark-800 to-bark-900 px-4 py-6 sm:px-7 sm:py-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cedar-300">Строительный калькулятор · Омск</p>
         <h2 className="mt-3 font-display text-2xl leading-tight sm:text-3xl">{compact ? "Сколько квадратов под штукатурку?" : "Ваши стены — в цифрах"}</h2>
@@ -239,7 +250,7 @@ export function PlasterCalculator({ compact = false }: Props) {
             <div className="mt-6 space-y-3">
               <a data-qa="plaster-contact" href={invalid ? undefined : contactDraftUrl(summary)}
                 aria-disabled={invalid} tabIndex={invalid ? -1 : undefined} target="_blank" rel="noopener noreferrer"
-                onClick={(event) => { if (invalid) { event.preventDefault(); return; } track("cta_click", { type: "plaster_calculator_contact_choice", where: "plaster-calculator", rooms: rooms.length }); }}
+                onClick={(event) => { if (invalid) { event.preventDefault(); return; } track("cta_click", { type: "plaster_calculator_contact_choice", where: "plaster-calculator", rooms: rooms.length }); track("calc_complete", { type: "plaster", action: "contact" }); }}
                 className={`flex min-h-12 w-full items-center justify-center rounded-full bg-cedar-400 px-5 py-3 text-center font-semibold text-bark-950 transition hover:bg-cedar-300 ${invalid ? "pointer-events-none opacity-40" : ""}`}>
                 Обсудить расчёт с мастером ↗
               </a>
@@ -247,7 +258,13 @@ export function PlasterCalculator({ compact = false }: Props) {
                 <button type="button" disabled={invalid} className={outlineButton} onClick={() => { void copy(summary, "report"); }}>Скопировать итог</button>
                 <button type="button" disabled={invalid} className={outlineButton} onClick={() => { void copy(sharedLink(), "link"); }}>Ссылка на расчёт</button>
               </div>
-              <p role="status" aria-live="polite" className="min-h-5 text-center text-xs text-cedar-300">{copied === "report" ? "Расчёт скопирован" : copied === "link" ? "Ссылка скопирована" : ""}</p>
+              <details className="rounded-2xl border border-cream-50/15 bg-bark-800 p-4" data-qa="plaster-technical-brief">
+                <summary className="cursor-pointer font-semibold text-cream-50">Техническая карточка без персональных данных</summary>
+                <p className="mt-2 text-xs leading-relaxed text-cream-300">Можно передать профильному исполнителю для первичной оценки, без адреса и контактов.</p>
+                <pre className="my-3 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-bark-950 p-3 text-xs leading-relaxed text-cream-200">{technicalBrief}</pre>
+                <button type="button" disabled={invalid} className={outlineButton} onClick={() => { void copy(technicalBrief, "technical"); }}>Скопировать карточку для исполнителя</button>
+              </details>
+              <p role="status" aria-live="polite" className="min-h-5 text-center text-xs text-cedar-300">{copied === "report" ? "Расчёт скопирован" : copied === "technical" ? "Обезличенная карточка скопирована" : copied === "link" ? "Ссылка скопирована" : ""}</p>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-cream-300/75">Вычет относится только к площади стены: откосы и сложные поверхности рассчитывают отдельно. Результат ориентировочный, конструкцию и окончательную смету согласуют по объекту.</p>
           </div>

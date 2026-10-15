@@ -1,0 +1,3 @@
+# Apache-only: prerendered SEO pages have real /slug/index.html files. Do not rewrite 404s to a false homepage.
+DirectoryIndex index.html
+ErrorDocument 404 /404.html

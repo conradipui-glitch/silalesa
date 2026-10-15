@@ -2,6 +2,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const root = process.cwd();
+const registry = JSON.parse(await fs.readFile(path.join(root, "src/data/commercialRegistry.json"), "utf8"));
+const pricingBySlug = new Map([...registry.services, ...registry.standalonePages]
+  .filter((service) => service.landingSlug && service.priceFrom != null && service.priceUnit)
+  .map((service) => [service.landingSlug, `от ${Number(service.priceFrom).toLocaleString("ru-RU").replace(/\s/g, " ")} ₽/${service.priceUnit}`]));
 const seoData = [
   'seo-pages.json',
   'seo-page-guides.json',
@@ -28,7 +32,7 @@ for (const override of overrides) overrideMap.set(override.slug, {...overrideMap
 // The construction branch publishes services and related guides only.
 const pages = originals
   .filter(page => page.kind === 'service' || (page.kind === 'guide' && !page.slug.startsWith('guides/bani/')))
-  .map(page => ({...page, ...overrideMap.get(page.slug)}));
+  .map(page => ({...page, ...overrideMap.get(page.slug), ...(pricingBySlug.has(page.slug) ? {priceLabel: pricingBySlug.get(page.slug)} : {})}));
 const slugs = pages.map(page => page.slug);
 if (slugs.length !== new Set(slugs).size) throw new Error('Duplicate canonical SEO slugs');
 const landingByProductId = {};

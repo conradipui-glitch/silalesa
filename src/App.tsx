@@ -1,3 +1,4 @@
+import { SITE_URL } from "./config/site";
 import { lazy, Suspense, useEffect } from "react";
 import { ContactChoice } from "./components/ContactChoice";
 import { ConstructionFooter, ConstructionHeader, ConstructionMobileBar } from "./components/ConstructionChrome";
@@ -15,7 +16,6 @@ const ScreedCalculatorPage = lazy(() => import("./pages/ScreedCalculatorPage").t
 const PlasterCalculatorPage = lazy(() => import("./pages/PlasterCalculatorPage").then((m) => ({ default: m.PlasterCalculatorPage })));
 const ForestLeadAssistant = lazy(() => import("./components/ForestLeadAssistant").then((m) => ({ default: m.ForestLeadAssistant })));
 
-const SITE_URL = "https://conradipui-glitch.github.io/silalesa/";
 const SERVICES_URL = `${SITE_URL}services/`;
 const SERVICES_TITLE = "Строительные работы в Омске — Сила Леса";
 const SERVICES_DESCRIPTION =

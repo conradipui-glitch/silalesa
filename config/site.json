@@ -1,0 +1,10 @@
+{
+  "preview": {
+    "origin": "https://conradipui-glitch.github.io",
+    "basePath": "/silalesa/"
+  },
+  "production": {
+    "basePath": "/",
+    "note": "Requires SITE_ORIGIN=https://client-owned-domain.ru; no default production domain is assumed"
+  }
+}

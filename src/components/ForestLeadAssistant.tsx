@@ -1,3 +1,5 @@
+import { availableCommercialServices } from "../data/commercialRegistry";
+import { SITE_URL } from "../config/site";
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { company, openContactChoice } from "../data/products";
 import { track } from "../lib/utils";
@@ -9,7 +11,11 @@ const mascotPosition: Record<MascotPose, string> = { wave: "0% 0%", tip: "100% 0
 function MascotSprite({ pose, className = "" }: { pose: MascotPose; className?: string }) {
   return <span aria-hidden="true" className={`block shrink-0 bg-no-repeat ${className}`} style={{ backgroundImage: `url("${visual}")`, backgroundSize: "200% 200%", backgroundPosition: mascotPosition[pose] }} />;
 }
-const services = ["Строительные работы", "Механизированная штукатурка", "Полусухая стяжка", "Кладочные работы", "Демонтажные работы", "Монолитные работы", "Кровля и фасады", "Другой вид работ"];
+const services = ["Строительные работы", "Механизированная штукатурка", "Полусухая стяжка", "Кладочные работы", "Демонтажные работы", "Монолитные работы", "Кровля и фасады", "Другой вид работ"]
+  .filter((service) => ["Строительные работы", "Другой вид работ"].includes(service)
+    || (service === "Кровля и фасады"
+      ? availableCommercialServices.some((item) => ["roofing", "facades"].includes(item.id))
+      : availableCommercialServices.some((item) => item.title === service)));
 const fieldStyle = "mt-1.5 block w-full min-w-0 rounded-xl border border-bark-700/20 bg-white px-3.5 py-3 text-base text-bark-950 placeholder:text-bark-500/70 focus-visible:border-moss-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-moss-500";
 const buttonStyle = "min-h-11 rounded-xl border border-bark-700/20 px-4 py-2 text-sm font-medium text-bark-950 transition hover:bg-cream-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-moss-500";
 
@@ -40,7 +46,10 @@ export function ForestLeadAssistant({ source }: Props) {
   const titleId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [service, setService] = useState(() => suggestedService(source));
+  const [service, setService] = useState(() => {
+    const suggestion = suggestedService(source);
+    return services.includes(suggestion) ? suggestion : "Строительные работы";
+  });
   const [notes, setNotes] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -54,7 +63,7 @@ export function ForestLeadAssistant({ source }: Props) {
     try {
       const u = new URL(source, window.location.origin);
       return u.origin + u.pathname;
-    } catch { return "https://conradipui-glitch.github.io/silalesa/"; }
+    } catch { return SITE_URL; }
   }, [source]);
 
   const message = useMemo(() => buildForestLeadMessage(service, notes, phone, email, url), [service, notes, phone, email, url]);

@@ -1,3 +1,4 @@
+import { SITE_URL } from "../config/site";
 import { ArrowIcon, LinkButton } from "./Brand";
 import { contactDraftUrl } from "../data/products";
 import { track } from "../lib/utils";
@@ -5,7 +6,7 @@ import { Link } from "../lib/router";
 
 const guideSlug = "guides/remont/mehanizirovannaya-ili-ruchnaya-shtukaturka";
 const serviceUrl = "/mehanizirovannaya-shtukaturka-omsk/";
-const contactText = `Здравствуйте! Интересует механизированная штукатурка. Хочу обсудить стоимость работ; площадь и фотографии стен пришлю в чат. Страница: https://conradipui-glitch.github.io/silalesa/${guideSlug}/`;
+const contactText = `Здравствуйте! Интересует механизированная штукатурка. Хочу обсудить стоимость работ; площадь и фотографии стен пришлю в чат. Страница: ${SITE_URL}${guideSlug}/`;
 
 const differences = [
   {
