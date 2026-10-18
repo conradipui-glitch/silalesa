@@ -248,7 +248,7 @@ export function ConstructionFooter() {
 
       <div className="mx-auto mt-10 flex max-w-7xl flex-col justify-between gap-3 border-t border-cream-50/8 px-4 pt-6 text-xs text-cream-300/80 sm:flex-row sm:px-6 lg:px-8">
         <span>© {new Date().getFullYear()} «Сила Леса», Омск.</span>
-        <span>Стоимость и сроки рассчитываются после уточнения объёма, проекта и условий объекта.</span>
+        <span className="max-w-2xl">Цены и расчёты на сайте предварительные. Состав работ, итоговая стоимость и сроки согласовываются по объекту и фиксируются в договоре.</span>
       </div>
     </footer>
   );

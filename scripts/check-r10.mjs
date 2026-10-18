@@ -15,7 +15,7 @@ const sourceFiles = [
 const pages = sourceFiles.flatMap((file) => JSON.parse(read(`src/data/${file}`)));
 const overrideFiles = [
   'seo-page-overrides.json', 'seo-page-overrides-next.json', 'seo-page-overrides-r3.json', 'seo-page-overrides-r4.json',
-  'seo-page-overrides-r5.json', 'seo-page-overrides-r6.json', 'seo-page-overrides-r7.json',
+  'seo-page-overrides-r5.json', 'seo-page-overrides-r6.json', 'seo-page-overrides-r7.json', 'seo-service-copy-2026.json',
 ];
 const overrides = new Map();
 for (const file of overrideFiles) for (const page of JSON.parse(read(`src/data/${file}`))) {

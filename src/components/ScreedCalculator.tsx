@@ -207,6 +207,7 @@ export function ScreedCalculator({ compact = false }: Props) {
               </ul>
             </div>}
             <div className="mt-6 space-y-3">
+              {!missing && <p className="text-sm leading-relaxed text-cream-200/85">Расчёт готов: это предварительный ориентир, а не окончательная смета. Уточнить стоимость можно после обсуждения условий объекта.</p>}
               <a data-qa="calculator-contact" href={missing ? undefined : contactDraftUrl(report)} aria-disabled={missing}
                 tabIndex={missing ? -1 : undefined} target="_blank" rel="noopener noreferrer"
                 onClick={(event) => { if (missing) { event.preventDefault(); return; } track("cta_click", { type: "calculator_contact_choice", where: "screed-calculator", rooms: rooms.length }); track("calc_complete", { type: "screed", action: "contact" }); }}
@@ -218,8 +219,8 @@ export function ScreedCalculator({ compact = false }: Props) {
                 <button type="button" disabled={missing} className={secondaryButton+" disabled:opacity-40"} onClick={() => { void copy(shareLink(), "link"); }}>Ссылка на расчёт</button>
               </div>
               <details className="rounded-2xl border border-cream-50/15 bg-bark-800 p-4" data-qa="screed-technical-brief">
-                <summary className="cursor-pointer font-semibold text-cream-50">Техническая карточка без персональных данных</summary>
-                <p className="mt-2 text-xs leading-relaxed text-cream-300">Для предварительного обсуждения с исполнителем. Здесь только параметры работ; адрес и контакты не передаются.</p>
+                <summary className="cursor-pointer font-semibold text-cream-50">Карточка для предварительной оценки исполнителем</summary>
+                <p className="mt-2 text-xs leading-relaxed text-cream-300">Размеры и объёмы без адреса, названий помещений и контактов. Скопируйте карточку, если хотите передать параметры исполнителю.</p>
                 <pre className="my-3 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-bark-950 p-3 text-xs leading-relaxed text-cream-200">{technicalBrief}</pre>
                 <button type="button" disabled={missing} className={secondaryButton} onClick={() => { void copy(technicalBrief, "technical"); }}>Скопировать карточку для исполнителя</button>
               </details>

@@ -98,7 +98,7 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                     <p className="mt-3 flex-1 text-base leading-relaxed text-cream-300/80">{service.text}</p>
                     {servicePriceLabel(service) && <p className="mt-3 font-semibold text-cedar-300">{servicePriceLabel(service)} <span className="text-xs font-normal text-cream-300">· предварительный ориентир</span></p>}
                     <p data-qa="service-request-hint" className="mt-4 border-t border-cream-50/10 pt-4 text-base leading-relaxed text-cream-300/85">
-                      <span className="font-medium text-cream-50">Для первого расчёта:</span> {service.requestHint}.
+                      <span className="font-medium text-cream-50">{service.status === "primary" ? "Для первого расчёта:" : "Для обсуждения возможности:"}</span> {service.requestHint}.
                     </p>
                     {guidePath && (
                       <Link to={guidePath} data-qa="wave3-catalogue-guide"
@@ -123,10 +123,10 @@ function ServiceGrid({ standalone = false }: { standalone?: boolean }) {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex min-h-11 w-full items-center justify-between gap-3 rounded-md text-sm font-medium text-cedar-300 transition-colors hover:text-cedar-200"
-                          aria-label={`Обсудить работы: ${service.title}`}
+                          aria-label={`Уточнить возможность выполнения: ${service.title}`}
                           onClick={() => track("cta_click", { type: "contact_choice", service: service.title, where: standalone ? "services-page" : "services-grid" })}
                         >
-                          Обсудить работы <ArrowIcon />
+                          Уточнить возможность <ArrowIcon />
                         </a>
                       )}
                     </div>

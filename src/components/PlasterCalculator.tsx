@@ -248,6 +248,7 @@ export function PlasterCalculator({ compact = false }: Props) {
               </li>)}</ul>
             </div>}
             <div className="mt-6 space-y-3">
+              {!invalid && <p className="text-sm leading-relaxed text-cream-200/85">Это предварительный расчёт по вашим размерам. Окончательная стоимость зависит от основания, толщины слоя и согласованного состава работ.</p>}
               <a data-qa="plaster-contact" href={invalid ? undefined : contactDraftUrl(summary)}
                 aria-disabled={invalid} tabIndex={invalid ? -1 : undefined} target="_blank" rel="noopener noreferrer"
                 onClick={(event) => { if (invalid) { event.preventDefault(); return; } track("cta_click", { type: "plaster_calculator_contact_choice", where: "plaster-calculator", rooms: rooms.length }); track("calc_complete", { type: "plaster", action: "contact" }); }}
@@ -259,8 +260,8 @@ export function PlasterCalculator({ compact = false }: Props) {
                 <button type="button" disabled={invalid} className={outlineButton} onClick={() => { void copy(sharedLink(), "link"); }}>Ссылка на расчёт</button>
               </div>
               <details className="rounded-2xl border border-cream-50/15 bg-bark-800 p-4" data-qa="plaster-technical-brief">
-                <summary className="cursor-pointer font-semibold text-cream-50">Техническая карточка без персональных данных</summary>
-                <p className="mt-2 text-xs leading-relaxed text-cream-300">Можно передать профильному исполнителю для первичной оценки, без адреса и контактов.</p>
+                <summary className="cursor-pointer font-semibold text-cream-50">Карточка для предварительной оценки исполнителем</summary>
+                <p className="mt-2 text-xs leading-relaxed text-cream-300">Размеры и объём без названий помещений, адреса и контактов. Скопируйте карточку, чтобы обсудить исходные данные с исполнителем.</p>
                 <pre className="my-3 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-bark-950 p-3 text-xs leading-relaxed text-cream-200">{technicalBrief}</pre>
                 <button type="button" disabled={invalid} className={outlineButton} onClick={() => { void copy(technicalBrief, "technical"); }}>Скопировать карточку для исполнителя</button>
               </details>

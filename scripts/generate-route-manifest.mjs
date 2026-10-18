@@ -23,6 +23,7 @@ const overrideData = [
   'seo-page-overrides-r5.json',
   'seo-page-overrides-r6.json',
   'seo-page-overrides-r7.json',
+  'seo-service-copy-2026.json',
 ];
 const read = async (name) => JSON.parse(await fs.readFile(path.join(root, 'src/data', name), 'utf8'));
 const originals = (await Promise.all(seoData.map(read))).flat();
