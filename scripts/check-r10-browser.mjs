@@ -76,7 +76,7 @@ async function checkServiceDiscovery(page, label) {
   const targets = await navLinks.evaluateAll((els) => els.map((el) => el.getAttribute('href')));
   assert.deepEqual(targets, ['#services-general', '#services-structure', '#services-finishing', '#services-special'], `${label}: group navigation uses real in-page anchors`);
 
-  const serviceLinks = page.locator('#services [data-qa="service-group"] article a[aria-label^="Обсудить работы:"], #services [data-qa="service-group"] article a[aria-label^="Подробнее об услуге"]');
+  const serviceLinks = page.locator('#services [data-qa="service-group"] article a[aria-label^="Уточнить возможность выполнения:"], #services [data-qa="service-group"] article a[aria-label^="Подробнее об услуге"]');
   assert.equal(await serviceLinks.count(), 14, `${label}: every construction direction has an action`);
   const wave3Guides = page.locator('#services [data-qa="wave3-catalogue-guide"]');
   assert.equal(await wave3Guides.count(), 2, `${label}: masonry and demolition offer additional relevant guides without replacing 14 service actions`);
@@ -92,7 +92,7 @@ async function checkServiceDiscovery(page, label) {
   const hints = page.locator('#services [data-qa="service-request-hint"]');
   assert.equal(await hints.count(), 14, `${label}: all construction directions show estimate preparation hints`);
   const hintText = await hints.allInnerTexts();
-  assert.ok(hintText.every((item) => item.startsWith("Для первого расчёта:") && item.length > 40), `${label}: estimate hints are clear, nonempty text`);
+  assert.ok(hintText.every((item) => (item.startsWith("Для первого расчёта:") || item.startsWith("Для обсуждения возможности:")) && item.length > 40), `${label}: estimate hints are clear, nonempty text`);
   for (const [serviceName, keywords] of Object.entries({
     "Кровельные работы": ["монтаж или ремонт", "покрытие"],
     "Фасадные работы": ["материал стен", "утепления"],
