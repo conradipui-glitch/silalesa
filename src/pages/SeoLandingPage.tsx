@@ -567,8 +567,8 @@ export function SeoLandingPage({ slug }: { slug: string }) {
         </section>
         </details>
       )}
-      {isGuide && !isOperationalGuide && page.sections && page.sections.length > 0 && (
-        <section className="bg-cream-50 py-16 text-bark-950 sm:py-20" aria-label="Подробный разбор вариантов">
+      {(isService || (isGuide && !isOperationalGuide)) && page.sections && page.sections.length > 0 && (
+        <section className="bg-cream-50 py-16 text-bark-950 sm:py-20" aria-label={isService ? "Что влияет на расчёт услуги" : "Подробный разбор вариантов"}>
           <div className="mx-auto max-w-5xl space-y-12 px-4 sm:px-6 lg:px-8">
             {page.sections.map((section) => (
               <article key={section.heading} className="border-l-2 border-cedar-500 pl-5 sm:pl-8">

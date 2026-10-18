@@ -13,6 +13,7 @@ import rawR4Overrides from "./seo-page-overrides-r4.json";
 import rawR5Overrides from "./seo-page-overrides-r5.json";
 import rawR6Overrides from "./seo-page-overrides-r6.json";
 import rawR7Overrides from "./seo-page-overrides-r7.json";
+import rawServiceCopy from "./seo-service-copy-2026.json";
 
 export type SeoFaq = [question: string, answer: string];
 export type SeoGuideSection = { heading: string; paragraphs: string[]; bullets?: string[] };
@@ -66,7 +67,7 @@ export type SeoPage = {
 type SeoPageOverride = { slug: string } & Partial<Omit<SeoPage, "slug">>;
 
 const overrideBySlug = new Map<string, SeoPageOverride>();
-for (const override of [...rawOverrides, ...rawNextOverrides, ...rawR3Overrides, ...rawR4Overrides, ...rawR5Overrides, ...rawR6Overrides, ...rawR7Overrides] as SeoPageOverride[]) {
+for (const override of [...rawOverrides, ...rawNextOverrides, ...rawR3Overrides, ...rawR4Overrides, ...rawR5Overrides, ...rawR6Overrides, ...rawR7Overrides, ...rawServiceCopy] as SeoPageOverride[]) {
   overrideBySlug.set(override.slug, { ...(overrideBySlug.get(override.slug) ?? {}), ...override });
 }
 

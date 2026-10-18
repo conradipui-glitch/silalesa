@@ -52,6 +52,7 @@ const pageOverrides = [
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r5.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r6.json"), "utf8")),
   ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-page-overrides-r7.json"), "utf8")),
+  ...JSON.parse(await fs.readFile(path.join(ROOT, "src/data/seo-service-copy-2026.json"), "utf8")),
 ];
 const overrideBySlug = new Map();
 for (const override of pageOverrides) {
@@ -161,7 +162,7 @@ function staticSnapshot(page) {
   const plasterVisual = isPlasterGuide
     ? renderPlasterFallback({ siteUrl: SITE_URL, slug: page.slug, phone: phoneMatch[1] })
     : "";
-  const sections = isGuide && page.sections
+  const sections = (isGuide || page.kind === "service") && page.sections
     ? page.sections.map((section) => `<section><h2>${escapeHtml(section.heading)}</h2>${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}${section.bullets ? `<ul>${section.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>` : ""}</section>`).join("")
     : "";
   const detailedSections = operation.hasSteps && sections ? `<details><summary>Подробные инструкции и безопасность</summary>${sections}</details>` : sections;
