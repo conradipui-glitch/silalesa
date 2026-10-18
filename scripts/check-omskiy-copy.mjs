@@ -8,6 +8,14 @@ for (const page of entries) {
   assert.ok(html.includes(`<title>${page.title}</title>`), `Static title: ${page.slug}`);
   assert.ok(html.includes(`content="${page.description}"`), `Static description: ${page.slug}`);
   for (const section of page.sections) {
+    if (!html.includes(`<h2>${section.heading}</h2>`)) {
+      console.log("SEO_COPY_DIAGNOSTIC", JSON.stringify({
+        slug: page.slug, heading: section.heading, headingIndex: html.indexOf(section.heading),
+        h2s: [...html.matchAll(/<h2[^>]*>[^<]{0,150}<\/h2>/g)].map(match => match[0]).slice(-16),
+        sections: html.includes("Как влияет") || html.includes("Какие условия"),
+        lastHtml: html.slice(-1500),
+      }));
+    }
     assert.ok(html.includes(`<h2>${section.heading}</h2>`), `Static H2: ${page.slug}`);
     assert.ok(html.includes(section.paragraphs[0]), `Useful service explanation: ${page.slug}`);
     for (const bullet of section.bullets ?? []) {
