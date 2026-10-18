@@ -2,20 +2,22 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const entries = JSON.parse(fs.readFileSync("src/data/seo-service-copy-2026.json", "utf8"));
+const registry = JSON.parse(fs.readFileSync("src/data/commercialRegistry.json", "utf8"));
+const offers = [...registry.services, ...registry.standalonePages];
 assert.equal(entries.length, 3, "Exactly three priority service pages");
 for (const page of entries) {
   const html = fs.readFileSync(`dist/${page.slug}/index.html`, "utf8");
   assert.ok(html.includes(`<title>${page.title}</title>`), `Static title: ${page.slug}`);
   assert.ok(html.includes(`content="${page.description}"`), `Static description: ${page.slug}`);
+  const service = offers.find((item) => item.landingSlug === page.slug);
+  assert.ok(service, `Registered service: ${page.slug}`);
+  if (service.status === "paused") {
+    assert.ok(html.includes("noindex, follow"), `Paused service excluded from indexing: ${page.slug}`);
+    assert.ok(html.includes("Приём новых обращений временно приостановлен"), `Paused service notice: ${page.slug}`);
+    continue;
+  }
+  assert.ok(html.includes("index, follow"), `Active service remains indexable: ${page.slug}`);
   for (const section of page.sections) {
-    if (!html.includes(`<h2>${section.heading}</h2>`)) {
-      console.log("SEO_COPY_DIAGNOSTIC", JSON.stringify({
-        slug: page.slug, heading: section.heading, headingIndex: html.indexOf(section.heading),
-        h2s: [...html.matchAll(/<h2[^>]*>[^<]{0,150}<\/h2>/g)].map(match => match[0]).slice(-16),
-        sections: html.includes("Как влияет") || html.includes("Какие условия"),
-        lastHtml: html.slice(-1500),
-      }));
-    }
     assert.ok(html.includes(`<h2>${section.heading}</h2>`), `Static H2: ${page.slug}`);
     assert.ok(html.includes(section.paragraphs[0]), `Useful service explanation: ${page.slug}`);
     for (const bullet of section.bullets ?? []) {
