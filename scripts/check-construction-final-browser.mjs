@@ -104,6 +104,18 @@ try {
         assert.ok((await page.locator('[data-qa="plaster-bags"]').innerText()).includes('21 мешок'), 'Shared URL restores package configuration');
 
       }
+      if (pathname === '/silalesa/') {
+        const links = page.locator('[data-qa="hero-calculator-links"] a');
+        assert.equal(await links.count(), 2, 'Both primary calculators are discoverable directly after the home CTA');
+        const destinations = await links.evaluateAll((elements) => elements.map((element) => new URL(element.href).pathname));
+        assert.deepEqual(destinations, [
+          '/silalesa/kalkulyator-shtukaturki-sten/',
+          '/silalesa/kalkulyator-styazhki-pola/',
+        ], 'Home shortcuts point to canonical working calculators');
+        const targetHeights = await links.evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
+        assert.ok(targetHeights.every((height) => height >= 44), 'Home calculator shortcuts are touch-friendly at ' + width + 'px');
+        assert.ok(await links.first().isVisible() && await links.last().isVisible(), 'Home shortcuts remain visible at ' + width + 'px');
+      }
       const guideToolPaths = {
         "/silalesa/guides/remont/shtukaturka-ili-styazhka-chto-snachala/": ["kalkulyator-shtukaturki-sten", "kalkulyator-styazhki-pola"],
         "/silalesa/guides/remont/polusuhaya-ili-mokraya-styazhka/": ["kalkulyator-styazhki-pola"],
@@ -127,6 +139,17 @@ try {
       }
       assert.deepEqual(errors, [], 'No JavaScript errors: ' + pathname);
       checked += 1;
+    }
+
+    // Real home-to-calculator navigation, in both desktop and mobile layouts.
+    for (const [shortcut, slug, selector] of [
+      ['hero-calculator-plaster', 'kalkulyator-shtukaturki-sten', 'plaster-calculator'],
+      ['hero-calculator-screed', 'kalkulyator-styazhki-pola', 'screed-calculator'],
+    ]) {
+      await page.goto(origin + '/silalesa/', { waitUntil: 'networkidle' });
+      await page.locator('[data-qa="' + shortcut + '"]').click();
+      assert.equal(new URL(page.url()).pathname, '/silalesa/' + slug + '/', 'Home shortcut must navigate to ' + slug);
+      await page.locator('[data-qa="' + selector + '"]').waitFor({ state: 'visible' });
     }
 
     // Consent-based mascot-assisted draft remains local until the visitor acts.

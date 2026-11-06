@@ -209,6 +209,38 @@ export function ConstructionHome() {
                 </LinkButton>
               </div>
 
+              {(!offer.code || offer.code === "plaster" || offer.code === "screed") && (
+                <div className="reveal mt-6" data-qa="hero-calculator-shortcuts">
+                  <p className="mb-3 text-xs font-medium uppercase tracking-[0.15em] text-cream-300/80">
+                    Рассчитать отделочные работы перед обращением
+                  </p>
+                  <nav className="grid gap-3 sm:grid-cols-2" aria-label="Быстрый расчёт отделочных работ" data-qa="hero-calculator-links">
+                    {(!offer.code || offer.code === "plaster") && (
+                      <Link
+                        to="/kalkulyator-shtukaturki-sten/"
+                        data-qa="hero-calculator-plaster"
+                        className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-cream-50/15 bg-cream-50/[0.05] px-4 py-3 text-cream-50 transition-colors hover:border-cedar-300/60 hover:bg-cream-50/10 focus-visible:outline-offset-2"
+                        onClick={() => track("cta_click", { type: "plaster_calculator", where: "construction-hero", offerMode: offer.mode })}
+                      >
+                        <span><strong className="block text-sm font-semibold">Штукатурка стен</strong><span className="mt-1 block text-xs text-cream-300/85">Площадь и ориентир стоимости</span></span>
+                        <ArrowIcon className="shrink-0 text-cedar-300 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    )}
+                    {(!offer.code || offer.code === "screed") && (
+                      <Link
+                        to="/kalkulyator-styazhki-pola/"
+                        data-qa="hero-calculator-screed"
+                        className="group flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-cream-50/15 bg-cream-50/[0.05] px-4 py-3 text-cream-50 transition-colors hover:border-cedar-300/60 hover:bg-cream-50/10 focus-visible:outline-offset-2"
+                        onClick={() => track("cta_click", { type: "screed_calculator", where: "construction-hero", offerMode: offer.mode })}
+                      >
+                        <span><strong className="block text-sm font-semibold">Стяжка пола</strong><span className="mt-1 block text-xs text-cream-300/85">Толщина, объём и ориентир</span></span>
+                        <ArrowIcon className="shrink-0 text-cedar-300 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                    )}
+                  </nav>
+                </div>
+              )}
+
               {offer.code && (
                 <p className="mt-5 max-w-xl text-sm leading-relaxed text-cream-300/80" data-qa="offer-context-note">
                   Вы перешли по ссылке на конкретное направление. Другие строительные работы компании доступны в общем каталоге ниже.
